@@ -6,22 +6,22 @@ import { useState, useEffect } from "react";
 export default function Home() {
   // Team names - updated to include all 16 teams
   const teams = [
-    "Immortals",
-    "InTraCate",
-    "Lotus",
-    "Malfeasance",
-    "Surge", // Changed from "Mambas" to "Surge"
-    "MNML",
-    "Panthers",
-    "Sublunary",
-    "Kingdom", // Changed from "The Kingdom" to "Kingdom"
-    "Valkyries",
-    "Wizards",
     "Acid Esports",
     "Alchemy Esports",
     "Archangels",
     "Aviators",
-    "Fallen Angels"
+    "Fallen Angels",
+    "Immortals",
+    "InTraCate",
+    "Kingdom",
+    "Lotus",
+    "Malfeasance",
+    "MNML",
+    "Panthers",
+    "Sublunary",
+    "Surge",
+    "Valkyries",
+    "Wizards"
   ];
   
   // State to control video modal
@@ -73,16 +73,16 @@ export default function Home() {
               Home
             </Link>
             <Link
-              href="/standings"
-              className="font-medium hover:text-blue-300"
-            >
-              Standings
-            </Link>
-            <Link
               href="/schedules"
               className="font-medium hover:text-blue-300"
             >
               Schedules
+            </Link>
+            <Link
+              href="/standings"
+              className="font-medium hover:text-blue-300"
+            >
+              Standings
             </Link>
             <Link
               href="/rankings"
@@ -238,9 +238,11 @@ export default function Home() {
             Our Teams For the Season
           </span>
         </h2>
+        {/* Update the teams section to link to team pages */}
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-4 gap-6">
           {teams.map((team) => (
-            <div
+            <Link
+              href={`/teams/${encodeURIComponent(team)}`}
               key={team}
               className="group bg-gradient-to-b from-black/40 to-black/70 backdrop-blur-sm p-6 rounded-lg border border-white/10 hover:border-blue-400 transition-all transform hover:-translate-y-2 hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] duration-300 relative overflow-hidden"
             >
@@ -275,7 +277,7 @@ export default function Home() {
                 <span className="relative z-10">{team}</span>
                 <span className="absolute left-0 right-0 bottom-0 h-1 bg-gradient-to-r from-blue-500/0 via-blue-500/50 to-blue-500/0 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></span>
               </h3>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -390,11 +392,11 @@ export default function Home() {
               <Link href="/" className="hover:text-blue-300 font-medium">
                 Home
               </Link>
-              <Link href="/standings" className="hover:text-blue-300 font-medium">
-                Standings
-              </Link>
               <Link href="/schedules" className="hover:text-blue-300 font-medium">
                 Schedules
+              </Link>
+              <Link href="/standings" className="hover:text-blue-300 font-medium">
+                Standings
               </Link>
               <Link href="/rankings" className="hover:text-blue-300 font-medium">
                 Power Rankings

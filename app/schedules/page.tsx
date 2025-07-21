@@ -470,18 +470,18 @@ export default function SchedulesPage() {
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
             </Link>
             <Link
-              href="/standings"
-              className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
-            >
-              Standings
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
-            </Link>
-            <Link
               href="/schedules"
               className="font-medium text-blue-300 border-b-2 border-blue-400 relative"
             >
               Schedules
               <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>
+            </Link>
+            <Link
+              href="/standings"
+              className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
+            >
+              Standings
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
             </Link>
             <Link
               href="/rankings"
@@ -569,18 +569,18 @@ export default function SchedulesPage() {
         </div>
 
         {/* Week Sections with enhanced animation */}
-        <div className="space-y-6 mb-10 relative">
+        <div className="space-y-6 mb-10 relative perspective-1000">
           {Object.keys(currentSchedule).map((week, weekIndex) => (
             <div 
               key={week}
               className={`bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden transition-all duration-500 transform ${
                 animateItems ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
-              }`}
+              } hover:border-blue-400/30`}
               style={{ transitionDelay: `${weekIndex * 50}ms` }}
             >
               {/* Week Header - Clickable with enhanced styling */}
               <div 
-                className="px-6 py-4 bg-gradient-to-r from-blue-900/50 to-purple-900/50 flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-blue-800/50 hover:to-purple-800/50 transition-colors"
+                className="px-6 py-4 bg-gradient-to-r from-blue-900/50 to-purple-900/50 flex items-center justify-between cursor-pointer hover:bg-gradient-to-r hover:from-blue-800/60 hover:to-purple-800/60 transition-colors"
                 onClick={() => toggleWeek(week)}
               >
                 <h3 className="text-xl font-bold flex items-center">
@@ -607,74 +607,102 @@ export default function SchedulesPage() {
                   {currentSchedule[week].map((match, index) => (
                     <div 
                       key={`${week}-match-${index}`} 
-                      className="match-card bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-sm p-5 rounded-xl border border-white/10 hover:border-blue-400 transition-all transform hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] duration-300"
+                      className="match-card bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-sm p-5 rounded-xl border border-white/10 hover:border-blue-400 transition-all transform hover:-translate-y-2 hover:scale-105 hover:shadow-[0_5px_30px_rgba(59,130,246,0.5)] hover:z-10 duration-300 relative group overflow-hidden"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      {/* Match Number Badge */}
-                      <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
-                        {index + 1}
+                      {/* Team Logo Backgrounds - Only visible on hover */}
+                      <div className="absolute -left-20 -bottom-20 w-48 h-48 opacity-0 group-hover:opacity-10 transition-opacity duration-500 transform rotate-12 blur-sm">
+                        <img 
+                          src={`/logos/${match[0]}.png`} 
+                          alt="" 
+                          className="w-full h-full object-contain"
+                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        />
                       </div>
+                      <div className="absolute -right-20 -top-20 w-48 h-48 opacity-0 group-hover:opacity-10 transition-opacity duration-500 transform -rotate-12 blur-sm">
+                        <img 
+                          src={`/logos/${match[1]}.png`} 
+                          alt="" 
+                          className="w-full h-full object-contain"
+                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        />
+                      </div>
+                      
+                      {/* Animated glow on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-blue-600/0 to-purple-600/0 group-hover:from-blue-600/5 group-hover:to-purple-600/5 transition-all duration-500 rounded-xl"></div>
 
                       <div className="flex items-center justify-between relative">
                         {/* Team 1 */}
-                        <div className="flex flex-col items-center w-5/12">
+                        <div className="flex flex-col items-center w-5/12 transform group-hover:scale-105 transition-transform duration-300">
                           <div className="h-16 w-16 relative mb-3 flex items-center justify-center group">
                             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600/10 to-blue-400/10 animate-pulse-slow"></div>
-                            <div className="absolute inset-0 rounded-full bg-blue-500/5 group-hover:bg-blue-500/20 transform scale-75 group-hover:scale-100 transition-all duration-300 blur-md"></div>
-                            <img 
-                              src={`/logos/${match[0]}.png`} 
-                              alt={match[0]} 
-                              className="h-14 w-14 object-contain relative z-10 transition-transform group-hover:scale-110 duration-300"
-                              onError={(e) => {
-                                e.currentTarget.onerror = null;
-                                e.currentTarget.style.display = 'none';
-                                if (e.currentTarget.parentElement) {
-                                  e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20', 'flex', 'items-center', 'justify-center');
-                                  e.currentTarget.parentElement.innerHTML = `
-                                    <div class="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600/10 to-purple-600/10 animate-pulse-slow"></div>
-                                    <span class="text-xl font-bold text-white opacity-80">${getTeamInitials(match[0])}</span>
-                                  `;
-                                }
-                              }}
-                            />
+                            <div className="absolute inset-0 rounded-full bg-blue-500/5 group-hover:bg-blue-500/30 transform scale-75 group-hover:scale-110 transition-all duration-500 blur-md"></div>
+                            <Link href={`/teams/${encodeURIComponent(match[0])}`}>
+                              <img 
+                                src={`/logos/${match[0]}.png`} 
+                                alt={match[0]} 
+                                className="h-14 w-14 object-contain relative z-10 transition-transform group-hover:scale-110 duration-300"
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.style.display = 'none';
+                                  if (e.currentTarget.parentElement) {
+                                    e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20', 'flex', 'items-center', 'justify-center');
+                                    e.currentTarget.parentElement.innerHTML = `
+                                      <div class="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600/10 to-purple-600/10 animate-pulse-slow"></div>
+                                      <span class="text-xl font-bold text-white opacity-80">${getTeamInitials(match[0])}</span>
+                                    `;
+                                  }
+                                }}
+                              />
+                            </Link>
                           </div>
-                          <p className="text-center font-medium text-sm truncate w-full bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-blue-100">
+                          <p className="text-center font-medium text-sm truncate w-full bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-blue-100 transition-all duration-300 group-hover:from-white group-hover:to-blue-200">
                             {match[0]}
                           </p>
                         </div>
 
                         {/* VS */}
-                        <div className="flex-shrink-0 w-2/12 flex flex-col items-center justify-center">
-                          <div className="w-px h-12 bg-gradient-to-b from-transparent via-blue-400/30 to-transparent"></div>
-                          <div className="my-1 p-2 rounded-full bg-black/40 backdrop-blur-sm">
-                            <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">VS</span>
+                        <div className="flex-shrink-0 w-2/12 flex flex-col items-center justify-center transform group-hover:scale-110 transition-all duration-300">
+                          <div className="w-px h-12 bg-gradient-to-b from-transparent via-blue-400/30 to-transparent group-hover:via-blue-400/70 transition-all duration-300"></div>
+                          <div className="my-1 p-2 rounded-full bg-black/40 backdrop-blur-sm group-hover:bg-gradient-to-r group-hover:from-blue-900/50 group-hover:to-purple-900/50 transition-all duration-300">
+                            <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text group-hover:from-blue-300 group-hover:to-purple-300 transition-all duration-300">VS</span>
                           </div>
-                          <div className="w-px h-12 bg-gradient-to-b from-transparent via-purple-400/30 to-transparent"></div>
+                          <div className="w-px h-12 bg-gradient-to-b from-transparent via-purple-400/30 to-transparent group-hover:via-purple-400/70 transition-all duration-300"></div>
                         </div>
 
                         {/* Team 2 */}
-                        <div className="flex flex-col items-center w-5/12">
+                        <div className="flex flex-col items-center w-5/12 transform group-hover:scale-105 transition-transform duration-300">
                           <div className="h-16 w-16 relative mb-3 flex items-center justify-center group">
                             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/10 to-purple-600/10 animate-pulse-slow"></div>
-                            <div className="absolute inset-0 rounded-full bg-purple-500/5 group-hover:bg-purple-500/20 transform scale-75 group-hover:scale-100 transition-all duration-300 blur-md"></div>
-                            <img 
-                              src={`/logos/${match[1]}.png`} 
-                              alt={match[1]} 
-                              className="h-14 w-14 object-contain relative z-10 transition-transform group-hover:scale-110 duration-300"
-                              onError={(e) => {
-                                e.currentTarget.onerror = null;
-                                e.currentTarget.style.display = 'none';
-                                if (e.currentTarget.parentElement) {
-                                  e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20');
-                                  e.currentTarget.parentElement.innerHTML = `<span class="text-xl font-bold text-white opacity-80">${match[1].split(' ').map(word => word[0]).join('')}</span>`;
-                                }
-                              }}
-                            />
+                            <div className="absolute inset-0 rounded-full bg-purple-500/5 group-hover:bg-purple-500/30 transform scale-75 group-hover:scale-110 transition-all duration-500 blur-md"></div>
+                            <Link href={`/teams/${encodeURIComponent(match[1])}`}>
+                              <img 
+                                src={`/logos/${match[1]}.png`} 
+                                alt={match[1]} 
+                                className="h-14 w-14 object-contain relative z-10 transition-transform group-hover:scale-110 duration-300"
+                                onError={(e) => {
+                                  e.currentTarget.onerror = null;
+                                  e.currentTarget.style.display = 'none';
+                                  if (e.currentTarget.parentElement) {
+                                    e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20');
+                                    e.currentTarget.parentElement.innerHTML = `<span class="text-xl font-bold text-white opacity-80">${match[1].split(' ').map(word => word[0]).join('')}</span>`;
+                                  }
+                                }}
+                              />
+                            </Link>
                           </div>
-                          <p className="text-center font-medium text-sm truncate w-full bg-clip-text text-transparent bg-gradient-to-r from-purple-100 to-purple-200">
+                          <p className="text-center font-medium text-sm truncate w-full bg-clip-text text-transparent bg-gradient-to-r from-purple-100 to-purple-200 transition-all duration-300 group-hover:from-white group-hover:to-purple-200">
                             {match[1]}
                           </p>
                         </div>
+                      </div>
+                      
+                      {/* Particles effect on hover */}
+                      <div className="absolute inset-0 overflow-hidden rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500">
+                        <div className="absolute top-0 left-1/4 w-1 h-1 bg-blue-400 rounded-full animate-float"></div>
+                        <div className="absolute bottom-1/3 right-1/4 w-1.5 h-1.5 bg-purple-400 rounded-full animate-float animation-delay-300"></div>
+                        <div className="absolute top-1/3 right-1/3 w-1 h-1 bg-blue-300 rounded-full animate-float animation-delay-700"></div>
+                        <div className="absolute bottom-1/4 left-1/3 w-1 h-1 bg-purple-300 rounded-full animate-float animation-delay-1000"></div>
                       </div>
                     </div>
                   ))}
@@ -706,8 +734,20 @@ export default function SchedulesPage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className="flex items-center justify-center">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 border border-white/10 flex items-center justify-center mr-2">
-                <span className="font-bold text-sm text-blue-300">BL</span>
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 flex items-center justify-center mr-2">
+                <img 
+                  src="/logos/league_logo.png" 
+                  alt="Beluga League" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.style.display = 'none';
+                    if (e.currentTarget.parentElement) {
+                      e.currentTarget.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
+                      e.currentTarget.parentElement.innerHTML = '<span class="font-bold text-sm text-blue-300">BL</span>';
+                    }
+                  }}
+                />
               </div>
               <span className="text-sm text-blue-200 font-medium">Beluga League</span>
             </div>
