@@ -148,8 +148,10 @@ export default function Home() {
                   onError={(e) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-500/30', 'to-purple-600/30', 'border', 'border-white/10');
-                    e.currentTarget.parentElement.innerHTML += '<div class="absolute inset-5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 opacity-20 blur-xl animate-pulse-slow"></div><span class="text-9xl font-bold text-white opacity-90">BL</span>';
+                    if (e.currentTarget.parentElement) {
+                      e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-500/30', 'to-purple-600/30', 'border', 'border-white/10');
+                      e.currentTarget.parentElement.innerHTML += '<div class="absolute inset-5 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 opacity-20 blur-xl animate-pulse-slow"></div><span class="text-9xl font-bold text-white opacity-90">BL</span>';
+                    }
                   }}
                 />
               </div>
@@ -241,8 +243,10 @@ export default function Home() {
                   onError={(e) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20');
-                    e.currentTarget.parentElement.innerHTML = `<span class="text-4xl font-bold text-white opacity-80">${team.split(' ').map(word => word[0]).join('')}</span>`;
+                    if (e.currentTarget.parentElement) {
+                      e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20');
+                      e.currentTarget.parentElement.innerHTML = `<span class="text-4xl font-bold text-white opacity-80">${team.split(' ').map(word => word[0]).join('')}</span>`;
+                    }
                   }}
                 />
               </div>
@@ -303,8 +307,10 @@ export default function Home() {
                   onError={(e) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.style.display = 'none';
-                    e.currentTarget.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
-                    e.currentTarget.parentElement.innerHTML = '<span class="font-bold text-xl text-white">BL</span>';
+                    if (e.currentTarget.parentElement) {
+                      e.currentTarget.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
+                      e.currentTarget.parentElement.innerHTML = '<span class="font-bold text-xl text-white">BL</span>';
+                    }
                   }}
                 />
               </div>
