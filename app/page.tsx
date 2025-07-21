@@ -42,8 +42,10 @@ export default function Home() {
                 onError={(e) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = ''; 
-                  e.currentTarget.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
-                  e.currentTarget.parentElement.innerHTML = '<span class="text-white font-bold text-2xl">BL</span>';
+                  if (e.currentTarget.parentElement) {
+                    e.currentTarget.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
+                    e.currentTarget.parentElement.innerHTML = '<span class="text-white font-bold text-2xl">BL</span>';
+                  }
                 }}
               />
             </div>
