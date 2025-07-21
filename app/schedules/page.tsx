@@ -120,49 +120,7 @@ export default function SchedulesPage() {
       ["Malfeasance", "Panthers"],
       ["Wizards", "Surge"],
       ["Intracate", "Fallen Angels"],
-      ["Archangels", "Aviators"]
-    ],
-    "Week 2": [
-      ["Malfeasance", "Sublunary"],
-      ["Lotus", "Surge"],
-      ["Intracate", "Acid Esports"],
-      ["Valkyries", "Aviators"],
-      ["Archangels", "Panthers"],
-      ["Wizards", "Fallen Angels"]
-    ],
-    "Week 3": [
-      ["Intracate", "Sublunary"],
-      ["Surge", "Aviators"],
-      ["Archangels", "Malfeasance"],
-      ["Lotus", "Fallen Angels"],
-      ["Wizards", "Acid Esports"],
-      ["Valkyries", "Panthers"]
-    ],
-    "Week 4": [
-      ["Archangels", "Sublunary"],
-      ["Aviators", "Fallen Angels"],
-      ["Wizards", "Intracate"],
-      ["Surge", "Panthers"],
-      ["Valkyries", "Malfeasance"],
-      ["Lotus", "Acid Esports"]
-    ],
-    "Week 5": [
-      ["Wizards", "Sublunary"],
-      ["Fallen Angels", "Panthers"],
-      ["Valkyries", "Archangels"],
-      ["Aviators", "Acid Esports"],
-      ["Lotus", "Intracate"],
-      ["Surge", "Malfeasance"]
-    ],
-    "Week 6": [
-      ["Valkyries", "Sublunary"],
-      ["Panthers", "Acid Esports"],
-      ["Lotus", "Wizards"],
-      ["Fallen Angels", "Malfeasance"],
-      ["Surge", "Archangels"],
-      ["Aviators", "Intracate"]
-    ],
-    "Week 7": [
+      ["Archangels", "Aviators"],
       ["Sublunary", "Lotus"],
       ["Acid Esports", "Malfeasance"],
       ["Surge", "Valkyries"],
@@ -170,13 +128,103 @@ export default function SchedulesPage() {
       ["Aviators", "Wizards"],
       ["Fallen Angels", "Archangels"]
     ],
-    "Week 8": [
+    "Week 2": [
+      ["Malfeasance", "Sublunary"],
+      ["Lotus", "Surge"],
+      ["Intracate", "Acid Esports"],
+      ["Valkyries", "Aviators"],
+      ["Archangels", "Panthers"],
+      ["Wizards", "Fallen Angels"],
       ["Sublunary", "Surge"],
       ["Malfeasance", "Intracate"],
       ["Aviators", "Lotus"],
       ["Acid Esports", "Archangels"],
       ["Fallen Angels", "Valkyries"],
       ["Panthers", "Wizards"]
+    ],
+    "Week 3": [
+      ["Intracate", "Sublunary"],
+      ["Surge", "Aviators"],
+      ["Archangels", "Malfeasance"],
+      ["Lotus", "Fallen Angels"],
+      ["Wizards", "Acid Esports"],
+      ["Valkyries", "Panthers"],
+      ["Sublunary", "Aviators"],
+      ["Intracate", "Archangels"],
+      ["Fallen Angels", "Surge"],
+      ["Malfeasance", "Wizards"],
+      ["Panthers", "Lotus"],
+      ["Acid Esports", "Valkyries"]
+    ],
+    "Week 4": [
+      ["Archangels", "Sublunary"],
+      ["Aviators", "Fallen Angels"],
+      ["Wizards", "Intracate"],
+      ["Surge", "Panthers"],
+      ["Valkyries", "Malfeasance"],
+      ["Lotus", "Acid Esports"],
+      ["Sublunary", "Fallen Angels"],
+      ["Archangels", "Wizards"],
+      ["Panthers", "Aviators"],
+      ["Intracate", "Valkyries"],
+      ["Acid Esports", "Surge"],
+      ["Malfeasance", "Lotus"]
+    ],
+    "Week 5": [
+      ["Wizards", "Sublunary"],
+      ["Fallen Angels", "Panthers"],
+      ["Valkyries", "Archangels"],
+      ["Aviators", "Acid Esports"],
+      ["Lotus", "Intracate"],
+      ["Surge", "Malfeasance"],
+      ["Sublunary", "Panthers"],
+      ["Wizards", "Valkyries"],
+      ["Acid Esports", "Fallen Angels"],
+      ["Archangels", "Lotus"],
+      ["Malfeasance", "Aviators"],
+      ["Intracate", "Surge"]
+    ],
+    "Week 6": [
+      ["Valkyries", "Sublunary"],
+      ["Panthers", "Acid Esports"],
+      ["Lotus", "Wizards"],
+      ["Fallen Angels", "Malfeasance"],
+      ["Surge", "Archangels"],
+      ["Aviators", "Intracate"],
+      ["Acid Esports", "Sublunary"],
+      ["Valkyries", "Lotus"],
+      ["Malfeasance", "Panthers"],
+      ["Wizards", "Surge"],
+      ["Intracate", "Fallen Angels"],
+      ["Archangels", "Aviators"]
+    ],
+    "Week 7": [
+      ["Sublunary", "Lotus"],
+      ["Acid Esports", "Malfeasance"],
+      ["Surge", "Valkyries"],
+      ["Panthers", "Intracate"],
+      ["Aviators", "Wizards"],
+      ["Fallen Angels", "Archangels"],
+      ["Malfeasance", "Sublunary"],
+      ["Lotus", "Surge"],
+      ["Intracate", "Acid Esports"],
+      ["Valkyries", "Aviators"],
+      ["Archangels", "Panthers"],
+      ["Wizards", "Fallen Angels"]
+    ],
+    "Week 8": [
+      ["Sublunary", "Surge"],
+      ["Malfeasance", "Intracate"],
+      ["Aviators", "Lotus"],
+      ["Acid Esports", "Archangels"],
+      ["Fallen Angels", "Valkyries"],
+      ["Panthers", "Wizards"],
+      ["Intracate", "Sublunary"],
+      ["Surge", "Aviators"],
+      ["Archangels", "Malfeasance"],
+      ["Lotus", "Fallen Angels"],
+      ["Wizards", "Acid Esports"],
+      ["Valkyries", "Panthers"]
     ]
   };
 
@@ -189,7 +237,15 @@ export default function SchedulesPage() {
       ["Surge", "Alchemy Esports"],
       ["Immortals", "Fallen Angels"],
       ["Valkyries", "Archangels"],
-      ["Aviators", "Wizards"]
+      ["Aviators", "Wizards"],
+      ["Malfeasance", "Intracate"],
+      ["Lotus", "Acid Esports"],
+      ["Panthers", "MNML"],
+      ["Sublunary", "Surge"],
+      ["Fallen Angels", "Kingdom"],
+      ["Alchemy Esports", "Valkyries"],
+      ["Wizards", "Immortals"],
+      ["Archangels", "Aviators"]
     ],
     "Week 2": [
       ["Acid Esports", "Malfeasance"],
@@ -199,7 +255,15 @@ export default function SchedulesPage() {
       ["Valkyries", "Sublunary"],
       ["Kingdom", "Wizards"],
       ["Aviators", "Alchemy Esports"],
-      ["Immortals", "Archangels"]
+      ["Immortals", "Archangels"],
+      ["Malfeasance", "Panthers"],
+      ["Acid Esports", "Surge"],
+      ["Fallen Angels", "Intracate"],
+      ["Lotus", "Valkyries"],
+      ["Wizards", "MNML"],
+      ["Sublunary", "Aviators"],
+      ["Archangels", "Kingdom"],
+      ["Alchemy Esports", "Immortals"]
     ],
     "Week 3": [
       ["Surge", "Malfeasance"],
@@ -209,7 +273,15 @@ export default function SchedulesPage() {
       ["Aviators", "Lotus"],
       ["MNML", "Archangels"],
       ["Immortals", "Sublunary"],
-      ["Kingdom", "Alchemy Esports"]
+      ["Kingdom", "Alchemy Esports"],
+      ["Malfeasance", "Fallen Angels"],
+      ["Surge", "Valkyries"],
+      ["Wizards", "Panthers"],
+      ["Acid Esports", "Aviators"],
+      ["Archangels", "Intracate"],
+      ["Lotus", "Immortals"],
+      ["Alchemy Esports", "MNML"],
+      ["Sublunary", "Kingdom"]
     ],
     "Week 4": [
       ["Valkyries", "Malfeasance"],
@@ -219,7 +291,15 @@ export default function SchedulesPage() {
       ["Immortals", "Acid Esports"],
       ["Intracate", "Alchemy Esports"],
       ["Kingdom", "Lotus"],
-      ["MNML", "Sublunary"]
+      ["MNML", "Sublunary"],
+      ["Malfeasance", "Wizards"],
+      ["Valkyries", "Aviators"],
+      ["Archangels", "Fallen Angels"],
+      ["Surge", "Immortals"],
+      ["Alchemy Esports", "Panthers"],
+      ["Acid Esports", "Kingdom"],
+      ["Sublunary", "Intracate"],
+      ["Lotus", "MNML"]
     ],
     "Week 5": [
       ["Aviators", "Malfeasance"],
@@ -229,7 +309,15 @@ export default function SchedulesPage() {
       ["Kingdom", "Surge"],
       ["Panthers", "Sublunary"],
       ["MNML", "Acid Esports"],
-      ["Intracate", "Lotus"]
+      ["Intracate", "Lotus"],
+      ["Malfeasance", "Archangels"],
+      ["Aviators", "Immortals"],
+      ["Alchemy Esports", "Wizards"],
+      ["Valkyries", "Kingdom"],
+      ["Sublunary", "Fallen Angels"],
+      ["Surge", "MNML"],
+      ["Lotus", "Panthers"],
+      ["Acid Esports", "Intracate"]
     ],
     "Week 6": [
       ["Immortals", "Malfeasance"],
@@ -239,7 +327,15 @@ export default function SchedulesPage() {
       ["MNML", "Valkyries"],
       ["Fallen Angels", "Lotus"],
       ["Intracate", "Surge"],
-      ["Panthers", "Acid Esports"]
+      ["Panthers", "Acid Esports"],
+      ["Malfeasance", "Alchemy Esports"],
+      ["Immortals", "Kingdom"],
+      ["Sublunary", "Archangels"],
+      ["Aviators", "MNML"],
+      ["Lotus", "Wizards"],
+      ["Valkyries", "Intracate"],
+      ["Acid Esports", "Fallen Angels"],
+      ["Surge", "Panthers"]
     ],
     "Week 7": [
       ["Kingdom", "Malfeasance"],
@@ -249,7 +345,15 @@ export default function SchedulesPage() {
       ["Intracate", "Aviators"],
       ["Wizards", "Acid Esports"],
       ["Panthers", "Valkyries"],
-      ["Fallen Angels", "Surge"]
+      ["Fallen Angels", "Surge"],
+      ["Malfeasance", "Sublunary"],
+      ["Kingdom", "MNML"],
+      ["Lotus", "Alchemy Esports"],
+      ["Immortals", "Intracate"],
+      ["Acid Esports", "Archangels"],
+      ["Aviators", "Panthers"],
+      ["Surge", "Wizards"],
+      ["Valkyries", "Fallen Angels"]
     ],
     "Week 8": [
       ["MNML", "Malfeasance"],
@@ -259,7 +363,15 @@ export default function SchedulesPage() {
       ["Panthers", "Immortals"],
       ["Archangels", "Surge"],
       ["Fallen Angels", "Aviators"],
-      ["Wizards", "Valkyries"]
+      ["Wizards", "Valkyries"],
+      ["Lotus", "Malfeasance"],
+      ["MNML", "Intracate"],
+      ["Acid Esports", "Sublunary"],
+      ["Kingdom", "Panthers"],
+      ["Surge", "Alchemy Esports"],
+      ["Immortals", "Fallen Angels"],
+      ["Valkyries", "Archangels"],
+      ["Aviators", "Wizards"]
     ]
   };
 
@@ -270,6 +382,38 @@ export default function SchedulesPage() {
   const toggleWeek = (week: string) => {
     setExpandedWeek(expandedWeek === week ? null : week);
   };
+
+  // Add this helper function to handle image loading issues
+  const getTeamInitials = (teamName: string) => {
+    return teamName.split(' ').map(word => word[0]).join('');
+  };
+
+  // Add this right after your useEffect to preload team logos
+  useEffect(() => {
+    // Preload all team logos to prevent flashing
+    const allTeams = new Set<string>();
+    
+    // Gather all team names from schedules
+    Object.values(majorsSchedule).forEach(week => {
+      week.forEach(match => {
+        allTeams.add(match[0]);
+        allTeams.add(match[1]);
+      });
+    });
+    
+    Object.values(aaaaaSchedule).forEach(week => {
+      week.forEach(match => {
+        allTeams.add(match[0]);
+        allTeams.add(match[1]);
+      });
+    });
+    
+    // Preload images
+    allTeams.forEach(team => {
+      const img = new Image();
+      img.src = `/logos/${team}.png`;
+    });
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 text-white relative overflow-hidden">
@@ -440,7 +584,7 @@ export default function SchedulesPage() {
                 onClick={() => toggleWeek(week)}
               >
                 <h3 className="text-xl font-bold flex items-center">
-                  <span className="inline-flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 text-white">
+                  <span className="inline-flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-gradient-to-br from-blue-600/20 to-purple-600/20 text-white">
                     {week.split(' ')[1]}
                   </span>
                   {week}
@@ -485,8 +629,11 @@ export default function SchedulesPage() {
                                 e.currentTarget.onerror = null;
                                 e.currentTarget.style.display = 'none';
                                 if (e.currentTarget.parentElement) {
-                                  e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20');
-                                  e.currentTarget.parentElement.innerHTML = `<span class="text-xl font-bold text-white opacity-80">${match[0].split(' ').map(word => word[0]).join('')}</span>`;
+                                  e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20', 'flex', 'items-center', 'justify-center');
+                                  e.currentTarget.parentElement.innerHTML = `
+                                    <div class="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600/10 to-purple-600/10 animate-pulse-slow"></div>
+                                    <span class="text-xl font-bold text-white opacity-80">${getTeamInitials(match[0])}</span>
+                                  `;
                                 }
                               }}
                             />
