@@ -259,6 +259,50 @@ export default function Home() {
         </div>
       </div>
 
+      {/* YouTube Showcase Section */}
+      <div className="container mx-auto px-4 py-16">
+        <div className="bg-gradient-to-br from-black/40 to-black/60 backdrop-blur-sm p-8 rounded-xl border border-white/10 shadow-xl">
+          <h2 className="text-4xl font-bold mb-8 text-center relative">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-400">
+              Season 6 Highlights
+            </span>
+            <span className="absolute left-1/2 -translate-x-1/2 -top-2 text-blue-500 opacity-10 blur-sm whitespace-nowrap">
+              Season 6 Highlights
+            </span>
+          </h2>
+
+          {/* Video Container */}
+          <div className="aspect-video w-full max-w-4xl mx-auto rounded-lg overflow-hidden shadow-[0_0_25px_rgba(59,130,246,0.3)] mb-10">
+            <iframe 
+              className="w-full h-full"
+              src="https://www.youtube.com/embed/e1TvkdWSJzs" 
+              title="Beluga League Season 6 Montage"
+              frameBorder="0" 
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+              allowFullScreen
+            ></iframe>
+          </div>
+
+          {/* Call to action for clips */}
+          <div className="text-center mt-8">
+            <p className="text-xl text-blue-100 mb-6">
+              Got amazing Rocket League moments? We want to feature them in our next montage!
+            </p>
+            <a 
+              href="https://discord.gg/4J4c79hawF"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full font-medium text-white hover:from-purple-600 hover:to-blue-700 transition shadow-lg transform hover:scale-105 inline-flex items-center space-x-2"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
+              </svg>
+              <span>Send Clips Here</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
       {/* Call to Action with gradient background */}
       <div className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-purple-800/80 via-blue-800/50 to-black/70"></div>
