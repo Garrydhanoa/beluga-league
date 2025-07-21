@@ -233,26 +233,37 @@ export default function Home() {
           {teams.map((team) => (
             <div
               key={team}
-              className="bg-gradient-to-b from-black/40 to-black/70 backdrop-blur-sm p-6 rounded-lg border border-white/10 hover:border-blue-400 transition transform hover:-translate-y-2 hover:shadow-[0_0_15px_rgba(59,130,246,0.5)] duration-300"
+              className="group bg-gradient-to-b from-black/40 to-black/70 backdrop-blur-sm p-6 rounded-lg border border-white/10 hover:border-blue-400 transition-all transform hover:-translate-y-2 hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] duration-300 relative overflow-hidden"
             >
+              {/* Background glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/10 group-hover:to-purple-500/10 transition-all duration-500"></div>
+              
+              {/* Moving particle effect */}
+              <div className="absolute -inset-1 bg-grid opacity-0 group-hover:opacity-20 transition-opacity duration-500"></div>
+              
               <div className="aspect-square relative mb-4 flex items-center justify-center overflow-hidden">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/0 via-purple-500/0 to-blue-600/0 group-hover:from-blue-500/20 group-hover:via-purple-500/20 group-hover:to-blue-600/20 transition-all duration-500 transform scale-0 group-hover:scale-100 blur-xl"></div>
                 <img 
                   src={`/logos/${team}.png`} 
                   alt={`${team} Logo`} 
-                  className="w-4/5 h-4/5 object-contain drop-shadow-lg"
+                  className="w-4/5 h-4/5 object-contain drop-shadow-lg transform group-hover:scale-110 transition-transform duration-500 relative z-10"
                   onError={(e) => {
                     e.currentTarget.onerror = null;
                     e.currentTarget.style.display = 'none';
                     if (e.currentTarget.parentElement) {
+                      const initials = team.split(' ').map(word => word[0]).join('');
                       e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20');
-                      e.currentTarget.parentElement.innerHTML = `<span class="text-4xl font-bold text-white opacity-80">${team.split(' ').map(word => word[0]).join('')}</span>`;
+                      e.currentTarget.parentElement.innerHTML = `
+                        <div class="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600/10 to-purple-600/10 animate-pulse-slow"></div>
+                        <span class="text-4xl font-bold text-white opacity-80">${initials}</span>
+                      `;
                     }
                   }}
                 />
               </div>
-              <h3 className="text-center text-white font-bold text-lg relative">
+              <h3 className="text-center text-white font-bold text-lg relative group-hover:text-blue-300 transition-colors duration-300">
                 <span className="relative z-10">{team}</span>
-                <span className="absolute left-0 right-0 bottom-0 h-1 bg-gradient-to-r from-blue-500/0 via-blue-500/50 to-blue-500/0 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300"></span>
+                <span className="absolute left-0 right-0 bottom-0 h-1 bg-gradient-to-r from-blue-500/0 via-blue-500/50 to-blue-500/0 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500"></span>
               </h3>
             </div>
           ))}
@@ -289,15 +300,18 @@ export default function Home() {
               Got amazing Rocket League moments? We want to feature them in our next montage!
             </p>
             <a 
-              href="https://discord.gg/4J4c79hawF"
+              href="https://docs.google.com/forms/d/e/1FAIpQLScbzUr27qDf1mz0JEAtXfL5Xp1oBNklOJtrRI-CuvdFth1B8w/viewform?usp=header"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full font-medium text-white hover:from-purple-600 hover:to-blue-700 transition shadow-lg transform hover:scale-105 inline-flex items-center space-x-2"
+              className="px-8 py-4 bg-gradient-to-r from-purple-500 to-blue-600 rounded-full font-medium text-white hover:from-purple-600 hover:to-blue-700 transition shadow-lg transform hover:scale-105 inline-flex items-center space-x-2 hover:shadow-[0_0_20px_rgba(147,51,234,0.5)]"
             >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clipRule="evenodd" />
               </svg>
               <span>Send Clips Here</span>
+              
+              {/* Add a subtle animation for the button */}
+              <span className="absolute inset-0 rounded-full bg-white/10 transform scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-300"></span>
             </a>
           </div>
         </div>

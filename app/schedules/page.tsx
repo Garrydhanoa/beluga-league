@@ -20,6 +20,47 @@ export default function SchedulesPage() {
     // Add entrance animations after initial render
     setAnimateItems(true);
     
+    // Add confetti animation for tab switching
+    const addConfetti = () => {
+      const confettiColors = ['#60A5FA', '#818CF8', '#A78BFA', '#C084FC'];
+      const confettiCount = 50;
+      const container = document.querySelector('.confetti-container');
+      if (!container) return;
+      
+      // Clear previous confetti
+      container.innerHTML = '';
+      
+      // Create new confetti
+      for (let i = 0; i < confettiCount; i++) {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        
+        // Random properties for each piece
+        const size = Math.random() * 8 + 4;
+        const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+        const left = Math.random() * 100;
+        const animDur = Math.random() * 3 + 2;
+        const opacity = Math.random() * 0.7 + 0.3;
+        
+        // Apply styles
+        confetti.style.width = `${size}px`;
+        confetti.style.height = `${size}px`;
+        confetti.style.backgroundColor = color;
+        confetti.style.left = `${left}%`;
+        confetti.style.animationDuration = `${animDur}s`;
+        confetti.style.opacity = opacity.toString();
+        
+        container.appendChild(confetti);
+        
+        // Remove after animation
+        setTimeout(() => {
+          if (confetti.parentNode === container) {
+            container.removeChild(confetti);
+          }
+        }, animDur * 1000);
+      }
+    };
+    
     // Setup parallax effect for background decorations
     const handleMouseMove = (e: MouseEvent) => {
       const decorElements = document.querySelectorAll('.bg-decor');
@@ -29,10 +70,46 @@ export default function SchedulesPage() {
         const y = (window.innerHeight - e.pageY * speed) / 100;
         (elem as HTMLElement).style.transform = `translateX(${x}px) translateY(${y}px)`;
       });
+      
+      // Add dynamic glow to matches when mouse is near
+      const matches = document.querySelectorAll('.match-card');
+      matches.forEach(match => {
+        const rect = match.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        const distance = Math.sqrt(
+          Math.pow(e.clientX - centerX, 2) + 
+          Math.pow(e.clientY - centerY, 2)
+        );
+        
+        // Calculate glow intensity based on distance (max 300px)
+        const maxDistance = 300;
+        const intensity = Math.max(0, 1 - distance / maxDistance);
+        
+        if (intensity > 0) {
+          (match as HTMLElement).style.boxShadow = `0 0 ${intensity * 20}px rgba(59,130,246,${intensity * 0.4})`;
+          (match as HTMLElement).style.borderColor = `rgba(96,165,250,${intensity * 0.8})`;
+        } else {
+          (match as HTMLElement).style.boxShadow = '';
+          (match as HTMLElement).style.borderColor = '';
+        }
+      });
     };
     
     document.addEventListener('mousemove', handleMouseMove);
-    return () => document.removeEventListener('mousemove', handleMouseMove);
+    
+    // Add tab change confetti
+    const tabButtons = document.querySelectorAll('.division-tab');
+    tabButtons.forEach(button => {
+      button.addEventListener('click', addConfetti);
+    });
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      tabButtons.forEach(button => {
+        button.removeEventListener('click', addConfetti);
+      });
+    };
   }, []);
 
   // Data structure for schedules
@@ -286,7 +363,7 @@ export default function SchedulesPage() {
         {/* Division Tabs - Reordered as AA → AAA → MAJORS */}
         <div className="flex flex-wrap justify-center gap-4 mb-12">
           <button 
-            className={`relative px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 transform 
+            className={`division-tab relative px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 transform 
               ${activeTab === 'aa' 
                 ? 'bg-gradient-to-r from-blue-500 to-purple-600 scale-105 shadow-xl' 
                 : 'bg-black/30 hover:bg-black/50 border border-white/10'
@@ -304,7 +381,7 @@ export default function SchedulesPage() {
               ${activeTab === 'aaa' 
                 ? 'bg-gradient-to-r from-blue-500 to-purple-600 scale-105 shadow-xl' 
                 : 'bg-black/30 hover:bg-black/50 border border-white/10'
-              } overflow-hidden group`}
+              } overflow-hidden group division-tab`}
             onClick={() => setActiveTab('aaa')}
           >
             <span className={`relative z-10 ${activeTab === 'aaa' ? 'text-white' : 'group-hover:text-blue-200 transition-colors'}`}>AAA</span>
@@ -318,7 +395,7 @@ export default function SchedulesPage() {
               ${activeTab === 'majors' 
                 ? 'bg-gradient-to-r from-blue-500 to-purple-600 scale-105 shadow-xl' 
                 : 'bg-black/30 hover:bg-black/50 border border-white/10'
-              } overflow-hidden group`}
+              } overflow-hidden group division-tab`}
             onClick={() => setActiveTab('majors')}
           >
             <span className={`relative z-10 ${activeTab === 'majors' ? 'text-white' : 'group-hover:text-blue-200 transition-colors'}`}>MAJORS</span>
@@ -386,7 +463,7 @@ export default function SchedulesPage() {
                   {currentSchedule[week].map((match, index) => (
                     <div 
                       key={`${week}-match-${index}`} 
-                      className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-sm p-5 rounded-xl border border-white/10 hover:border-blue-400 transition-all transform hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] duration-300"
+                      className="match-card bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-sm p-5 rounded-xl border border-white/10 hover:border-blue-400 transition-all transform hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] duration-300"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
                       {/* Match Number Badge */}
@@ -493,6 +570,9 @@ export default function SchedulesPage() {
           </div>
         </div>
       </footer>
+
+      {/* Confetti container for tab switching */}
+      <div className="confetti-container fixed inset-0 pointer-events-none z-40 overflow-hidden"></div>
     </div>
   );
 }
