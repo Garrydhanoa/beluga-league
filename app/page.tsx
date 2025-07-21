@@ -538,7 +538,7 @@ export default function Home() {
               
               // Verify logos are preloaded
               const teamsToPreload = [
-                "Immortals", "InTraCate", "Lotus", "Malfeasance", 
+                "Immortals", "Intracate", "Lotus", "Malfeasance", 
                 "Surge", "MNML", "Panthers", "Sublunary", 
                 "Kingdom", "Valkyries", "Wizards", "Acid Esports", 
                 "Alchemy Esports", "Archangels", "Aviators", "Fallen Angels"
