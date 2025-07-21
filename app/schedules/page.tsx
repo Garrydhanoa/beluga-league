@@ -119,38 +119,38 @@ export default function SchedulesPage() {
       ["Valkyries", "Lotus"],
       ["Malfeasance", "Panthers"],
       ["Wizards", "Surge"],
-      ["Intracate", "Fallen Angels"],
+      ["InTraCate", "Fallen Angels"],  // Changed from Intracate
       ["Archangels", "Aviators"],
       ["Sublunary", "Lotus"],
       ["Acid Esports", "Malfeasance"],
       ["Surge", "Valkyries"],
-      ["Panthers", "Intracate"],
+      ["Panthers", "InTraCate"],  // Changed from Intracate
       ["Aviators", "Wizards"],
       ["Fallen Angels", "Archangels"]
     ],
     "Week 2": [
       ["Malfeasance", "Sublunary"],
       ["Lotus", "Surge"],
-      ["Intracate", "Acid Esports"],
+      ["InTraCate", "Acid Esports"],  // Changed from Intracate
       ["Valkyries", "Aviators"],
       ["Archangels", "Panthers"],
       ["Wizards", "Fallen Angels"],
       ["Sublunary", "Surge"],
-      ["Malfeasance", "Intracate"],
+      ["Malfeasance", "InTraCate"],  // Changed from Intracate
       ["Aviators", "Lotus"],
       ["Acid Esports", "Archangels"],
       ["Fallen Angels", "Valkyries"],
       ["Panthers", "Wizards"]
     ],
     "Week 3": [
-      ["Intracate", "Sublunary"],
+      ["InTraCate", "Sublunary"],  // Changed from Intracate
       ["Surge", "Aviators"],
       ["Archangels", "Malfeasance"],
       ["Lotus", "Fallen Angels"],
       ["Wizards", "Acid Esports"],
       ["Valkyries", "Panthers"],
       ["Sublunary", "Aviators"],
-      ["Intracate", "Archangels"],
+      ["InTraCate", "Archangels"],  // Changed from Intracate
       ["Fallen Angels", "Surge"],
       ["Malfeasance", "Wizards"],
       ["Panthers", "Lotus"],
@@ -159,14 +159,14 @@ export default function SchedulesPage() {
     "Week 4": [
       ["Archangels", "Sublunary"],
       ["Aviators", "Fallen Angels"],
-      ["Wizards", "Intracate"],
+      ["Wizards", "InTraCate"],  // Changed from Intracate
       ["Surge", "Panthers"],
       ["Valkyries", "Malfeasance"],
       ["Lotus", "Acid Esports"],
       ["Sublunary", "Fallen Angels"],
       ["Archangels", "Wizards"],
       ["Panthers", "Aviators"],
-      ["Intracate", "Valkyries"],
+      ["InTraCate", "Valkyries"],  // Changed from Intracate
       ["Acid Esports", "Surge"],
       ["Malfeasance", "Lotus"]
     ],
@@ -175,14 +175,14 @@ export default function SchedulesPage() {
       ["Fallen Angels", "Panthers"],
       ["Valkyries", "Archangels"],
       ["Aviators", "Acid Esports"],
-      ["Lotus", "Intracate"],
+      ["Lotus", "InTraCate"],  // Changed from Intracate
       ["Surge", "Malfeasance"],
       ["Sublunary", "Panthers"],
       ["Wizards", "Valkyries"],
       ["Acid Esports", "Fallen Angels"],
       ["Archangels", "Lotus"],
       ["Malfeasance", "Aviators"],
-      ["Intracate", "Surge"]
+      ["InTraCate", "Surge"]  // Changed from Intracate
     ],
     "Week 6": [
       ["Valkyries", "Sublunary"],
@@ -190,36 +190,36 @@ export default function SchedulesPage() {
       ["Lotus", "Wizards"],
       ["Fallen Angels", "Malfeasance"],
       ["Surge", "Archangels"],
-      ["Aviators", "Intracate"],
+      ["Aviators", "InTraCate"],  // Changed from Intracate
       ["Acid Esports", "Sublunary"],
       ["Valkyries", "Lotus"],
       ["Malfeasance", "Panthers"],
       ["Wizards", "Surge"],
-      ["Intracate", "Fallen Angels"],
+      ["InTraCate", "Fallen Angels"],  // Changed from Intracate
       ["Archangels", "Aviators"]
     ],
     "Week 7": [
       ["Sublunary", "Lotus"],
       ["Acid Esports", "Malfeasance"],
       ["Surge", "Valkyries"],
-      ["Panthers", "Intracate"],
+      ["Panthers", "InTraCate"],  // Changed from Intracate
       ["Aviators", "Wizards"],
       ["Fallen Angels", "Archangels"],
       ["Malfeasance", "Sublunary"],
       ["Lotus", "Surge"],
-      ["Intracate", "Acid Esports"],
+      ["InTraCate", "Acid Esports"],  // Changed from Intracate
       ["Valkyries", "Aviators"],
       ["Archangels", "Panthers"],
       ["Wizards", "Fallen Angels"]
     ],
     "Week 8": [
       ["Sublunary", "Surge"],
-      ["Malfeasance", "Intracate"],
+      ["Malfeasance", "InTraCate"],  // Changed from Intracate
       ["Aviators", "Lotus"],
       ["Acid Esports", "Archangels"],
       ["Fallen Angels", "Valkyries"],
       ["Panthers", "Wizards"],
-      ["Intracate", "Sublunary"],
+      ["InTraCate", "Sublunary"],  // Changed from Intracate
       ["Surge", "Aviators"],
       ["Archangels", "Malfeasance"],
       ["Lotus", "Fallen Angels"],
@@ -231,14 +231,14 @@ export default function SchedulesPage() {
   const aaaaaSchedule: DivisionSchedule = {
     "Week 1": [
       ["Lotus", "Malfeasance"],
-      ["MNML", "Intracate"],
+      ["MNML", "InTraCate"],  // Changed from Intracate
       ["Acid Esports", "Sublunary"],
       ["Kingdom", "Panthers"],
       ["Surge", "Alchemy Esports"],
       ["Immortals", "Fallen Angels"],
       ["Valkyries", "Archangels"],
       ["Aviators", "Wizards"],
-      ["Malfeasance", "Intracate"],
+      ["Malfeasance", "InTraCate"],  // Changed from Intracate
       ["Lotus", "Acid Esports"],
       ["Panthers", "MNML"],
       ["Sublunary", "Surge"],
@@ -249,7 +249,7 @@ export default function SchedulesPage() {
     ],
     "Week 2": [
       ["Acid Esports", "Malfeasance"],
-      ["Intracate", "Panthers"],
+      ["InTraCate", "Panthers"],  // Changed from Intracate
       ["Surge", "Lotus"],
       ["MNML", "Fallen Angels"],
       ["Valkyries", "Sublunary"],
@@ -258,7 +258,7 @@ export default function SchedulesPage() {
       ["Immortals", "Archangels"],
       ["Malfeasance", "Panthers"],
       ["Acid Esports", "Surge"],
-      ["Fallen Angels", "Intracate"],
+      ["Fallen Angels", "InTraCate"],  // Changed from Intracate
       ["Lotus", "Valkyries"],
       ["Wizards", "MNML"],
       ["Sublunary", "Aviators"],
@@ -269,7 +269,7 @@ export default function SchedulesPage() {
       ["Surge", "Malfeasance"],
       ["Panthers", "Fallen Angels"],
       ["Valkyries", "Acid Esports"],
-      ["Intracate", "Wizards"],
+      ["InTraCate", "Wizards"],  // Changed from Intracate
       ["Aviators", "Lotus"],
       ["MNML", "Archangels"],
       ["Immortals", "Sublunary"],
@@ -278,7 +278,7 @@ export default function SchedulesPage() {
       ["Surge", "Valkyries"],
       ["Wizards", "Panthers"],
       ["Acid Esports", "Aviators"],
-      ["Archangels", "Intracate"],
+      ["Archangels", "InTraCate"],  // Changed from Intracate
       ["Lotus", "Immortals"],
       ["Alchemy Esports", "MNML"],
       ["Sublunary", "Kingdom"]
@@ -289,7 +289,7 @@ export default function SchedulesPage() {
       ["Aviators", "Surge"],
       ["Panthers", "Archangels"],
       ["Immortals", "Acid Esports"],
-      ["Intracate", "Alchemy Esports"],
+      ["InTraCate", "Alchemy Esports"],  // Changed from Intracate
       ["Kingdom", "Lotus"],
       ["MNML", "Sublunary"],
       ["Malfeasance", "Wizards"],
@@ -298,7 +298,7 @@ export default function SchedulesPage() {
       ["Surge", "Immortals"],
       ["Alchemy Esports", "Panthers"],
       ["Acid Esports", "Kingdom"],
-      ["Sublunary", "Intracate"],
+      ["Sublunary", "InTraCate"],  // Changed from Intracate
       ["Lotus", "MNML"]
     ],
     "Week 5": [
@@ -309,7 +309,7 @@ export default function SchedulesPage() {
       ["Kingdom", "Surge"],
       ["Panthers", "Sublunary"],
       ["MNML", "Acid Esports"],
-      ["Intracate", "Lotus"],
+      ["InTraCate", "Lotus"],  // Changed from Intracate
       ["Malfeasance", "Archangels"],
       ["Aviators", "Immortals"],
       ["Alchemy Esports", "Wizards"],
@@ -317,7 +317,7 @@ export default function SchedulesPage() {
       ["Sublunary", "Fallen Angels"],
       ["Surge", "MNML"],
       ["Lotus", "Panthers"],
-      ["Acid Esports", "Intracate"]
+      ["Acid Esports", "InTraCate"]  // Changed from Intracate
     ],
     "Week 6": [
       ["Immortals", "Malfeasance"],
@@ -326,14 +326,14 @@ export default function SchedulesPage() {
       ["Wizards", "Sublunary"],
       ["MNML", "Valkyries"],
       ["Fallen Angels", "Lotus"],
-      ["Intracate", "Surge"],
+      ["InTraCate", "Surge"],  // Changed from Intracate
       ["Panthers", "Acid Esports"],
       ["Malfeasance", "Alchemy Esports"],
       ["Immortals", "Kingdom"],
       ["Sublunary", "Archangels"],
       ["Aviators", "MNML"],
       ["Lotus", "Wizards"],
-      ["Valkyries", "Intracate"],
+      ["Valkyries", "InTraCate"],  // Changed from Intracate
       ["Acid Esports", "Fallen Angels"],
       ["Surge", "Panthers"]
     ],
@@ -342,14 +342,14 @@ export default function SchedulesPage() {
       ["Alchemy Esports", "Sublunary"],
       ["MNML", "Immortals"],
       ["Archangels", "Lotus"],
-      ["Intracate", "Aviators"],
+      ["InTraCate", "Aviators"],  // Changed from Intracate
       ["Wizards", "Acid Esports"],
       ["Panthers", "Valkyries"],
       ["Fallen Angels", "Surge"],
       ["Malfeasance", "Sublunary"],
       ["Kingdom", "MNML"],
       ["Lotus", "Alchemy Esports"],
-      ["Immortals", "Intracate"],
+      ["Immortals", "InTraCate"],  // Changed from Intracate
       ["Acid Esports", "Archangels"],
       ["Aviators", "Panthers"],
       ["Surge", "Wizards"],
@@ -358,14 +358,14 @@ export default function SchedulesPage() {
     "Week 8": [
       ["MNML", "Malfeasance"],
       ["Sublunary", "Lotus"],
-      ["Intracate", "Kingdom"],
+      ["InTraCate", "Kingdom"],  // Changed from Intracate
       ["Alchemy Esports", "Acid Esports"],
       ["Panthers", "Immortals"],
       ["Archangels", "Surge"],
       ["Fallen Angels", "Aviators"],
       ["Wizards", "Valkyries"],
       ["Lotus", "Malfeasance"],
-      ["MNML", "Intracate"],
+      ["MNML", "InTraCate"],  // Changed from Intracate
       ["Acid Esports", "Sublunary"],
       ["Kingdom", "Panthers"],
       ["Surge", "Alchemy Esports"],
