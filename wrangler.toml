@@ -1,0 +1,9 @@
+name = "beluga-league"
+compatibility_date = "2023-05-18"
+
+[build]
+command = "npm run build"
+
+[site]
+bucket = ".next/static"
+entry-point = ".next/server/pages"

@@ -456,7 +456,7 @@ nav a {
     visibility: visible !important;
     opacity: 1 !important;
     height: auto !important;
-    overflow: visible !important;
+    overflow: visible !important; 
     max-height: none !important;
   }
 
