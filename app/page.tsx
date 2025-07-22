@@ -343,12 +343,12 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-6">
               <a 
-                href="/development" 
+                href="https://docs.google.com/forms/d/e/1FAIpQLScR3pdfPVDn9H0u_FIo6KaNMG8HvHRvuai7GSnk3XuVH-raUA/viewform?usp=header" 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="px-10 py-5 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full font-bold text-white text-lg hover:from-blue-600 hover:to-blue-800 transition shadow-lg transform hover:scale-105 inline-block text-center"
               >
-                Register Your Team
+                Apply For GM
               </a>
               {/* Rulebook button */}
               <a 
