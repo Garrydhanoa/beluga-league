@@ -465,10 +465,10 @@ export default function TeamPage() {
     if (isInAA) divisions.push("aa");
     
     // After all divisions are gathered, sort them in the desired order: AA → AAA → MAJOR
-    const sortedDivisions = [];
-    if (divisions.includes("aa")) sortedDivisions.push("aa");
-    if (divisions.includes("aaa")) sortedDivisions.push("aaa");
-    if (divisions.includes("major")) sortedDivisions.push("major");
+    const sortedDivisions: Division[] = [];
+    if (divisions.includes("aa")) sortedDivisions.push("aa" as Division);
+    if (divisions.includes("aaa")) sortedDivisions.push("aaa" as Division);
+    if (divisions.includes("major")) sortedDivisions.push("major" as Division);
     
     setTeamDivisions(sortedDivisions);
     setTeamSchedules(schedules);
