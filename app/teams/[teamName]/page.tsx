@@ -497,7 +497,7 @@ export default function TeamPage() {
       case 'major': return 'MAJOR';
       case 'aa': return 'AA';
       case 'aaa': return 'AAA';
-      default: return division.toUpperCase();
+      default: return (division as string).toUpperCase();
     }
   };
 
