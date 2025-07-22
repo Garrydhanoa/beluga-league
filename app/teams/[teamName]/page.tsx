@@ -10,7 +10,7 @@ type WeekSchedule = Match[];
 type DivisionSchedule = {
   [week: string]: WeekSchedule;
 };
-type Division = "majors" | "aa" | "aaa";
+type Division = "major" | "aa" | "aaa";
 
 export default function TeamPage() {
   const params = useParams();
@@ -410,7 +410,7 @@ export default function TeamPage() {
     
     // Create schedule objects for each division
     const schedules: {[key in Division]?: {[week: string]: Match[]}} = {
-      majors: {},
+      major: {},
       aa: {},
       aaa: {}
     };
@@ -418,7 +418,7 @@ export default function TeamPage() {
     // Track which divisions this team plays in
     const divisions: Division[] = [];
     
-    // Check majors division
+    // Check majors division - this should be unique
     let isInMajors = false;
     Object.entries(majorsSchedule).forEach(([week, matches]) => {
       const teamMatches = matches.filter(match => 
@@ -426,14 +426,14 @@ export default function TeamPage() {
       );
       
       if (teamMatches.length > 0) {
-        if (!schedules.majors) schedules.majors = {};
-        schedules.majors[week] = teamMatches;
+        if (!schedules.major) schedules.major = {};
+        schedules.major[week] = teamMatches;
         isInMajors = true;
       }
     });
-    if (isInMajors) divisions.push("majors");
+    if (isInMajors) divisions.push("major");
     
-    // Check AAA division
+    // Check AAA division - this should be the same as AA
     let isInAAA = false;
     Object.entries(aaaaaSchedule).forEach(([week, matches]) => {
       const teamMatches = matches.filter(match => 
@@ -448,9 +448,10 @@ export default function TeamPage() {
     });
     if (isInAAA) divisions.push("aaa");
     
-    // Check AA division
+    // Check AA division - use aaaaaSchedule instead of aaSchedule
     let isInAA = false;
-    Object.entries(aaSchedule).forEach(([week, matches]) => {
+    // Use aaaaaSchedule for AA division, not aaSchedule
+    Object.entries(aaaaaSchedule).forEach(([week, matches]) => {
       const teamMatches = matches.filter(match => 
         match[0] === decodedTeamName || match[1] === decodedTeamName
       );
@@ -463,12 +464,18 @@ export default function TeamPage() {
     });
     if (isInAA) divisions.push("aa");
     
-    setTeamDivisions(divisions);
+    // After all divisions are gathered, sort them in the desired order: AA → AAA → MAJOR
+    const sortedDivisions = [];
+    if (divisions.includes("aa")) sortedDivisions.push("aa");
+    if (divisions.includes("aaa")) sortedDivisions.push("aaa");
+    if (divisions.includes("major")) sortedDivisions.push("major");
+    
+    setTeamDivisions(sortedDivisions);
     setTeamSchedules(schedules);
     
     // Set default active schedule tab to the first available division
-    if (divisions.length > 0) {
-      setActiveScheduleTab(divisions[0]);
+    if (sortedDivisions.length > 0) {
+      setActiveScheduleTab(sortedDivisions[0]);
     }
     
     setIsLoading(false);
@@ -487,7 +494,7 @@ export default function TeamPage() {
   // Get the display name for a division
   const getDivisionDisplayName = (division: Division) => {
     switch(division) {
-      case 'majors': return 'MAJORS';
+      case 'major': return 'MAJOR';
       case 'aa': return 'AA';
       case 'aaa': return 'AAA';
       default: return division.toUpperCase();
