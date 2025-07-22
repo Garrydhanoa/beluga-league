@@ -6,6 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "export": "next build && next export",
+    "build:cloudflare": "CLOUDFLARE_DEPLOY=true next build",
     "lint": "next lint"
   },
   "dependencies": {
