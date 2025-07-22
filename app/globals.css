@@ -447,3 +447,26 @@ nav a {
   max-height: 15rem !important;
   transition: max-height 0.3s ease-in;
 }
+
+/* Mobile Menu Fixes */
+@media (max-width: 768px) {
+  /* Ensure the mobile menu dropdown is always visible when active */
+  .mobile-nav-container {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    height: auto !important;
+    overflow: visible !important;
+    max-height: none !important;
+  }
+
+  /* Animation for fade in */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease forwards;
+  }
+}

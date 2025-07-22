@@ -119,7 +119,7 @@ export default function Navigation() {
         </div>
       </div>
       
-      {/* Mobile Navigation Menu - Completely revised for reliable functionality */}
+      {/* Mobile Navigation Menu - Improved for reliable display */}
       {mobileMenuOpen && (
         <div 
           className="md:hidden mobile-nav-container fixed top-[61px] left-0 w-full h-auto bg-black/95 backdrop-blur-md z-[990] border-b border-white/10 animate-fadeIn"
@@ -162,6 +162,16 @@ export default function Navigation() {
               >
                 Power Rankings
                 {isActive('/rankings') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 bg-blue-400 rounded-r"></span>}
+              </Link>
+              {/* Ensure Player Directory is in the mobile menu */}
+              <Link
+                href="/players"
+                className={`font-medium py-3 pl-4 relative rounded-md ${
+                  isActive('/players') ? 'bg-blue-900/30 text-blue-300' : 'hover:bg-black/40 hover:text-blue-300'
+                }`}
+              >
+                Player Directory
+                {isActive('/players') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 bg-blue-400 rounded-r"></span>}
               </Link>
             </div>
           </div>
