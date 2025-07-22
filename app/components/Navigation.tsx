@@ -83,31 +83,38 @@ export default function Navigation() {
         <div className="hidden md:flex space-x-8 text-white">
           <Link
             href="/"
-            className={`font-medium relative ${isActive('/') ? 'text-blue-300 border-b-2 border-blue-400' : 'hover:text-blue-300 transition-colors duration-300 group'}`}
+            className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
           >
             Home
-            {!isActive('/') && <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>}
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
           </Link>
           <Link
             href="/schedules"
-            className={`font-medium relative ${isActive('/schedules') ? 'text-blue-300 border-b-2 border-blue-400' : 'hover:text-blue-300 transition-colors duration-300 group'}`}
+            className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
           >
             Schedules
-            {!isActive('/schedules') && <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>}
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
           </Link>
           <Link
             href="/standings"
-            className={`font-medium relative ${isActive('/standings') ? 'text-blue-300 border-b-2 border-blue-400' : 'hover:text-blue-300 transition-colors duration-300 group'}`}
+            className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
           >
             Standings
-            {!isActive('/standings') && <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>}
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
           </Link>
           <Link
             href="/rankings"
-            className={`font-medium relative ${isActive('/rankings') ? 'text-blue-300 border-b-2 border-blue-400' : 'hover:text-blue-300 transition-colors duration-300 group'}`}
+            className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
           >
             Power Rankings
-            {!isActive('/rankings') && <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>}
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
+          </Link>
+          <Link
+            href="/players"
+            className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
+          >
+            Player Directory
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
           </Link>
         </div>
       </div>

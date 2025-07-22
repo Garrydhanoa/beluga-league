@@ -570,6 +570,13 @@ export default function TeamPage() {
               Power Rankings
               <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
             </Link>
+            <Link
+              href="/players"
+              className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
+            >
+              Player Directory
+              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
+            </Link>
           </div>
         </div>
       </nav>
@@ -579,7 +586,7 @@ export default function TeamPage() {
         <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-6 mb-10">
           <div className="w-40 h-40 relative flex items-center justify-center">
             <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 animate-pulse-slow"></div>
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-blue-500/10 transform scale-110 blur-md"></div>
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 transform scale-110 blur-md"></div>
             <img 
               src={`/logos/${decodedTeamName}.png`} 
               alt={`${decodedTeamName} Logo`} 
@@ -785,28 +792,163 @@ export default function TeamPage() {
           
           {/* Roster Tab - Under Development */}
           {activeTab === 'roster' && (
-            <div className="bg-black/40 backdrop-blur-md p-12 rounded-2xl border border-white/10 shadow-xl max-w-3xl mx-auto text-center">
-              <div className="w-24 h-24 mx-auto mb-6 relative">
-                <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping"></div>
-                <div className="absolute inset-4 rounded-full bg-blue-500/40"></div>
+            <div className="bg-black/40 backdrop-blur-md p-8 rounded-2xl border border-white/10 shadow-xl max-w-4xl mx-auto">
+              <div className="w-20 h-20 mx-auto mb-6 relative">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 animate-pulse-slow"></div>
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 transform scale-110 blur-md"></div>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                   </svg>
                 </div>
               </div>
               
-              <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200">
-                Roster Coming Soon
+              <h2 className="text-3xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200 text-center">
+                {decodedTeamName} Roster Coming Soon
               </h2>
               
-              <p className="text-xl mb-8 text-blue-100">
-                The {decodedTeamName} roster is currently being developed.
+              <p className="text-xl mb-8 text-blue-100 text-center">
+                The complete roster with player statistics is currently being developed.
               </p>
               
-              <p className="text-lg text-blue-200 mb-6">
-                Please check back soon for player information!
-              </p>
+              {/* Roster Preview */}
+              <div className="mb-8">
+                <div className="bg-black/30 backdrop-blur-md p-6 rounded-xl border border-white/10 mb-6">
+                  <h3 className="text-xl font-bold text-blue-300 mb-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                    </svg>
+                    Player Roster Preview
+                  </h3>
+                  
+                  <div className="overflow-hidden">
+                    <div className="bg-black/40 rounded-lg overflow-hidden border border-white/10">
+                      <div className="grid grid-cols-12 bg-blue-900/30 text-blue-200 font-semibold text-sm py-2 px-4">
+                        <div className="col-span-1">#</div>
+                        <div className="col-span-4">Name</div>
+                        <div className="col-span-3">Position</div>
+                        <div className="col-span-2">SAL</div>
+                        <div className="col-span-2">Status</div>
+                      </div>
+                      
+                      {/* Sample players with correct SAL ranges */}
+                      {[
+                        {
+                          number: "07",
+                          name: "Player One",
+                          position: "Forward",
+                          sal: 18.75,
+                          status: "Active"
+                        },
+                        {
+                          number: "12",
+                          name: "Player Two",
+                          position: "Defense",
+                          sal: 16.25,
+                          status: "Active"
+                        },
+                        {
+                          number: "23",
+                          name: "Player Three",
+                          position: "Defense",
+                          sal: 19.50,
+                          status: "Active"
+                        },
+                        {
+                          number: "09",
+                          name: "Player Four",
+                          position: "Forward",
+                          sal: 17.75,
+                          status: "Injured"
+                        }
+                      ].map((player, i) => (
+                        <div 
+                          key={i} 
+                          className={`grid grid-cols-12 ${i % 2 === 0 ? 'bg-black/20' : 'bg-black/40'} text-sm py-3 px-4 hover:bg-blue-900/20 transition-colors duration-300`}
+                        >
+                          <div className="col-span-1 font-mono text-blue-300">{player.number}</div>
+                          <div className="col-span-4 font-medium text-white">{player.name}</div>
+                          <div className="col-span-3 text-blue-200">{player.position}</div>
+                          <div className="col-span-2">
+                            <span className="font-mono font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-300 to-purple-300">{player.sal.toFixed(2)}</span>
+                          </div>
+                          <div className="col-span-2">
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${
+                              player.status === 'Active' ? 'bg-green-500/20 text-green-300' : 'bg-yellow-500/20 text-yellow-300'
+                            }`}>
+                              {player.status}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    {/* Shimmer loading effect for remaining players */}
+                    <div className="mt-1 space-y-1 rounded-b-lg overflow-hidden">
+                      {[1, 2, 3].map((_, i) => (
+                        <div key={i} className="h-10 bg-black/20 animate-pulse rounded"></div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Feature highlights */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                  <div className="bg-black/20 rounded-lg p-4 border border-white/10">
+                    <h3 className="text-blue-300 font-semibold mb-2 flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                      </svg>
+                      Player Performance Tracking
+                    </h3>
+                    <p className="text-blue-100 text-sm">
+                      Comprehensive statistics for each player including goals, assists, saves, and other key performance indicators tracked throughout the season.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-black/20 rounded-lg p-4 border border-white/10">
+                    <h3 className="text-blue-300 font-semibold mb-2 flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                      </svg>
+                      Dynamic SAL Ratings
+                    </h3>
+                    <p className="text-blue-100 text-sm">
+                      Skill Assessment Levels (SAL) for each player, updated based on match performance. Track player growth and development throughout the season.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-black/20 rounded-lg p-4 border border-white/10">
+                    <h3 className="text-blue-300 font-semibold mb-2 flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                      </svg>
+                      Player Status Updates
+                    </h3>
+                    <p className="text-blue-100 text-sm">
+                      Real-time updates on player availability including active, inactive, and injury statuses to keep you informed about your team's composition.
+                    </p>
+                  </div>
+                  
+                  <div className="bg-black/20 rounded-lg p-4 border border-white/10">
+                    <h3 className="text-blue-300 font-semibold mb-2 flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z" />
+                      </svg>
+                      Team Chemistry Analysis
+                    </h3>
+                    <p className="text-blue-100 text-sm">
+                      Insights into how well players perform together, highlighting the most effective combinations and lineups based on past match data.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-center">
+                <p className="text-lg text-blue-200 mb-6">
+                  Please check back soon for complete player information and statistics!
+                </p>
+              </div>
             </div>
           )}
           
