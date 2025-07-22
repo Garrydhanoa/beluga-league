@@ -252,3 +252,168 @@ span.w-2.h-2.rounded-full.bg-blue-400,
 .absolute.left-1\/2.-translate-x-1\/2:is([class*="bottom"]) {
   display: none !important;
 }
+
+/* Add these global text and section styles after your existing CSS */
+
+/* Global heading styles with gradient text */
+h1, h2, h3, h4, h5, h6 {
+  margin-bottom: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Fancy heading styles with gradients */
+.gradient-heading,
+h1:not([class*="text-"]),
+h2:not([class*="text-"]) {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  background-image: linear-gradient(to right, #60a5fa, #a78bfa, #60a5fa);
+  display: inline-block;
+  position: relative;
+}
+
+/* Heading glow effect */
+.heading-glow {
+  position: relative;
+}
+
+.heading-glow::before {
+  content: '';
+  position: absolute;
+  inset: -0.5rem;
+  background: linear-gradient(to right, rgba(96, 165, 250, 0.3), rgba(167, 139, 250, 0.3));
+  border-radius: 0.75rem;
+  filter: blur(1rem);
+  opacity: 0.7;
+  z-index: -1;
+  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Section styling */
+.fancy-section {
+  position: relative;
+  padding: 2rem;
+  background-color: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.fancy-section:hover {
+  border-color: rgba(96, 165, 250, 0.4);
+  box-shadow: 0 0 30px rgba(96, 165, 250, 0.2);
+}
+
+/* Decorative corner for sections */
+.fancy-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50px;
+  height: 50px;
+  border-top: 2px solid rgba(96, 165, 250, 0.5);
+  border-left: 2px solid rgba(96, 165, 250, 0.5);
+  border-top-left-radius: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.fancy-section:hover::before {
+  opacity: 1;
+}
+
+/* Fancy button/link styling */
+.fancy-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  color: white;
+  font-weight: 500;
+  border-radius: 9999px;
+  overflow: hidden;
+  transition: all 0.3s;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.fancy-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.fancy-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.7s;
+}
+
+.fancy-button:hover::before {
+  left: 100%;
+}
+
+/* Paragraph text styles */
+p {
+  color: #93c5fd; /* Default light blue text */
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+/* Enhanced list styling */
+ul, ol {
+  margin-left: 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+li {
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+ul > li::marker {
+  color: #60a5fa;
+}
+
+/* Animation for section entries */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-entry {
+  animation: fadeSlideUp 0.6s ease-out forwards;
+}
+
+.animation-delay-100 {
+  animation-delay: 100ms;
+}
+
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+
+.animation-delay-500 {
+  animation-delay: 500ms;
+}
