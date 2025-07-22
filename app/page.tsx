@@ -7,7 +7,7 @@ import Footer from './components/Footer';
 import BackgroundDecoration from './components/BackgroundDecoration';
 
 export default function Home() {
-  // Team names - updated to include all 16 teams
+  // Team names
   const teams = [
     "Acid Esports",
     "Alchemy Esports",
@@ -27,7 +27,6 @@ export default function Home() {
     "Wizards"
   ];
   
-  // State to control video modal
   const [showVideo, setShowVideo] = useState(false);
   const [animateItems, setAnimateItems] = useState(false);
   
