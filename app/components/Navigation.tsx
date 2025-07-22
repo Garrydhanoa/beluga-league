@@ -59,39 +59,39 @@ export default function Navigation() {
           </svg>
         </button>
         
-        {/* Desktop Navigation Links */}
+        {/* Desktop Navigation Links - FIXED: Added "relative" to all links */}
         <div className="hidden md:flex space-x-8 text-white">
           <Link
             href="/"
-            className={`font-medium ${isActive('/') ? 'text-blue-300 border-b-2 border-blue-400' : 'hover:text-blue-300 transition-colors duration-300 relative group'}`}
+            className={`font-medium relative ${isActive('/') ? 'text-blue-300 border-b-2 border-blue-400' : 'hover:text-blue-300 transition-colors duration-300 group'}`}
           >
             Home
             {!isActive('/') && <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>}
-            {isActive('/') && <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>}
+            {isActive('/') && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>}
           </Link>
           <Link
             href="/schedules"
-            className={`font-medium ${isActive('/schedules') ? 'text-blue-300 border-b-2 border-blue-400' : 'hover:text-blue-300 transition-colors duration-300 relative group'}`}
+            className={`font-medium relative ${isActive('/schedules') ? 'text-blue-300 border-b-2 border-blue-400' : 'hover:text-blue-300 transition-colors duration-300 group'}`}
           >
             Schedules
             {!isActive('/schedules') && <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>}
-            {isActive('/schedules') && <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>}
+            {isActive('/schedules') && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>}
           </Link>
           <Link
             href="/standings"
-            className={`font-medium ${isActive('/standings') ? 'text-blue-300 border-b-2 border-blue-400' : 'hover:text-blue-300 transition-colors duration-300 relative group'}`}
+            className={`font-medium relative ${isActive('/standings') ? 'text-blue-300 border-b-2 border-blue-400' : 'hover:text-blue-300 transition-colors duration-300 group'}`}
           >
             Standings
             {!isActive('/standings') && <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>}
-            {isActive('/standings') && <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>}
+            {isActive('/standings') && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>}
           </Link>
           <Link
             href="/rankings"
-            className={`font-medium ${isActive('/rankings') ? 'text-blue-300 border-b-2 border-blue-400' : 'hover:text-blue-300 transition-colors duration-300 relative group'}`}
+            className={`font-medium relative ${isActive('/rankings') ? 'text-blue-300 border-b-2 border-blue-400' : 'hover:text-blue-300 transition-colors duration-300 group'}`}
           >
             Power Rankings
             {!isActive('/rankings') && <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>}
-            {isActive('/rankings') && <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>}
+            {isActive('/rankings') && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>}
           </Link>
         </div>
       </div>
@@ -106,31 +106,35 @@ export default function Navigation() {
           <div className="flex flex-col space-y-3 pb-3">
             <Link
               href="/"
-              className={`font-medium py-2 ${isActive('/') ? 'text-blue-300 border-l-2 pl-2 border-blue-400' : 'hover:text-blue-300'}`}
+              className={`font-medium py-2 relative ${isActive('/') ? 'text-blue-300 pl-4' : 'hover:text-blue-300'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Home
+              {isActive('/') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-blue-400 rounded-r"></span>}
             </Link>
             <Link
               href="/schedules"
-              className={`font-medium py-2 ${isActive('/schedules') ? 'text-blue-300 border-l-2 pl-2 border-blue-400' : 'hover:text-blue-300'}`}
+              className={`font-medium py-2 relative ${isActive('/schedules') ? 'text-blue-300 pl-4' : 'hover:text-blue-300'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Schedules
+              {isActive('/schedules') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-blue-400 rounded-r"></span>}
             </Link>
             <Link
               href="/standings"
-              className={`font-medium py-2 ${isActive('/standings') ? 'text-blue-300 border-l-2 pl-2 border-blue-400' : 'hover:text-blue-300'}`}
+              className={`font-medium py-2 relative ${isActive('/standings') ? 'text-blue-300 pl-4' : 'hover:text-blue-300'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Standings
+              {isActive('/standings') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-blue-400 rounded-r"></span>}
             </Link>
             <Link
               href="/rankings"
-              className={`font-medium py-2 ${isActive('/rankings') ? 'text-blue-300 border-l-2 pl-2 border-blue-400' : 'hover:text-blue-300'}`}
+              className={`font-medium py-2 relative ${isActive('/rankings') ? 'text-blue-300 pl-4' : 'hover:text-blue-300'}`}
               onClick={() => setMobileMenuOpen(false)}
             >
               Power Rankings
+              {isActive('/rankings') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-blue-400 rounded-r"></span>}
             </Link>
           </div>
         </div>

@@ -1,36 +1,47 @@
+"use client"
+
+import Navigation from '../components/Navigation';
+import Footer from '../components/Footer';
+
 export default function StandingsPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 text-white p-8">
-      <div className="bg-black/40 backdrop-blur-md p-12 rounded-2xl border border-white/10 shadow-xl max-w-2xl w-full text-center">
-        <h1 className="text-4xl md:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200">
-          Standings
-        </h1>
-        
-        <div className="w-24 h-24 mx-auto mb-6 relative">
-          <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping"></div>
-          <div className="absolute inset-4 rounded-full bg-blue-500/40"></div>
-          <div className="absolute inset-0 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 text-white">
+      <Navigation />
+      
+      <div className="flex flex-col items-center justify-center py-20 px-8">
+        <div className="bg-black/40 backdrop-blur-md p-12 rounded-2xl border border-white/10 shadow-xl max-w-2xl w-full text-center">
+          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200">
+            Standings
+          </h1>
+          
+          <div className="w-24 h-24 mx-auto mb-6 relative">
+            <div className="absolute inset-0 rounded-full bg-blue-500/20 animate-ping"></div>
+            <div className="absolute inset-4 rounded-full bg-blue-500/40"></div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+            </div>
           </div>
+          
+          <p className="text-xl md:text-2xl mb-8 text-blue-100">
+            Team standings are currently being developed.
+          </p>
+          
+          <p className="text-lg text-blue-200 mb-10">
+            Please check back soon for updated league standings!
+          </p>
+          
+          <a
+            href="/"
+            className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full font-medium text-white hover:from-blue-600 hover:to-purple-700 transition shadow-lg inline-block mt-8"
+          >
+            Return to Home
+          </a>
         </div>
-        
-        <p className="text-xl md:text-2xl mb-8 text-blue-100">
-          Team standings are currently being developed.
-        </p>
-        
-        <p className="text-lg text-blue-200 mb-10">
-          Please check back soon for updated league standings!
-        </p>
-        
-        <a
-          href="/"
-          className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full font-medium text-white hover:from-blue-600 hover:to-purple-700 transition shadow-lg inline-block"
-        >
-          Return to Home
-        </a>
       </div>
+      
+      <Footer />
     </div>
   );
 }

@@ -1,7 +1,9 @@
 "use client"
 
-import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Navigation from './components/Navigation';
+import Footer from './components/Footer';
 
 export default function Home() {
   // Team names - updated to include all 16 teams
@@ -38,83 +40,8 @@ export default function Home() {
   
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950">
-      {/* Navigation Bar */}
-      <nav className="w-full bg-black/30 backdrop-blur-md border-b border-white/10">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            {/* The blur effect is coming from the drop-shadow in the logo and text styling */}
-            <div className="relative w-[55px] h-[55px] rounded-full border-2 border-blue-400 overflow-hidden">
-              <img 
-                src="/logos/league_logo.png" 
-                alt="Beluga League" 
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = ''; 
-                  if (e.currentTarget.parentElement) {
-                    e.currentTarget.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
-                    e.currentTarget.parentElement.innerHTML = '<span class="text-white font-bold text-2xl">BL</span>';
-                  }
-                }}
-              />
-            </div>
-            {/* Fix for the invisible Beluga League text in the navbar */}
-            <div className="text-3xl font-bold">
-              <span className="bg-gradient-to-r from-blue-300 to-purple-400 text-transparent bg-clip-text inline-block">
-                Beluga League
-              </span>
-            </div>
-          </div>
-          <div className="hidden md:flex space-x-8 text-white">
-            <Link
-              href="/"
-              className="font-medium hover:text-blue-300 border-b-2 border-blue-400"
-            >
-              Home
-            </Link>
-            <Link
-              href="/schedules"
-              className="font-medium hover:text-blue-300"
-            >
-              Schedules
-            </Link>
-            <Link
-              href="/standings"
-              className="font-medium hover:text-blue-300"
-            >
-              Standings
-            </Link>
-            <Link
-              href="/rankings"
-              className="font-medium hover:text-blue-300"
-            >
-              Power Rankings
-            </Link>
-          </div>
-          {/* Mobile hamburger menu button (convert to an anchor that looks like a button) */}
-          <a 
-            href="/development" 
-            target="_blank"
-            rel="noopener noreferrer" 
-            className="md:hidden text-white p-2 cursor-pointer"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16m-7 6h7"
-              />
-            </svg>
-          </a>
-        </div>
-      </nav>
+      {/* Replace the custom navigation with shared component */}
+      <Navigation />
 
       {/* Hero Section with gradient background */}
       <div className="relative">
@@ -401,118 +328,7 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="bg-black/80 text-white py-10">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="flex items-center space-x-3 mb-6 md:mb-0">
-              <div className="w-[50px] h-[50px] rounded-full overflow-hidden border border-blue-400">
-                <img 
-                  src="/logos/league_logo.png" 
-                  alt="Beluga League" 
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.style.display = 'none';
-                    if (e.currentTarget.parentElement) {
-                      e.currentTarget.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
-                      e.currentTarget.parentElement.innerHTML = '<span class="font-bold text-xl text-white">BL</span>';
-                    }
-                  }}
-                />
-              </div>
-              <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400">
-                Beluga League
-              </span>
-            </div>
-            <div className="flex space-x-10 mb-6 md:mb-0">
-              <Link href="/" className="hover:text-blue-300 font-medium">
-                Home
-              </Link>
-              <Link href="/schedules" className="hover:text-blue-300 font-medium">
-                Schedules
-              </Link>
-              <Link href="/standings" className="hover:text-blue-300 font-medium">
-                Standings
-              </Link>
-              <Link href="/rankings" className="hover:text-blue-300 font-medium">
-                Power Rankings
-              </Link>
-            </div>
-            <div className="flex flex-col items-center space-y-3">
-              <h4 className="text-lg font-semibold text-blue-300 mb-2">Socials</h4>
-              <div className="flex space-x-6">
-                <a
-                  href="https://discord.gg/4J4c79hawF"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white hover:text-blue-300 transform hover:scale-110 transition"
-                  aria-label="Discord"
-                >
-                  <svg
-                    className="w-7 h-7"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path d="M19.54 0c1.356 0 2.46 1.104 2.46 2.472v21.528l-2.58-2.28-1.452-1.344-1.536-1.428.636 2.22h-13.608c-1.356 0-2.46-1.104-2.46-2.472v-16.224c0-1.368 1.104-2.472 2.46-2.472h16.08zm-4.632 15.672c2.652-.084 3.672-1.824 3.672-1.824 0-3.864-1.728-6.996-1.728-6.996-1.728-1.296-3.372-1.26-3.372-1.26l-.168.192c2.04.624 2.988 1.524 2.988 1.524-1.248-.684-2.472-1.02-3.612-1.152-.864-.096-1.692-.072-2.424.024l-.204.024c-.42.036-1.44.192-2.724.756-.444.204-.708.348-.708.348s.996-.948 3.156-1.572l-.12-.144s-1.644-.036-3.372 1.26c0 0-1.728 3.132-1.728 6.996 0 0 1.008 1.74 3.66 1.824 0 0 .444-.54.804-.996-1.524-.456-2.1-1.416-2.1-1.416l.336.204.048.036.047.027.014.006.047.027c.3.168.6.3.876.408.492.192 1.08.384 1.764.516.9.168 1.956.228 3.108.012.564-.096 1.14-.264 1.74-.516.42-.156.888-.384 1.38-.708 0 0-.6.984-2.172 1.428.36.456.792.972.792.972zm-5.58-5.604c-.684 0-1.224.6-1.224 1.332 0 .732.552 1.332 1.224 1.332.684 0 1.224-.6 1.224-1.332.012-.732-.54-1.332-1.224-1.332zm4.38 0c-.684 0-1.224.6-1.224 1.332 0 .732.552 1.332 1.224 1.332.684 0 1.224-.6 1.224-1.332 0-.732-.54-1.332-1.224-1.332z" />
-                  </svg>
-                </a>
-                <a
-                  href="https://www.twitch.tv/belugaleaguerl"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white hover:text-purple-400 transform hover:scale-110 transition"
-                  aria-label="Twitch"
-                >
-                  <svg
-                    className="w-7 h-7"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z" />
-                  </svg>
-                </a>
-                <a
-                  href="https://www.youtube.com/@BelugaLeague"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white hover:text-red-500 transform hover:scale-110 transition"
-                  aria-label="YouTube"
-                >
-                  <svg
-                    className="w-7 h-7"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-                  </svg>
-                </a>
-                <a
-                  href="https://www.tiktok.com/@belugaleaguerl?is_from_webapp=1&sender_device=pc"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-white hover:text-pink-400 transform hover:scale-110 transition"
-                  aria-label="TikTok"
-                >
-                  <svg
-                    className="w-7 h-7"
-                    fill="currentColor"
-                    viewBox="0 0 24 24"
-                    aria-hidden="true"
-                  >
-                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </div>
-          <div className="text-center mt-8 text-sm text-gray-400">
-            © {new Date().getFullYear()} Beluga League. All rights reserved.
-          </div>
-        </div>
-      </footer>
+      <Footer />
 
       {/* Video Modal - Updated to use intro-video */}
       {showVideo && (

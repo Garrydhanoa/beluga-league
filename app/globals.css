@@ -204,3 +204,51 @@ html, body {
   overflow-x: hidden;
   max-width: 100vw;
 }
+
+/* Remove these styles as we're using inline Tailwind classes instead */
+/* Fix for the tab indicator circles */
+.active-tab-indicator {
+  display: none; /* Hide this class completely */
+}
+
+/* Make sure mobile menu indicators are visible */
+@media (max-width: 768px) {
+  .active-tab-indicator-mobile {
+    display: none; /* Hide this class completely */
+  }
+}
+
+/* Remove any conflicting styles that might hide the indicator */
+nav a[aria-current="page"]::after,
+nav a.active::after {
+  display: none; /* Hide these pseudo-elements */
+}
+
+/* Add this to the end of your globals.css file */
+
+/* Target all indicator dots - much more comprehensive targeting */
+.absolute.bottom-0.left-1\/2.-translate-x-1\/2.w-2.h-2.rounded-full.bg-blue-400,
+.absolute.-bottom-2.left-1\/2.-translate-x-1\/2.w-2.h-2.rounded-full.bg-blue-400,
+nav span.absolute[class*="rounded-full"][class*="bg-blue"],
+nav a span.absolute[class*="rounded-full"],
+.absolute.left-0.top-1\/2.-translate-y-1\/2.w-1.h-1\/2.bg-blue-400,
+span.w-1\.5.h-1\.5.rounded-full.bg-blue-400,
+span.w-2.h-2.rounded-full.bg-blue-400,
+.absolute:is([class*="bottom"]):is([class*="left-1/2"]):is([class*="rounded-full"]):is([class*="bg-blue"]) {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Specifically target any small rounded blue elements */
+[class*="rounded-full"][class*="bg-blue"]:not(.w-8):not(.w-10):not(.w-12):not(.h-8):not(.h-10):not(.h-12) {
+  display: none !important;
+}
+
+/* Target small rounded elements with specific positioning */
+.absolute.left-1\/2.-translate-x-1\/2:is([class*="bottom"]) {
+  display: none !important;
+}
