@@ -1,7 +1,10 @@
 "use client"
 
-import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Navigation from './components/Navigation';
+import Footer from './components/Footer';
+import BackgroundDecoration from './components/BackgroundDecoration';
 
 export default function Home() {
   // Team names - updated to include all 16 teams
@@ -26,6 +29,7 @@ export default function Home() {
   
   // State to control video modal
   const [showVideo, setShowVideo] = useState(false);
+  const [animateItems, setAnimateItems] = useState(false);
   
   // Preload all team logos to prevent loading issues
   useEffect(() => {
@@ -34,87 +38,20 @@ export default function Home() {
       const img = new Image();
       img.src = `/logos/${team}.png`;
     });
+
+    // Animate items on page load
+    setTimeout(() => {
+      setAnimateItems(true);
+    }, 100);
   }, []);
   
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950">
-      {/* Navigation Bar */}
-      <nav className="w-full bg-black/30 backdrop-blur-md border-b border-white/10">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            {/* The blur effect is coming from the drop-shadow in the logo and text styling */}
-            <div className="relative w-[55px] h-[55px] rounded-full border-2 border-blue-400 overflow-hidden">
-              <img 
-                src="/logos/league_logo.png" 
-                alt="Beluga League" 
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = ''; 
-                  if (e.currentTarget.parentElement) {
-                    e.currentTarget.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
-                    e.currentTarget.parentElement.innerHTML = '<span class="text-white font-bold text-2xl">BL</span>';
-                  }
-                }}
-              />
-            </div>
-            {/* Fix for the invisible Beluga League text in the navbar */}
-            <div className="text-3xl font-bold">
-              <span className="bg-gradient-to-r from-blue-300 to-purple-400 text-transparent bg-clip-text inline-block">
-                Beluga League
-              </span>
-            </div>
-          </div>
-          <div className="hidden md:flex space-x-8 text-white">
-            <Link
-              href="/"
-              className="font-medium hover:text-blue-300 border-b-2 border-blue-400"
-            >
-              Home
-            </Link>
-            <Link
-              href="/schedules"
-              className="font-medium hover:text-blue-300"
-            >
-              Schedules
-            </Link>
-            <Link
-              href="/standings"
-              className="font-medium hover:text-blue-300"
-            >
-              Standings
-            </Link>
-            <Link
-              href="/rankings"
-              className="font-medium hover:text-blue-300"
-            >
-              Power Rankings
-            </Link>
-          </div>
-          {/* Mobile hamburger menu button (convert to an anchor that looks like a button) */}
-          <a 
-            href="/development" 
-            target="_blank"
-            rel="noopener noreferrer" 
-            className="md:hidden text-white p-2 cursor-pointer"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-6 w-6"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16m-7 6h7"
-              />
-            </svg>
-          </a>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 text-white">
+      {/* Background decorative elements */}
+      <BackgroundDecoration />
+      
+      {/* IMPORTANT: This is the navigation component with working mobile menu */}
+      <Navigation />
 
       {/* Hero Section with gradient background */}
       <div className="relative">

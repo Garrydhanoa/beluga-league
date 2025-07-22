@@ -417,3 +417,33 @@ ul > li::marker {
 .animation-delay-500 {
   animation-delay: 500ms;
 }
+
+/* Add this to the end of your globals.css file */
+/* filepath: c:\Users\gurno\Desktop\coding\Beluga\my-website\app\globals.css */
+
+/* Make sure mobile menu dropdown is visible */
+.md\:hidden.bg-black\/80 {
+  visibility: visible !important;
+  display: block !important;
+}
+
+/* Fix any issues with pointer events on mobile menu */
+nav button,
+nav a {
+  pointer-events: auto !important;
+}
+
+/* Ensure proper z-index for mobile menu */
+.z-50 {
+  z-index: 50 !important;
+}
+
+/* Override any styles that might be hiding mobile menu elements */
+.max-h-0 {
+  transition: max-height 0.3s ease-out;
+}
+
+.max-h-60 {
+  max-height: 15rem !important;
+  transition: max-height 0.3s ease-in;
+}

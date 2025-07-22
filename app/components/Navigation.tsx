@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -8,16 +8,32 @@ export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   
-  // Check if the current path matches the link
-  const isActive = (path: string) => {
-    return pathname === path;
-  };
+  // Close mobile menu when clicking outside or changing route
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (mobileMenuOpen && !target.closest('.mobile-nav-container')) {
+        setMobileMenuOpen(false);
+      }
+    };
+    
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [mobileMenuOpen]);
+  
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [pathname]);
+  
+  const isActive = (path: string): boolean => pathname === path;
 
   return (
     <nav className="w-full bg-black/30 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        {/* Logo and brand name */}
         <div className="flex items-center space-x-3">
-          <Link href="/">
+          <Link href="/" className="block">
             <div className="relative w-[45px] h-[45px] md:w-[55px] md:h-[55px] rounded-full border-2 border-blue-400 overflow-hidden group">
               <div className="absolute inset-0 bg-blue-500/20 group-hover:bg-blue-500/40 transition-all duration-300"></div>
               <img 
@@ -25,17 +41,17 @@ export default function Navigation() {
                 alt="Beluga League" 
                 className="w-full h-full object-cover relative z-10 transition-transform duration-300 group-hover:scale-110"
                 onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src = ''; 
-                  if (e.currentTarget.parentElement) {
-                    e.currentTarget.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
-                    e.currentTarget.parentElement.innerHTML = '<span class="text-white font-bold text-2xl">BL</span>';
+                  const target = e.currentTarget;
+                  target.onerror = null;
+                  if (target.parentElement) {
+                    target.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
+                    target.parentElement.innerHTML = '<span class="text-white font-bold text-2xl">BL</span>';
                   }
                 }}
               />
             </div>
           </Link>
-          <Link href="/">
+          <Link href="/" className="block">
             <div className="text-xl sm:text-2xl md:text-3xl font-bold">
               <span className="bg-gradient-to-r from-blue-300 to-purple-400 text-transparent bg-clip-text inline-block">
                 Beluga League
@@ -46,9 +62,13 @@ export default function Navigation() {
         
         {/* Mobile menu button */}
         <button 
-          className="md:hidden p-2 rounded-lg bg-black/20 text-white"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden p-3 rounded-lg bg-black/30 text-white hover:bg-black/40 transition-colors z-[999]"
+          onClick={(e: React.MouseEvent) => {
+            e.stopPropagation();
+            setMobileMenuOpen(!mobileMenuOpen);
+          }}
           aria-label="Toggle menu"
+          aria-expanded={mobileMenuOpen}
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             {mobileMenuOpen ? (
@@ -59,7 +79,7 @@ export default function Navigation() {
           </svg>
         </button>
         
-        {/* Desktop Navigation Links - FIXED: Added "relative" to all links */}
+        {/* Desktop Navigation */}
         <div className="hidden md:flex space-x-8 text-white">
           <Link
             href="/"
@@ -67,7 +87,6 @@ export default function Navigation() {
           >
             Home
             {!isActive('/') && <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>}
-            {isActive('/') && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>}
           </Link>
           <Link
             href="/schedules"
@@ -75,7 +94,6 @@ export default function Navigation() {
           >
             Schedules
             {!isActive('/schedules') && <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>}
-            {isActive('/schedules') && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>}
           </Link>
           <Link
             href="/standings"
@@ -83,7 +101,6 @@ export default function Navigation() {
           >
             Standings
             {!isActive('/standings') && <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>}
-            {isActive('/standings') && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>}
           </Link>
           <Link
             href="/rankings"
@@ -91,54 +108,58 @@ export default function Navigation() {
           >
             Power Rankings
             {!isActive('/rankings') && <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>}
-            {isActive('/rankings') && <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-blue-400"></span>}
           </Link>
         </div>
       </div>
       
-      {/* Mobile Navigation Menu - Slide down animation */}
-      <div 
-        className={`md:hidden bg-black/80 backdrop-blur-md border-b border-white/10 absolute w-full z-50 transform transition-all duration-300 overflow-hidden ${
-          mobileMenuOpen ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <div className="container mx-auto px-4 py-2">
-          <div className="flex flex-col space-y-3 pb-3">
-            <Link
-              href="/"
-              className={`font-medium py-2 relative ${isActive('/') ? 'text-blue-300 pl-4' : 'hover:text-blue-300'}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Home
-              {isActive('/') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-blue-400 rounded-r"></span>}
-            </Link>
-            <Link
-              href="/schedules"
-              className={`font-medium py-2 relative ${isActive('/schedules') ? 'text-blue-300 pl-4' : 'hover:text-blue-300'}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Schedules
-              {isActive('/schedules') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-blue-400 rounded-r"></span>}
-            </Link>
-            <Link
-              href="/standings"
-              className={`font-medium py-2 relative ${isActive('/standings') ? 'text-blue-300 pl-4' : 'hover:text-blue-300'}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Standings
-              {isActive('/standings') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-blue-400 rounded-r"></span>}
-            </Link>
-            <Link
-              href="/rankings"
-              className={`font-medium py-2 relative ${isActive('/rankings') ? 'text-blue-300 pl-4' : 'hover:text-blue-300'}`}
-              onClick={() => setMobileMenuOpen(false)}
-            >
-              Power Rankings
-              {isActive('/rankings') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-1/2 bg-blue-400 rounded-r"></span>}
-            </Link>
+      {/* Mobile Navigation Menu - Completely revised for reliable functionality */}
+      {mobileMenuOpen && (
+        <div 
+          className="md:hidden mobile-nav-container fixed top-[61px] left-0 w-full h-auto bg-black/95 backdrop-blur-md z-[990] border-b border-white/10 animate-fadeIn"
+          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+        >
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex flex-col space-y-4">
+              <Link
+                href="/"
+                className={`font-medium py-3 pl-4 relative rounded-md ${
+                  isActive('/') ? 'bg-blue-900/30 text-blue-300' : 'hover:bg-black/40 hover:text-blue-300'
+                }`}
+              >
+                Home
+                {isActive('/') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 bg-blue-400 rounded-r"></span>}
+              </Link>
+              <Link
+                href="/schedules"
+                className={`font-medium py-3 pl-4 relative rounded-md ${
+                  isActive('/schedules') ? 'bg-blue-900/30 text-blue-300' : 'hover:bg-black/40 hover:text-blue-300'
+                }`}
+              >
+                Schedules
+                {isActive('/schedules') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 bg-blue-400 rounded-r"></span>}
+              </Link>
+              <Link
+                href="/standings"
+                className={`font-medium py-3 pl-4 relative rounded-md ${
+                  isActive('/standings') ? 'bg-blue-900/30 text-blue-300' : 'hover:bg-black/40 hover:text-blue-300'
+                }`}
+              >
+                Standings
+                {isActive('/standings') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 bg-blue-400 rounded-r"></span>}
+              </Link>
+              <Link
+                href="/rankings"
+                className={`font-medium py-3 pl-4 relative rounded-md ${
+                  isActive('/rankings') ? 'bg-blue-900/30 text-blue-300' : 'hover:bg-black/40 hover:text-blue-300'
+                }`}
+              >
+                Power Rankings
+                {isActive('/rankings') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 bg-blue-400 rounded-r"></span>}
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 }
