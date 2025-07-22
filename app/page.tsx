@@ -329,36 +329,72 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Call to Action with gradient background */}
+      {/* Enhanced Call to Action with customized design */}
       <div className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-800/80 via-blue-800/50 to-black/70"></div>
+        {/* Animated background particles */}
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-800/80 via-blue-800/50 to-black/70">
+          <div className="absolute top-20 left-1/4 w-20 h-20 rounded-full bg-blue-500/10 blur-xl animate-pulse-slow"></div>
+          <div className="absolute bottom-40 right-1/3 w-32 h-32 rounded-full bg-purple-500/10 blur-xl animate-pulse"></div>
+          <div className="absolute top-1/2 left-2/3 w-16 h-16 rounded-full bg-blue-400/10 blur-lg animate-pulse-slow"></div>
+        </div>
+        
+        {/* Glowing borders */}
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-5xl font-bold text-white mb-8 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
-              Ready to Compete?
-            </h2>
-            <p className="text-2xl text-blue-100 mb-10">
-              Join the most exciting Rocket League community and show off your
-              skills in our next season.
-            </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <a 
-                href="https://docs.google.com/forms/d/e/1FAIpQLScR3pdfPVDn9H0u_FIo6KaNMG8HvHRvuai7GSnk3XuVH-raUA/viewform?usp=header" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-10 py-5 bg-gradient-to-r from-blue-500 to-blue-700 rounded-full font-bold text-white text-lg hover:from-blue-600 hover:to-blue-800 transition shadow-lg transform hover:scale-105 inline-block text-center"
-              >
-                Apply For GM
-              </a>
-              {/* Rulebook button */}
-              <a 
-                href="/development" 
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-10 py-5 bg-white/10 backdrop-blur-sm rounded-full font-bold text-white text-lg border border-white/20 hover:bg-white/20 transition transform hover:scale-105 inline-block text-center"
-              >
-                Rulebook
-              </a>
+          <div className="max-w-4xl mx-auto">
+            <div className="relative bg-black/30 backdrop-blur-md rounded-2xl p-10 border border-white/10 overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.3)]">
+              {/* Animated highlight corner */}
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-500/20 rounded-full blur-xl animate-pulse-slow"></div>
+              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-purple-500/20 rounded-full blur-xl animate-pulse"></div>
+              
+              {/* Content with enhanced typography */}
+              <div className="text-center relative z-10">
+                <div className="inline-block relative mb-3">
+                  <span className="absolute -inset-1 rounded-lg bg-gradient-to-r from-blue-500/30 to-purple-500/30 blur-xl animate-pulse-slow"></span>
+                  <h2 className="relative text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200 mb-8">
+                    Ready to Compete?
+                  </h2>
+                </div>
+                
+                <p className="text-2xl text-blue-100 mb-10 max-w-2xl mx-auto">
+                  Join the most exciting Rocket League community and show off your
+                  skills in our next season.
+                </p>
+                
+                {/* Enhanced buttons with hover effects */}
+                <div className="flex flex-col sm:flex-row justify-center gap-6">
+                  <a 
+                    href="https://docs.google.com/forms/d/e/1FAIpQLScR3pdfPVDn9H0u_FIo6KaNMG8HvHRvuai7GSnk3XuVH-raUA/viewform?usp=header" 
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group relative px-10 py-5 bg-gradient-to-r from-blue-600 to-blue-800 rounded-xl font-bold text-white text-lg hover:from-blue-700 hover:to-blue-900 transition shadow-lg transform hover:scale-105 inline-block text-center overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transition-transform group-hover:rotate-12" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
+                      </svg>
+                      Apply For GM
+                    </span>
+                    <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-white/0 via-white/20 to-white/0 skew-x-20 transition-transform translate-x-[-180%] group-hover:translate-x-[180%] duration-700"></div>
+                  </a>
+                  
+                  <a 
+                    href="/rulebook" 
+                    className="group relative px-10 py-5 bg-black/40 backdrop-blur-sm rounded-xl font-bold text-white text-lg border border-white/20 hover:border-blue-400 transition transform hover:scale-105 inline-block text-center overflow-hidden"
+                  >
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transition-transform group-hover:rotate-12" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                      </svg>
+                      Rulebook
+                    </span>
+                    <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600/0 via-blue-600/20 to-blue-600/0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
+                  </a>
+                </div>
+                
+                {/* Decorative elements */}
+                <div className="absolute left-4 top-4 w-20 h-1 bg-gradient-to-r from-blue-500 to-transparent rounded-full"></div>
+                <div className="absolute right-4 bottom-4 w-20 h-1 bg-gradient-to-l from-purple-500 to-transparent rounded-full"></div>
+              </div>
             </div>
           </div>
         </div>

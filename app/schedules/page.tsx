@@ -564,7 +564,13 @@ export default function SchedulesPage() {
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
             <span>8 Week Season</span>
             <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-            <span>Professional Division</span>
+            <span>
+              {activeTab === 'majors' 
+                ? 'Elite Division' 
+                : activeTab === 'aa' 
+                  ? 'Amateur Division' 
+                  : 'Challenger Division'}
+            </span>
           </p>
         </div>
 
