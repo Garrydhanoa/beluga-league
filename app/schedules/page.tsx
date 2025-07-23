@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import Navigation from "../components/Navigation";
-import Footer from "../components/Footer";
 
 // Type definitions
 type Division = "majors" | "aa" | "aaa";
@@ -433,9 +431,6 @@ export default function SchedulesPage() {
         </svg>
       </div>
       
-      {/* Use the shared Navigation component */}
-      <Navigation />
-
       <div className={`container mx-auto px-3 sm:px-4 py-6 sm:py-10 transition-all duration-700 ${animateItems ? 'opacity-100' : 'opacity-0 translate-y-10'}`}>
         <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 sm:mb-10 text-center relative">
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200">
@@ -677,11 +672,10 @@ export default function SchedulesPage() {
         </div>
       </div>
 
-      {/* Use the shared Footer component */}
-      <Footer />
-
       {/* Confetti container remains the same */}
       <div className="confetti-container fixed inset-0 pointer-events-none z-40 overflow-hidden"></div>
     </div>
   );
 }
+
+// REMOVE EVERYTHING BELOW - Comments and CSS blocks

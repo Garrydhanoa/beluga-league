@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import ImageWithFallback from './ImageWithFallback';
 
 export default function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -31,23 +32,17 @@ export default function Navigation() {
   return (
     <nav className="w-full bg-black/30 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-        {/* Logo and brand name */}
+        {/* Logo and brand name - UPDATED */}
         <div className="flex items-center space-x-3">
-          <Link href="/" className="block">
-            <div className="relative w-[45px] h-[45px] md:w-[55px] md:h-[55px] rounded-full border-2 border-blue-400 overflow-hidden group">
+          <Link href="/">
+            <div className="relative w-[48px] h-[48px] rounded-full border-2 border-blue-400 overflow-hidden group flex items-center justify-center">
+              {/* Using transparent background for logo to avoid circle fitting issues */}
               <div className="absolute inset-0 bg-blue-500/20 group-hover:bg-blue-500/40 transition-all duration-300"></div>
-              <img 
+              <ImageWithFallback 
                 src="/logos/league_logo.png" 
                 alt="Beluga League" 
-                className="w-full h-full object-cover relative z-10 transition-transform duration-300 group-hover:scale-110"
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  target.onerror = null;
-                  if (target.parentElement) {
-                    target.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
-                    target.parentElement.innerHTML = '<span class="text-white font-bold text-2xl">BL</span>';
-                  }
-                }}
+                className="w-[40px] h-[40px] object-contain relative z-10 transition-transform duration-300 group-hover:scale-110"
+                fallback={<span className="text-white font-bold text-xl">BL</span>}
               />
             </div>
           </Link>
@@ -119,7 +114,7 @@ export default function Navigation() {
         </div>
       </div>
       
-      {/* Mobile Navigation Menu - Improved for reliable display */}
+      {/* Mobile Navigation Menu */}
       {mobileMenuOpen && (
         <div 
           className="md:hidden mobile-nav-container fixed top-[61px] left-0 w-full h-auto bg-black/95 backdrop-blur-md z-[990] border-b border-white/10 animate-fadeIn"
@@ -163,7 +158,6 @@ export default function Navigation() {
                 Power Rankings
                 {isActive('/rankings') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 bg-blue-400 rounded-r"></span>}
               </Link>
-              {/* Ensure Player Directory is in the mobile menu */}
               <Link
                 href="/players"
                 className={`font-medium py-3 pl-4 relative rounded-md ${

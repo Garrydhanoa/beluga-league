@@ -2,8 +2,8 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import DOMPurify from 'dompurify';
-import Navigation from '../components/Navigation';
-import Footer from '../components/Footer';
+import Navigation from '../components/Navigation'
+import Footer from '../components/Footer'
 
 export default function RulebookPage() {
   const [content, setContent] = useState<string>('');
@@ -377,6 +377,31 @@ export default function RulebookPage() {
           .backdrop-blur-md {
             backdrop-filter: blur(10px);
           }
+        }
+
+        /* Footer and Navigation styling fixes */
+        /* Make sure only one navigation and footer appear */
+        body > nav:not(:first-of-type),
+        body > footer:not(:last-of-type) {
+          display: none !important;
+        }
+
+        /* Ensure the footer has gradient styling */
+        footer {
+          background: linear-gradient(to right, rgba(0,0,0,0.9), rgba(0,0,0,0.8), rgba(0,0,0,0.9)) !important;
+          border-top: 1px solid rgba(255,255,255,0.05) !important;
+          padding: 1.5rem 0 !important;
+          margin-top: 2.5rem !important;
+        }
+
+        /* Ensure navigation has the original styling */
+        nav {
+          background-color: rgba(0, 0, 0, 0.3) !important;
+          backdrop-filter: blur(8px) !important;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+          position: sticky !important;
+          top: 0 !important;
+          z-index: 50 !important;
         }
       `}</style>
     </div>

@@ -1,8 +1,6 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import Navigation from '../components/Navigation';
-import Footer from '../components/Footer';
 import Link from 'next/link';
 
 export default function StandingsPage() {
@@ -61,8 +59,6 @@ export default function StandingsPage() {
         <div className="absolute top-1/3 right-10 opacity-10 text-4xl animate-float-slow-reverse text-purple-400">{`[ ]`}</div>
         <div className="absolute bottom-1/4 left-1/3 opacity-15 text-6xl animate-float-medium text-blue-400">{`( )`}</div>
       </div>
-      
-      <Navigation />
       
       <div className="flex flex-col items-center justify-center py-10 sm:py-16 px-4 sm:px-8 relative z-10">
         <div className="bg-black/40 backdrop-blur-md p-8 sm:p-12 rounded-2xl border border-white/10 shadow-xl max-w-3xl w-full">
@@ -157,48 +153,6 @@ export default function StandingsPage() {
           </div>
         </div>
       </div>
-      
-      <Footer />
-      
-      <style jsx global>{`
-        @keyframes float-slow {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
-        }
-        @keyframes float-slow-reverse {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(-5deg); }
-        }
-        @keyframes float-medium {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-10px) rotate(3deg); }
-        }
-        .animate-float-slow {
-          animation: float-slow 8s ease-in-out infinite;
-        }
-        .animate-float-slow-reverse {
-          animation: float-slow-reverse 7s ease-in-out infinite;
-        }
-        .animate-float-medium {
-          animation: float-medium 6s ease-in-out infinite;
-        }
-        .animate-spin-slow {
-          animation: spin 8s linear infinite;
-        }
-        .scrollbar-thin::-webkit-scrollbar {
-          width: 4px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.2);
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: rgba(59, 130, 246, 0.5);
-          border-radius: 4px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-          background: rgba(59, 130, 246, 0.7);
-        }
-      `}</style>
     </div>
   );
 }

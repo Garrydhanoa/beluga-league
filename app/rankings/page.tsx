@@ -1,9 +1,8 @@
 "use client"
 
 import { useState, useEffect } from 'react';
-import Navigation from '../components/Navigation';
-import Footer from '../components/Footer';
 import Link from 'next/link';
+import ImageWithFallback from '../components/ImageWithFallback';
 
 export default function PowerRankingsPage() {
   const [chartData, setChartData] = useState<number[]>([]);
@@ -87,7 +86,7 @@ export default function PowerRankingsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 text-white">
+    <div className="min-h-screen">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="bg-decor absolute top-20 left-10 w-64 h-64 rounded-full bg-blue-500/5 blur-3xl"></div>
@@ -104,8 +103,6 @@ export default function PowerRankingsPage() {
         <div className="absolute top-1/3 right-[15%] text-5xl text-purple-500/20 animate-float-medium">📈</div>
         <div className="absolute bottom-1/4 left-[20%] text-4xl text-blue-500/20 animate-float-slow-reverse">📉</div>
       </div>
-      
-      <Navigation />
       
       <div className="container mx-auto px-4 py-10 relative z-10">
         <div className="max-w-4xl mx-auto">
@@ -165,19 +162,7 @@ export default function PowerRankingsPage() {
             <div className="bg-black/30 backdrop-blur-md rounded-xl border border-white/10 p-6 relative overflow-hidden">
               <h2 className="text-xl font-bold mb-6 text-blue-300">Analysis in Progress</h2>
               
-              {/* Chart header with legend */}
-              <div className="flex justify-between mb-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-blue-500"></span>
-                  <span className="text-blue-200">Performance</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded-full bg-purple-500"></span>
-                  <span className="text-purple-200">Consistency</span>
-                </div>
-              </div>
-              
-              {/* Animated chart visualization */}
+              {/* Chart content */}
               <div className="h-64 relative">
                 {/* Grid lines */}
                 {[0, 1, 2, 3].map((i) => (
@@ -270,44 +255,6 @@ export default function PowerRankingsPage() {
             </h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/*
-                {
-                  title: "Team Rankings",
-                  description: "Weekly power rankings based on performance metrics across all divisions",
-                  icon: "📊",
-                  color: "from-blue-600/20 to-blue-400/20"
-                },
-                {
-                  title: "Player Rankings",
-                  description: "Individual player performance and ranking metrics across all teams",
-                  icon: "👤",
-                  color: "from-purple-600/20 to-purple-400/20"
-                },
-                {
-                  title: "Division Analysis",
-                  description: "Comparative analysis between different divisions and teams",
-                  icon: "📈",
-                  color: "from-indigo-600/20 to-indigo-400/20"
-                },
-                {
-                  title: "Team Impact in the past 2 weeks",
-                  description: "Recent team performance changes and momentum indicators",
-                  icon: "🎮",
-                  color: "from-cyan-600/20 to-cyan-400/20"
-                },
-                {
-                  title: "Team progress throughout seasons",
-                  description: "Long-term progression and performance changes across multiple seasons",
-                  icon: "📜",
-                  color: "from-blue-600/20 to-purple-400/20"
-                },
-                {
-                  title: "Stats Analysis",
-                  description: "In-depth statistical analysis of team and player performance metrics",
-                  icon: "📋",
-                  color: "from-violet-600/20 to-violet-400/20"
-                }
-              */}
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="flex gap-4 p-4 rounded-lg bg-blue-900/20 animate-pulse opacity-70">
                   <div className="text-2xl">⏳</div>
@@ -349,60 +296,6 @@ export default function PowerRankingsPage() {
           </div>
         </div>
       </div>
-      
-      <Footer />
-      
-      <style jsx global>{`
-        @keyframes float-slow {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
-        }
-        @keyframes float-medium {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-15px) rotate(3deg); }
-        }
-        @keyframes float-slow-reverse {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-10px) rotate(-5deg); }
-        }
-        .animate-float-slow {
-          animation: float-slow 8s ease-in-out infinite;
-        }
-        .animate-float-medium {
-          animation: float-medium 6s ease-in-out infinite;
-        }
-        .animate-float-slow-reverse {
-          animation: float-slow-reverse 7s ease-in-out infinite;
-        }
-        .animate-spin-slow {
-          animation: spin 8s linear infinite;
-        }
-        @keyframes dash {
-          to {
-            stroke-dashoffset: 0;
-          }
-        }
-        @keyframes scan {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(100%); }
-        }
-        .animate-scan {
-          animation: scan 4s linear infinite alternate;
-        }
-        .scrollbar-thin::-webkit-scrollbar {
-          width: 4px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.2);
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: rgba(59, 130, 246, 0.5);
-          border-radius: 4px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-          background: rgba(59, 130, 246, 0.7);
-        }
-      `}</style>
     </div>
   );
 }

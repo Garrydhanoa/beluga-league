@@ -1,6 +1,6 @@
 export default function DevelopmentPage() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 text-white p-8">
+    <div className="min-h-[calc(100vh-140px)] flex flex-col items-center justify-center p-8">
       <div className="bg-black/40 backdrop-blur-md p-12 rounded-2xl border border-white/10 shadow-xl max-w-2xl w-full text-center">
         <h1 className="text-4xl md:text-6xl font-bold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200">
           Under Development

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import ImageWithFallback from '../../components/ImageWithFallback';
 
 // Type definitions
 type Match = [string, string]; // [team1, team2]
@@ -502,7 +503,7 @@ export default function TeamPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 text-white relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="bg-decor absolute top-20 left-10 w-64 h-64 rounded-full bg-blue-500/5 blur-3xl" data-speed="0.03"></div>
@@ -511,76 +512,7 @@ export default function TeamPage() {
         <div className="bg-decor hidden lg:block absolute bottom-1/3 left-1/4 w-56 h-56 rounded-full bg-purple-400/5 blur-2xl" data-speed="0.04"></div>
       </div>
       
-      {/* Navigation Bar */}
-      <nav className="w-full bg-black/30 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Link href="/">
-              <div className="relative w-[55px] h-[55px] rounded-full border-2 border-blue-400 overflow-hidden group">
-                <div className="absolute inset-0 bg-blue-500/20 group-hover:bg-blue-500/40 transition-all duration-300"></div>
-                <img 
-                  src="/logos/league_logo.png" 
-                  alt="Beluga League" 
-                  className="w-full h-full object-cover relative z-10 transition-transform duration-300 group-hover:scale-110"
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.src = ''; 
-                    if (e.currentTarget.parentElement) {
-                      e.currentTarget.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
-                      e.currentTarget.parentElement.innerHTML = '<span class="text-white font-bold text-2xl">BL</span>';
-                    }
-                  }}
-                />
-              </div>
-            </Link>
-            <Link href="/">
-              <div className="text-3xl font-bold">
-                <span className="bg-gradient-to-r from-blue-300 to-purple-400 text-transparent bg-clip-text inline-block">
-                  Beluga League
-                </span>
-              </div>
-            </Link>
-          </div>
-          <div className="hidden md:flex space-x-8 text-white">
-            <Link
-              href="/"
-              className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
-            >
-              Home
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
-            </Link>
-            <Link
-              href="/schedules"
-              className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
-            >
-              Schedules
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
-            </Link>
-            <Link
-              href="/standings"
-              className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
-            >
-              Standings
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
-            </Link>
-            <Link
-              href="/rankings"
-              className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
-            >
-              Power Rankings
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
-            </Link>
-            <Link
-              href="/players"
-              className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
-            >
-              Player Directory
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
-            </Link>
-          </div>
-        </div>
-      </nav>
-
+      {/* Main content starts here */}
       <div className={`container mx-auto px-4 py-10 transition-all duration-700 ${animateItems ? 'opacity-100' : 'opacity-0 translate-y-10'}`}>
         {/* Team header */}
         <div className="flex flex-col md:flex-row items-center justify-center md:justify-start gap-6 mb-10">
@@ -996,35 +928,6 @@ export default function TeamPage() {
           </Link>
         </div>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-gradient-to-r from-black/90 via-black/80 to-black/90 text-white py-8 mt-16 border-t border-white/5">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-col items-center justify-center space-y-4">
-            <div className="flex items-center justify-center">
-              <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 flex items-center justify-center mr-2">
-                <img 
-                  src="/logos/league_logo.png" 
-                  alt="Beluga League" 
-                  className="w-full h-full object-cover"
-                  onError={(e) => {
-                    e.currentTarget.onerror = null;
-                    e.currentTarget.style.display = 'none';
-                    if (e.currentTarget.parentElement) {
-                      e.currentTarget.parentElement.classList.add('bg-blue-900', 'flex', 'items-center', 'justify-center');
-                      e.currentTarget.parentElement.innerHTML = '<span class="font-bold text-sm text-blue-300">BL</span>';
-                    }
-                  }}
-                />
-              </div>
-              <span className="text-sm text-blue-200 font-medium">Beluga League</span>
-            </div>
-            <div className="text-center text-sm text-gray-400">
-              © {new Date().getFullYear()} Beluga League. All rights reserved.
-            </div>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
