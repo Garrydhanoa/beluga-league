@@ -503,7 +503,7 @@ export default function TeamPage() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-hidden bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 text-white">
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="bg-decor absolute top-20 left-10 w-64 h-64 rounded-full bg-blue-500/5 blur-3xl" data-speed="0.03"></div>
@@ -631,84 +631,129 @@ export default function TeamPage() {
                   <div className="w-16 h-16 rounded-full border-4 border-blue-500/30 border-t-blue-500 animate-spin"></div>
                 </div>
               ) : teamDivisions.length > 0 ? (
-                <div className="space-y-6">
+                <div className="space-y-8 perspective-1000">
                   {teamSchedules[activeScheduleTab] && Object.entries(teamSchedules[activeScheduleTab] || {}).map(([week, matches]) => (
-                    <div key={week} className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden">
+                    <div key={week} className="bg-black/30 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden hover:border-blue-400/30 transition-all duration-300 transform hover:scale-[1.01] hover:shadow-[0_10px_40px_-15px_rgba(59,130,246,0.3)]">
                       <div className="px-6 py-4 bg-gradient-to-r from-blue-900/50 to-purple-900/50">
                         <h3 className="text-xl font-bold flex items-center">
-                          <span className="inline-flex items-center justify-center w-8 h-8 mr-3 rounded-full bg-gradient-to-br from-blue-600/20 to-purple-600/20 text-white">
+                          <span className="inline-flex items-center justify-center w-10 h-10 mr-3 rounded-full bg-gradient-to-br from-blue-600/40 to-purple-600/40 text-white shadow-inner">
                             {week.split(' ')[1]}
                           </span>
-                          {week}
+                          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-100 to-purple-100">
+                            {week}
+                          </span>
                         </h3>
                       </div>
                       <div className="p-6">
                         <div className="grid gap-4">
-                          {matches.map((match, index) => (
-                            <div 
-                              key={`${week}-match-${index}`}
-                              className="match-card bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-sm p-5 rounded-xl border border-white/10 hover:border-blue-400 transition-all transform hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_5px_30px_rgba(59,130,246,0.5)] duration-300 relative group overflow-hidden"
-                            >
-                              <div className="flex items-center justify-between relative">
-                                {/* Team 1 */}
-                                <div className={`flex flex-col items-center w-5/12 transition-transform duration-300 ${match[0] === decodedTeamName ? 'scale-110' : ''}`}>
-                                  <div className="h-16 w-16 relative mb-3 flex items-center justify-center">
-                                    <div className={`absolute inset-0 rounded-full ${match[0] === decodedTeamName ? 'bg-blue-500/30 animate-pulse' : 'bg-gradient-to-br from-blue-600/10 to-blue-400/10'}`}></div>
-                                    <Link href={`/teams/${encodeURIComponent(match[0])}`}>
-                                      <img 
-                                        src={`/logos/${match[0]}.png`} 
-                                        alt={match[0]} 
-                                        className="h-14 w-14 object-contain relative z-10 transition-transform hover:scale-110 duration-300"
-                                        onError={(e) => {
-                                          e.currentTarget.onerror = null;
-                                          e.currentTarget.style.display = 'none';
-                                          if (e.currentTarget.parentElement) {
-                                            e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20', 'flex', 'items-center', 'justify-center');
-                                            e.currentTarget.parentElement.innerHTML = `<span class="text-xl font-bold text-white opacity-80">${getTeamInitials(match[0])}</span>`;
-                                          }
-                                        }}
-                                      />
-                                    </Link>
-                                  </div>
-                                  <p className={`text-center font-medium text-sm w-full ${match[0] === decodedTeamName ? 'text-white font-bold' : 'text-blue-200'}`}>
-                                    {match[0]}
-                                  </p>
+                          {matches.map((match, index) => {
+                            // Always put the team on the left
+                            const isTeamOnRight = match[1] === decodedTeamName;
+                            const leftTeam = isTeamOnRight ? match[1] : match[0];
+                            const rightTeam = isTeamOnRight ? match[0] : match[1];
+                            
+                            return (
+                              <div 
+                                key={`${week}-match-${index}`}
+                                className="match-card bg-gradient-to-br from-blue-900/40 to-purple-900/40 shadow-[0_0_25px_rgba(59,130,246,0.2)] backdrop-blur-sm p-6 rounded-2xl border border-blue-400/30 transition-all transform hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_5px_30px_rgba(59,130,246,0.5)] duration-300 relative group overflow-hidden"
+                              >
+                                <div className="absolute top-0 left-0 w-full h-full bg-grid-pattern opacity-5"></div>
+                                <div className="absolute inset-0 overflow-hidden">
+                                  <div className="absolute -left-10 top-1/2 -translate-y-1/2 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl"></div>
+                                  <div className="absolute -right-10 top-1/2 -translate-y-1/2 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl"></div>
                                 </div>
+                                
+                                <div className="flex items-center justify-between relative">
+                                  {/* Left Team (Always the current team) */}
+                                  <div className="flex flex-col items-center w-5/12 group/team">
+                                    <div className="h-20 w-20 relative mb-3 flex items-center justify-center">
+                                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-500/40 to-purple-500/40 animate-pulse shadow-lg shadow-blue-500/30"></div>
+                                      <div className="absolute inset-0 rounded-full bg-blue-500/30 transform scale-90 animate-pulse-slow blur-md"></div>
+                                      <div className="h-16 w-16 relative flex items-center justify-center transform transition-transform duration-300 hover:scale-110 cursor-pointer">
+                                        <img 
+                                          src={`/logos/${leftTeam}.png`} 
+                                          alt={leftTeam} 
+                                          className="h-14 w-14 object-contain relative z-10 drop-shadow-[0_0_8px_rgba(59,130,246,0.8)]"
+                                          onError={(e) => {
+                                            e.currentTarget.onerror = null;
+                                            e.currentTarget.style.display = 'none';
+                                            if (e.currentTarget.parentElement) {
+                                              e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20', 'flex', 'items-center', 'justify-center');
+                                              e.currentTarget.parentElement.innerHTML = `<span class="text-xl font-bold text-white opacity-80">${getTeamInitials(leftTeam)}</span>`;
+                                            }
+                                          }}
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="text-center">
+                                      <p className="font-extrabold text-lg drop-shadow-[0_0_8px_rgba(59,130,246,0.8)] text-white mb-1">
+                                        {leftTeam}
+                                      </p>
+                                      <span className="px-3 py-1 bg-blue-500/30 rounded-full text-xs font-medium text-blue-100">
+                                        {isTeamOnRight ? getDivisionDisplayName(activeScheduleTab) : "Opponent"}
+                                      </span>
+                                    </div>
+                                  </div>
 
-                                {/* VS */}
-                                <div className="flex-shrink-0 w-2/12 flex flex-col items-center justify-center">
-                                  <div className="my-1 p-2 rounded-full bg-black/40">
-                                    <span className="text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text">VS</span>
+                                  {/* VS */}
+                                  <div className="flex-shrink-0 w-2/12 flex flex-col items-center justify-center">
+                                    <div className="h-16 w-px bg-gradient-to-b from-transparent via-blue-400/50 to-transparent"></div>
+                                    <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-r from-blue-800/80 to-purple-800/80 shadow-[0_0_15px_rgba(59,130,246,0.4)]">
+                                      <span className="text-lg font-bold bg-gradient-to-r from-blue-200 to-purple-200 text-transparent bg-clip-text">VS</span>
+                                    </div>
+                                    <div className="h-16 w-px bg-gradient-to-b from-transparent via-purple-400/50 to-transparent"></div>
+                                  </div>
+
+                                  {/* Right Team (Always the opponent) */}
+                                  <div className="flex flex-col items-center w-5/12 group/team">
+                                    <div className="h-20 w-20 relative mb-3 flex items-center justify-center opacity-90 hover:opacity-100 transition-opacity">
+                                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-500/20 to-blue-500/20"></div>
+                                      <div className="h-16 w-16 relative flex items-center justify-center transform transition-transform duration-300 hover:scale-110 cursor-pointer">
+                                        <Link href={`/teams/${encodeURIComponent(rightTeam)}`}>
+                                          <img 
+                                            src={`/logos/${rightTeam}.png`} 
+                                            alt={rightTeam} 
+                                            className="h-14 w-14 object-contain relative z-10"
+                                            onError={(e) => {
+                                              e.currentTarget.onerror = null;
+                                              e.currentTarget.style.display = 'none';
+                                              if (e.currentTarget.parentElement) {
+                                                e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20', 'flex', 'items-center', 'justify-center');
+                                                e.currentTarget.parentElement.innerHTML = `<span class="text-xl font-bold text-white opacity-80">${getTeamInitials(rightTeam)}</span>`;
+                                              }
+                                            }}
+                                          />
+                                        </Link>
+                                      </div>
+                                    </div>
+                                    <div className="text-center">
+                                      <p className="font-medium text-lg text-blue-200 mb-1 group-hover/team:text-white transition-colors duration-300">
+                                        {rightTeam}
+                                      </p>
+                                      <span className="px-3 py-1 bg-purple-500/20 rounded-full text-xs font-medium text-purple-200">
+                                        Opponent
+                                      </span>
+                                    </div>
                                   </div>
                                 </div>
-
-                                {/* Team 2 */}
-                                <div className={`flex flex-col items-center w-5/12 transition-transform duration-300 ${match[1] === decodedTeamName ? 'scale-110' : ''}`}>
-                                  <div className="h-16 w-16 relative mb-3 flex items-center justify-center">
-                                    <div className={`absolute inset-0 rounded-full ${match[1] === decodedTeamName ? 'bg-blue-500/30 animate-pulse' : 'bg-gradient-to-br from-purple-400/10 to-purple-600/10'}`}></div>
-                                    <Link href={`/teams/${encodeURIComponent(match[1])}`}>
-                                      <img 
-                                        src={`/logos/${match[1]}.png`} 
-                                        alt={match[1]} 
-                                        className="h-14 w-14 object-contain relative z-10 transition-transform hover:scale-110 duration-300"
-                                        onError={(e) => {
-                                          e.currentTarget.onerror = null;
-                                          e.currentTarget.style.display = 'none';
-                                          if (e.currentTarget.parentElement) {
-                                            e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20');
-                                            e.currentTarget.parentElement.innerHTML = `<span class="text-xl font-bold text-white opacity-80">${getTeamInitials(match[1])}</span>`;
-                                          }
-                                        }}
-                                      />
-                                    </Link>
-                                  </div>
-                                  <p className={`text-center font-medium text-sm w-full ${match[1] === decodedTeamName ? 'text-white font-bold' : 'text-blue-200'}`}>
-                                    {match[1]}
-                                  </p>
+                                
+                                {/* Match details */}
+                                <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+                                  <span className="text-xs text-blue-300/70 bg-black/30 px-3 py-1 rounded-full">
+                                    {week}
+                                  </span>
+                                </div>
+                                
+                                {/* Particle effects */}
+                                <div className="absolute inset-0 overflow-hidden rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500">
+                                  <div className="absolute top-1/4 left-1/4 w-1 h-1 bg-blue-400 rounded-full animate-float"></div>
+                                  <div className="absolute bottom-1/3 right-1/4 w-2 h-2 bg-purple-400 rounded-full animate-float animation-delay-300"></div>
+                                  <div className="absolute top-1/3 right-1/3 w-1.5 h-1.5 bg-blue-300 rounded-full animate-float animation-delay-700"></div>
+                                  <div className="absolute bottom-1/4 left-1/2 w-1 h-1 bg-purple-300 rounded-full animate-float animation-delay-1000"></div>
                                 </div>
                               </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     </div>

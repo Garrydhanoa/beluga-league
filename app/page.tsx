@@ -69,14 +69,27 @@ export default function Home() {
                 The premier Rocket League discord community for competitive play,
                 camaraderie, and celebration of the game we love.
               </p>
-              <div className="flex space-x-4">
+              <div className="flex flex-wrap space-x-0 space-y-4 sm:space-y-0 sm:space-x-4">
                 <a 
                   href="https://discord.gg/4J4c79hawF"
                   target="_blank" 
                   rel="noopener noreferrer"
-                  className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full font-medium text-white hover:from-blue-600 hover:to-purple-700 transition shadow-lg transform hover:scale-105 inline-block text-center"
+                  className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full font-medium text-white hover:from-blue-600 hover:to-purple-700 transition shadow-lg transform hover:scale-105 inline-block text-center w-full sm:w-auto"
                 >
                   Join Discord
+                </a>
+                
+                <a 
+                  href="#applications"
+                  className="px-8 py-4 bg-black/30 backdrop-blur-sm border border-white/20 hover:border-blue-400 rounded-full font-medium text-white transition shadow-lg transform hover:scale-105 inline-block text-center w-full sm:w-auto"
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z" />
+                      <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd" />
+                    </svg>
+                    Applications
+                  </span>
                 </a>
               </div>
             </div>
@@ -315,7 +328,7 @@ export default function Home() {
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transition-transform group-hover:rotate-12" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 005.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
                       </svg>
                       Rulebook
                     </span>
@@ -361,6 +374,131 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Applications Section */}
+      <div id="applications" className="container mx-auto px-4 py-16 scroll-mt-24">
+        <div className="text-center mb-12">
+          <div className="relative inline-block">
+            <h2 className="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200">
+              Join Our Team
+            </h2>
+            <div className="absolute -inset-4 bg-blue-500/10 rounded-full blur-xl animate-pulse-slow -z-10"></div>
+          </div>
+          <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+            Apply for various positions in the Beluga League and help shape the future of our community!
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Mod/Admin Application Card */}
+          <div className="bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden shadow-lg hover:shadow-blue-500/20 hover:border-blue-400/50 transition-all duration-300 transform hover:-translate-y-2 group">
+            <div className="h-24 bg-gradient-to-r from-blue-600/40 to-purple-600/40 flex items-center justify-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-grid opacity-20"></div>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-blue-500/10 blur-2xl"></div>
+            </div>
+            <div className="p-6">
+              <h3 className="text-2xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-purple-300">
+                Mod/Admin Application
+              </h3>
+              <p className="text-blue-100 mb-6">
+                Help moderate our community, enforce rules, and ensure everyone has a positive experience.
+              </p>
+              <a 
+                href="https://docs.google.com/forms/d/e/1FAIpQLSc9HYfC_4jsb2urOUgT3ZfL3-aQsuLPbTy3Ao9-5uMG9LR3nQ/viewform"
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-blue-800 text-white font-medium hover:from-blue-700 hover:to-blue-900 transition-all group-hover:shadow-lg"
+              >
+                <span>Apply as Mod/Admin</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          {/* GM Application Card */}
+          <div className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden shadow-lg hover:shadow-purple-500/20 hover:border-purple-400/50 transition-all duration-300 transform hover:-translate-y-2 group">
+            <div className="h-24 bg-gradient-to-r from-purple-600/40 to-indigo-600/40 flex items-center justify-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-grid opacity-20"></div>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-purple-500/10 blur-2xl"></div>
+            </div>
+            <div className="p-6">
+              <h3 className="text-2xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-purple-300 to-indigo-300">
+                GM Application
+              </h3>
+              <p className="text-blue-100 mb-6">
+                Lead your own team, draft players, and compete for the championship in our league seasons.
+              </p>
+              <a 
+                href="https://docs.google.com/forms/d/e/1FAIpQLScR3pdfPVDn9H0u_FIo6KaNMG8HvHRvuai7GSnk3XuVH-raUA/viewform"
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-indigo-800 text-white font-medium hover:from-purple-700 hover:to-indigo-900 transition-all group-hover:shadow-lg"
+              >
+                <span>Apply as GM</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          {/* Beluga Helper Application Card */}
+          <div className="bg-gradient-to-br from-indigo-900/30 to-blue-900/30 backdrop-blur-sm rounded-xl border border-white/10 overflow-hidden shadow-lg hover:shadow-indigo-500/20 hover:border-indigo-400/50 transition-all duration-300 transform hover:-translate-y-2 group">
+            <div className="h-24 bg-gradient-to-r from-indigo-600/40 to-blue-600/40 flex items-center justify-center relative overflow-hidden">
+              <div className="absolute inset-0 bg-grid opacity-20"></div>
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 text-white group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11 11V9a2 2 0 00-2-2m2 4v4a2 2 0 104 0v-1m-4-3H9m2 0h4m6 1a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div className="absolute -right-4 -bottom-4 w-24 h-24 rounded-full bg-indigo-500/10 blur-2xl"></div>
+            </div>
+            <div className="p-6">
+              <h3 className="text-2xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-blue-300">
+                Beluga Helper Application
+              </h3>
+              <p className="text-blue-100 mb-6">
+                Assist with community events, provide support to players, and help make our league run smoothly.
+              </p>
+              <a 
+                href="https://docs.google.com/forms/d/e/1FAIpQLSfCTiDxUZGTVXT77GIMtMU5uEJlPrMyAy9kfdnDGwyMy6rqvA/viewform"
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-gradient-to-r from-indigo-600 to-blue-800 text-white font-medium hover:from-indigo-700 hover:to-blue-900 transition-all group-hover:shadow-lg"
+              >
+                <span>Apply as Helper</span>
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transform group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        {/* Floating particles */}
+        <div className="absolute -left-10 top-1/3 w-20 h-20 rounded-full bg-blue-500/10 blur-xl"></div>
+        <div className="absolute -right-10 bottom-1/3 w-20 h-20 rounded-full bg-purple-500/10 blur-xl"></div>
+      </div>
+
+      {/* Floating Applications Button (fixed position) */}
+      <a 
+        href="#applications"
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-700 flex items-center justify-center shadow-lg hover:shadow-blue-500/30 transform hover:scale-110 transition-all duration-300 group"
+        aria-label="Apply for positions"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        <span className="absolute right-16 bg-black/80 text-white px-3 py-1 rounded-lg text-sm font-medium transform scale-0 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-200 origin-left whitespace-nowrap">
+          Applications
+        </span>
+      </a>
     </div>
   );
 }

@@ -555,7 +555,7 @@ export default function SchedulesPage() {
                       className="match-card bg-gradient-to-br from-blue-900/30 to-purple-900/30 backdrop-blur-sm p-3 sm:p-5 rounded-xl border border-white/10 hover:border-blue-400 transition-all transform hover:-translate-y-1 hover:scale-102 sm:hover:scale-105 hover:shadow-[0_5px_30px_rgba(59,130,246,0.5)] hover:z-10 duration-300 relative group overflow-hidden"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >
-                      {/* Background elements remain the same - they're decorative */}
+                      {/* Background elements - keep them */}
                       <div className="absolute -left-20 -bottom-20 w-48 h-48 opacity-0 group-hover:opacity-10 transition-opacity duration-500 transform rotate-12 blur-sm">
                         <img 
                           src={`/logos/${match[0]}.png`} 
@@ -573,39 +573,36 @@ export default function SchedulesPage() {
                         />
                       </div>
                       
-                      {/* Optimized match layout for mobile */}
+                      {/* Match layout */}
                       <div className="flex items-center justify-between relative">
-                        {/* Team 1 */}
-                        <div className="flex flex-col items-center w-5/12 transform group-hover:scale-105 transition-transform duration-300">
-                          <div className="h-12 w-12 sm:h-16 sm:w-16 relative mb-2 sm:mb-3 flex items-center justify-center">
-                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600/10 to-blue-400/10 animate-pulse-slow"></div>
-                            <div className="absolute inset-0 rounded-full bg-blue-500/5 group-hover:bg-blue-500/30 transform scale-75 group-hover:scale-110 transition-all duration-500 blur-md"></div>
-                            <Link href={`/teams/${encodeURIComponent(match[0])}`}>
+                        {/* Team 1 (Left Side) */}
+                        <div className="flex flex-col items-center w-5/12 group/team">
+                          <div className="h-12 w-12 sm:h-16 sm:w-16 relative mb-2 sm:mb-3 flex items-center justify-center hover:scale-110 transition-transform cursor-pointer">
+                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600/10 to-blue-400/10 group-hover/team:from-blue-500/30 group-hover/team:to-blue-400/30 animate-pulse-slow"></div>
+                            <div className="absolute inset-0 rounded-full bg-blue-500/5 group-hover/team:bg-blue-500/30 transform scale-75 group-hover/team:scale-110 transition-all duration-500 blur-md"></div>
+                            <Link href={`/teams/${encodeURIComponent(match[0])}`} className="flex items-center justify-center w-full h-full">
                               <img 
                                 src={`/logos/${match[0]}.png`} 
                                 alt={match[0]} 
-                                className="h-10 w-10 sm:h-14 sm:w-14 object-contain relative z-10 transition-transform group-hover:scale-110 duration-300"
+                                className="h-10 w-10 sm:h-14 sm:w-14 object-contain relative z-10"
                                 onError={(e) => {
                                   e.currentTarget.onerror = null;
                                   e.currentTarget.style.display = 'none';
                                   if (e.currentTarget.parentElement) {
-                                    e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20', 'flex', 'items-center', 'justify-center');
-                                    e.currentTarget.parentElement.innerHTML = `
-                                      <div class="absolute inset-0 rounded-full bg-gradient-to-br from-blue-600/10 to-purple-600/10 animate-pulse-slow"></div>
-                                      <span class="text-sm sm:text-xl font-bold text-white opacity-80">${getTeamInitials(match[0])}</span>
-                                    `;
+                                    e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-blue-400/20', 'to-blue-900/20', 'flex', 'items-center', 'justify-center');
+                                    e.currentTarget.parentElement.innerHTML = `<span class="text-sm sm:text-xl font-bold text-white opacity-80">${getTeamInitials(match[0])}</span>`;
                                   }
                                 }}
                               />
                             </Link>
                           </div>
-                          <p className="text-center font-medium text-xs sm:text-sm truncate w-full bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-blue-100 transition-all duration-300 group-hover:from-white group-hover:to-blue-200">
+                          <p className="text-center font-medium text-xs sm:text-sm truncate w-full bg-clip-text text-transparent bg-gradient-to-r from-blue-200 to-blue-100 group-hover/team:from-white group-hover/team:to-blue-200 transition-all duration-300">
                             {match[0]}
                           </p>
                         </div>
 
-                        {/* VS - More compact for mobile */}
-                        <div className="flex-shrink-0 w-2/12 flex flex-col items-center justify-center transform group-hover:scale-110 transition-all duration-300">
+                        {/* VS */}
+                        <div className="flex-shrink-0 w-2/12 flex flex-col items-center justify-center">
                           <div className="w-px h-8 sm:h-12 bg-gradient-to-b from-transparent via-blue-400/30 to-transparent group-hover:via-blue-400/70 transition-all duration-300"></div>
                           <div className="my-1 p-1 sm:p-2 rounded-full bg-black/40 backdrop-blur-sm group-hover:bg-gradient-to-r group-hover:from-blue-900/50 group-hover:to-purple-900/50 transition-all duration-300">
                             <span className="text-sm sm:text-lg font-bold bg-gradient-to-r from-blue-400 to-purple-400 text-transparent bg-clip-text group-hover:from-blue-300 group-hover:to-purple-300 transition-all duration-300">VS</span>
@@ -613,34 +610,35 @@ export default function SchedulesPage() {
                           <div className="w-px h-8 sm:h-12 bg-gradient-to-b from-transparent via-purple-400/30 to-transparent group-hover:via-purple-400/70 transition-all duration-300"></div>
                         </div>
 
-                        {/* Team 2 */}
-                        <div className="flex flex-col items-center w-5/12 transform group-hover:scale-105 transition-transform duration-300">
-                          <div className="h-12 w-12 sm:h-16 sm:w-16 relative mb-2 sm:mb-3 flex items-center justify-center">
-                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/10 to-purple-600/10 animate-pulse-slow"></div>
-                            <div className="absolute inset-0 rounded-full bg-purple-500/5 group-hover:bg-purple-500/30 transform scale-75 group-hover:scale-110 transition-all duration-500 blur-md"></div>
-                            <Link href={`/teams/${encodeURIComponent(match[1])}`}>
+                        {/* Team 2 (Right Side) */}
+                        <div className="flex flex-col items-center w-5/12 group/team">
+                          <div className="h-12 w-12 sm:h-16 sm:w-16 relative mb-2 sm:mb-3 flex items-center justify-center hover:scale-110 transition-transform cursor-pointer">
+                            {/* Update this div to match Team 1 structure but with purple colors */}
+                            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-purple-400/10 to-purple-600/10 group-hover/team:from-purple-400/30 group-hover/team:to-purple-600/30 animate-pulse-slow"></div>
+                            <div className="absolute inset-0 rounded-full bg-purple-500/5 group-hover/team:bg-purple-500/30 transform scale-75 group-hover/team:scale-110 transition-all duration-500 blur-md"></div>
+                            <Link href={`/teams/${encodeURIComponent(match[1])}`} className="flex items-center justify-center w-full h-full">
                               <img 
                                 src={`/logos/${match[1]}.png`} 
                                 alt={match[1]} 
-                                className="h-10 w-10 sm:h-14 sm:w-14 object-contain relative z-10 transition-transform group-hover:scale-110 duration-300"
+                                className="h-10 w-10 sm:h-14 sm:w-14 object-contain relative z-10"
                                 onError={(e) => {
                                   e.currentTarget.onerror = null;
                                   e.currentTarget.style.display = 'none';
                                   if (e.currentTarget.parentElement) {
-                                    e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-blue-600/20', 'via-purple-600/20', 'to-blue-900/20');
-                                    e.currentTarget.parentElement.innerHTML = `<span class="text-sm sm:text-xl font-bold text-white opacity-80">${match[1].split(' ').map(word => word[0]).join('')}</span>`;
+                                    e.currentTarget.parentElement.classList.add('rounded-full', 'bg-gradient-to-br', 'from-purple-600/20', 'via-blue-600/20', 'to-purple-900/20', 'flex', 'items-center', 'justify-center');
+                                    e.currentTarget.parentElement.innerHTML = `<span class="text-sm sm:text-xl font-bold text-white opacity-80">${getTeamInitials(match[1])}</span>`;
                                   }
                                 }}
                               />
                             </Link>
                           </div>
-                          <p className="text-center font-medium text-xs sm:text-sm truncate w-full bg-clip-text text-transparent bg-gradient-to-r from-purple-100 to-purple-200 transition-all duration-300 group-hover:from-white group-hover:to-purple-200">
+                          <p className="text-center font-medium text-xs sm:text-sm truncate w-full bg-clip-text text-transparent bg-gradient-to-r from-purple-100 to-purple-200 group-hover/team:from-white group-hover/team:to-purple-200 transition-all duration-300">
                             {match[1]}
                           </p>
                         </div>
                       </div>
                       
-                      {/* Particle effects remain the same */}
+                      {/* Particle effects - keep them */}
                       <div className="absolute inset-0 overflow-hidden rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500">
                         <div className="absolute top-0 left-1/4 w-1 h-1 bg-blue-400 rounded-full animate-float"></div>
                         <div className="absolute bottom-1/3 right-1/4 w-1.5 h-1.5 bg-purple-400 rounded-full animate-float animation-delay-300"></div>
