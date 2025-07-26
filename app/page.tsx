@@ -464,7 +464,7 @@ export default function Home() {
                 Beluga Helper Application
               </h3>
               <p className="text-blue-100 mb-6">
-                Assist with community events, provide support to players, and help make our league run smoothly.
+                For people who are interested in helping the community in other ways than being a moderator/admin
               </p>
               <a 
                 href="https://docs.google.com/forms/d/e/1FAIpQLSfCTiDxUZGTVXT77GIMtMU5uEJlPrMyAy9kfdnDGwyMy6rqvA/viewform"
