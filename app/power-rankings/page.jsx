@@ -299,6 +299,16 @@ export default function PowerRankingsPage() {
                   </span>
                   <span className="text-xs text-blue-300/70">
                     Rankings updated daily at 9:00 PM EST
+                    {powerRankings?.refreshInfo?.nextScheduledUpdate && (
+                      <span className="ml-1">(Next update: {new Date(powerRankings.refreshInfo.nextScheduledUpdate).toLocaleTimeString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                        month: 'short',
+                        day: 'numeric',
+                        timeZone: 'America/New_York'
+                      })})</span>
+                    )}
                   </span>
                 </div>
               </div>

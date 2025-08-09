@@ -14,6 +14,42 @@ const WEEKS = [1, 2, 3, 4, 5, 6, 7, 8];
 // Set the time when data should be considered updated (9 PM Eastern Time)
 const UPDATE_HOUR_EST = 21; // 9 PM EST
 
+// Function to check if the cache needs to be refreshed based on 9 PM EST schedule
+function shouldRefreshCache(cacheKey) {
+  // If no cache exists, definitely refresh
+  if (!cachedData[cacheKey]) {
+    return true;
+  }
+  
+  // Get current time in EST
+  const now = new Date();
+  const estOptions = { timeZone: 'America/New_York' };
+  const estDate = new Date(now.toLocaleString('en-US', estOptions));
+  const estHour = estDate.getHours();
+  
+  // Get the timestamp of when the cache was last updated
+  const lastUpdateTime = new Date(cachedData[cacheKey].timestamp);
+  const lastUpdateDate = new Date(lastUpdateTime.toLocaleString('en-US', estOptions));
+  
+  // If it's after 9 PM EST and the cache was last updated before 9 PM today, refresh
+  if (estHour >= UPDATE_HOUR_EST && 
+      (lastUpdateDate.getDate() !== estDate.getDate() || 
+       lastUpdateDate.getHours() < UPDATE_HOUR_EST)) {
+    console.log(`Cache refresh needed for ${cacheKey}: It's after ${UPDATE_HOUR_EST}:00 EST and cache is from before today's update time`);
+    return true;
+  }
+  
+  // If it's before 9 PM EST and the cache is from yesterday or earlier, refresh
+  if (estHour < UPDATE_HOUR_EST && 
+      lastUpdateDate.getDate() !== estDate.getDate()) {
+    console.log(`Cache refresh needed for ${cacheKey}: Cache is from a previous day`);
+    return true;
+  }
+  
+  // Otherwise, no need to refresh
+  return false;
+}
+
 // Get credentials from environment variables
 async function getCredentials() {
   try {
@@ -88,16 +124,45 @@ async function connectToGoogleSheet(sheetId) {
   }
 }
 
-// Function to find a sheet that matches the pattern (e.g., "AA W1", "AAA W2")
+// Function to find a sheet that matches the pattern (e.g., "AA W1", "AAA W2", "Majors W1")
 function findSheetByPattern(doc, division, week) {
-  const pattern = new RegExp(`^${division}\\s*W${week}$`, 'i'); // Case insensitive
+  // Create multiple patterns to try different formats
+  const patterns = [
+    new RegExp(`^${division}\\s*W${week}$`, 'i'),        // Standard: "Majors W1"
+    new RegExp(`^${division}\\s*Week\\s*${week}$`, 'i'), // With "Week": "Majors Week 1"
+    new RegExp(`^${division}\\s*${week}$`, 'i'),         // Without W: "Majors 1"
+  ];
   
+  // If division is "Majors", also try "MAJORS" (all uppercase)
+  if (division === 'Majors') {
+    patterns.push(new RegExp(`^MAJORS\\s*W${week}$`, 'i'));
+    patterns.push(new RegExp(`^MAJORS\\s*Week\\s*${week}$`, 'i'));
+    patterns.push(new RegExp(`^MAJORS\\s*${week}$`, 'i'));
+  }
+  
+  // Loop through all sheets and check against all patterns
   for (let i = 0; i < doc.sheetCount; i++) {
     const sheet = doc.sheetsByIndex[i];
-    if (pattern.test(sheet.title.trim())) {
-      return sheet;
+    const sheetTitle = sheet.title.trim();
+    
+    // Log sheet title for debugging
+    console.log(`Checking sheet title: "${sheetTitle}"`);
+    
+    // Try each pattern
+    for (const pattern of patterns) {
+      if (pattern.test(sheetTitle)) {
+        console.log(`Found matching sheet: "${sheetTitle}" for division "${division}" week ${week}`);
+        return sheet;
+      }
     }
   }
+  
+  // Log all sheet titles if no match found
+  console.log("No matching sheet found. Available sheets:");
+  for (let i = 0; i < Math.min(doc.sheetCount, 20); i++) {
+    console.log(`- "${doc.sheetsByIndex[i].title}"`);
+  }
+  
   return null;
 }
 
@@ -179,18 +244,22 @@ async function extractPowerRankingsData(sheet) {
 // Main function to fetch power rankings
 async function fetchPowerRankings(division, week) {
   try {
-    // Format division for sheet lookup
-    let formattedDivision = division.toUpperCase();
-    if (formattedDivision === 'MAJORS') {
+    // Format division for sheet lookup - be more flexible with sheet naming
+    let formattedDivision;
+    if (division.toLowerCase() === 'majors') {
+      // Try both "Majors" (first letter capitalized) and "MAJORS" (all caps)
       formattedDivision = 'Majors';
+    } else {
+      // For AA and AAA, use uppercase
+      formattedDivision = division.toUpperCase();
     }
     
     console.log(`Fetching power rankings for ${formattedDivision} Week ${week}`);
     
-    // Check cache first - ALWAYS use cache if available
+    // Check cache first - but refresh if it's past 9 PM EST and we haven't updated today
     const cacheKey = `${division}-week${week}`;
-    if (cachedData[cacheKey]) {
-      // Always return cached data if it exists, regardless of how old it is
+    if (cachedData[cacheKey] && !shouldRefreshCache(cacheKey)) {
+      // Return cached data if it exists and doesn't need refreshing
       console.log(`Using cached power rankings for ${division} Week ${week}, cached at ${new Date(cachedData[cacheKey].timestamp).toLocaleString()}`);
       return {
         data: cachedData[cacheKey].data,
@@ -199,25 +268,49 @@ async function fetchPowerRankings(division, week) {
       };
     }
     
+    // If we get here, either the cache doesn't exist or it needs refreshing due to 9 PM update time
+    
     const doc = await connectToGoogleSheet(POWER_RANKINGS_SHEET_ID);
+    // Try to find the sheet with different division name formats
     const sheet = findSheetByPattern(doc, formattedDivision, week);
     
     if (!sheet) {
       console.log(`No sheet found for ${formattedDivision} Week ${week}`);
+      
+      // Check if any sheets contain the division name to help diagnose issues
+      let foundSheets = [];
+      for (let i = 0; i < doc.sheetCount; i++) {
+        if (doc.sheetsByIndex[i].title.toLowerCase().includes(division.toLowerCase())) {
+          foundSheets.push(doc.sheetsByIndex[i].title);
+        }
+      }
+      
+      if (foundSheets.length > 0) {
+        console.log(`Found some sheets that might be related: ${foundSheets.join(', ')}`);
+      }
+      
       return {
         data: null,
         error: `Power rankings for ${division.toUpperCase()} Week ${week} are not available yet. They will be released during Week ${week}.`,
       };
     }
     
-    const data = await extractPowerRankingsData(sheet);
+    console.log(`Found sheet: "${sheet.title}" for ${formattedDivision} Week ${week}`);
     
-    // Normalize team names
-    if (data.teams && data.teams.length > 0) {
-      data.teams = data.teams.map(entry => ({
-        ...entry,
-        team: normalizeTeamName(entry.team),
-      }));
+    let data;
+    try {
+      data = await extractPowerRankingsData(sheet);
+    
+      // Normalize team names
+      if (data.teams && data.teams.length > 0) {
+        data.teams = data.teams.map(entry => ({
+          ...entry,
+          team: normalizeTeamName(entry.team),
+        }));
+      }
+    } catch (error) {
+      console.error('Error extracting power rankings data:', error);
+      throw error;
     }
     
     // Cache the data
@@ -324,8 +417,12 @@ export async function GET(request) {
     const division = url.searchParams.get('division')?.toLowerCase() || 'majors';
     const week = parseInt(url.searchParams.get('week') || '1', 10);
     
+    console.log(`Power Rankings API - Request received: division=${division}, week=${week}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}, Vercel: ${process.env.VERCEL ? 'Yes' : 'No'}`);
+    
     // Validate division
     if (!DIVISIONS.includes(division)) {
+      console.log(`Power Rankings API - Invalid division: ${division}`);
       return NextResponse.json(
         { error: `Invalid division: ${division}. Valid options are: aa, aaa, majors` },
         { status: 400 }
@@ -334,6 +431,7 @@ export async function GET(request) {
     
     // Validate week
     if (!WEEKS.includes(week)) {
+      console.log(`Power Rankings API - Invalid week: ${week}`);
       return NextResponse.json(
         { error: `Invalid week: ${week}. Valid options are: 1-8` },
         { status: 400 }
@@ -341,12 +439,30 @@ export async function GET(request) {
     }
     
     console.log(`API: Fetching power rankings for ${division} division, Week ${week}`);
+    console.log(`Using sheet ID: ${POWER_RANKINGS_SHEET_ID}`);
     const result = await fetchPowerRankings(division, week);
     
     if (result.error) {
       // This is not a server error, just data isn't available yet
       return NextResponse.json(result, { status: 200 });
     }
+    
+    // Add information about daily refresh time
+    const now = new Date();
+    const estOptions = { timeZone: 'America/New_York' };
+    const estDate = new Date(now.toLocaleString('en-US', estOptions));
+    
+    // Calculate next 9 PM EST update time
+    const nextUpdateDate = new Date(estDate);
+    nextUpdateDate.setHours(UPDATE_HOUR_EST, 0, 0, 0);
+    if (estDate.getHours() >= UPDATE_HOUR_EST) {
+      nextUpdateDate.setDate(nextUpdateDate.getDate() + 1);
+    }
+    
+    result.refreshInfo = {
+      dailyUpdateTime: `${UPDATE_HOUR_EST}:00 EST`, // 9:00 PM EST
+      nextScheduledUpdate: nextUpdateDate.toISOString()
+    };
     
     return NextResponse.json(result);
   } catch (error) {
