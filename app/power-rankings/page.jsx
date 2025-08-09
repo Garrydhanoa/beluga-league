@@ -62,16 +62,18 @@ export default function PowerRankingsPage() {
         // Define cache key for potential fallback use
         const cacheKey = `power-rankings-${activeTab}-week${activeWeek}`;
         
-        // Remove the realtime parameter - let server handle refresh schedule
-        // Just fetch data normally - the server will handle caching logic
         try {
-          const response = await fetch(`/api/power-rankings?division=${activeTab}&week=${activeWeek}&initialLoad=true`);
+          // Add timestamp parameter to prevent browser caching, but API will still respect hourly cache
+          const response = await fetch(
+            `/api/power-rankings?division=${activeTab}&week=${activeWeek}&initialLoad=true&_t=${Date.now()}`,
+            { cache: 'no-store' }
+          );
           const data = await response.json();
           
           if (response.ok) {
             setPowerRankings(data);
             
-            // Set status information including refresh schedule
+            // Set status information including refresh schedule from server
             setFetchStatus({
               fromCache: data.fromCache || false,
               cachedAt: data.cachedAt,
@@ -80,7 +82,8 @@ export default function PowerRankingsPage() {
               lastScheduledUpdate: data.refreshInfo?.lastUpdated || null,
               formattedLastUpdated: data.refreshInfo?.formattedLastUpdated || null,
               nextUpdateFormatted: data.refreshInfo?.nextUpdateFormatted || null,
-              refreshInterval: data.refreshInfo?.refreshInterval || "Hourly"
+              refreshInterval: data.refreshInfo?.refreshInterval || "Hourly",
+              minutesUntilNextUpdate: data.refreshInfo?.minutesUntilNextUpdate || 60
             });
             
             // Still save to localStorage as fallback for error cases
@@ -135,6 +138,42 @@ export default function PowerRankingsPage() {
     // Clean up interval on unmount
     // return () => clearInterval(refreshInterval);
   }, [activeTab, activeWeek]);
+
+  // Add this useEffect after your existing ones
+  useEffect(() => {
+    // Don't run this on the server
+    if (typeof window === 'undefined') return;
+    
+    // Only set up the interval if we have nextUpdateAt data
+    if (!fetchStatus.nextUpdateAt) return;
+    
+    const nextUpdateTime = new Date(fetchStatus.nextUpdateAt).getTime();
+    
+    // Create an interval to update the "minutes until next update" counter
+    const intervalId = setInterval(() => {
+      const now = Date.now();
+      const msUntilNextUpdate = Math.max(0, nextUpdateTime - now);
+      const minutesUntilNextUpdate = Math.ceil(msUntilNextUpdate / 60000);
+      
+      setFetchStatus(prev => ({
+        ...prev,
+        minutesUntilNextUpdate
+      }));
+      
+      // If it's time for the next update and the user is still on the page
+      // (within 1 minute of the scheduled update)
+      if (minutesUntilNextUpdate <= 0) {
+        // Don't immediately fetch - wait 5 seconds to avoid hammering the API
+        // if multiple clients hit exactly at the hour mark
+        setTimeout(() => {
+          // Fetch new data when the hour changes
+          fetchPowerRankings();
+        }, 5000);
+      }
+    }, 30000); // Update every 30 seconds
+    
+    return () => clearInterval(intervalId);
+  }, [fetchStatus.nextUpdateAt]);
 
   // Helper function to get team initials
   const getTeamInitials = (teamName) => {
@@ -273,15 +312,18 @@ export default function PowerRankingsPage() {
                       Last updated: {fetchStatus.formattedLastUpdated || 'Just now'}
                     </span>
                     <span className="text-xs text-blue-300/70">
-                      Rankings updated hourly (not in real-time)
+                      <strong>Data refreshes hourly</strong> - page refreshes don't update data
                     </span>
                   </div>
                 </div>
                 
                 {/* Show next update time */}
                 {fetchStatus.nextUpdateFormatted && (
-                  <div className="text-xs text-blue-300/70">
-                    Next data refresh: {fetchStatus.nextUpdateFormatted} EST
+                  <div className="text-xs bg-blue-900/20 px-3 py-1 rounded-lg text-blue-300/80">
+                    Next data refresh: <span className="font-medium text-blue-200">{fetchStatus.nextUpdateFormatted} EST</span>
+                    {fetchStatus.minutesUntilNextUpdate && (
+                      <span className="ml-1">({fetchStatus.minutesUntilNextUpdate} {fetchStatus.minutesUntilNextUpdate === 1 ? 'minute' : 'minutes'} from now)</span>
+                    )}
                   </div>
                 )}
                 
