@@ -126,18 +126,44 @@ async function connectToGoogleSheet(sheetId) {
 
 // Function to find a sheet that matches the pattern (e.g., "AA W1", "AAA W2", "Majors W1")
 function findSheetByPattern(doc, division, week) {
-  // Create multiple patterns to try different formats
-  const patterns = [
-    new RegExp(`^${division}\\s*W${week}$`, 'i'),        // Standard: "Majors W1"
-    new RegExp(`^${division}\\s*Week\\s*${week}$`, 'i'), // With "Week": "Majors Week 1"
-    new RegExp(`^${division}\\s*${week}$`, 'i'),         // Without W: "Majors 1"
-  ];
+  let patterns = [];
   
-  // If division is "Majors", also try "MAJORS" (all uppercase)
-  if (division === 'Majors') {
-    patterns.push(new RegExp(`^MAJORS\\s*W${week}$`, 'i'));
-    patterns.push(new RegExp(`^MAJORS\\s*Week\\s*${week}$`, 'i'));
-    patterns.push(new RegExp(`^MAJORS\\s*${week}$`, 'i'));
+  if (division.toLowerCase() === 'majors') {
+    // For Majors, try many different capitalization and format patterns
+    // Create a comprehensive list of patterns for Majors
+    patterns = [
+      // Majors with first letter capitalized
+      new RegExp(`^Majors\\s*W${week}$`, 'i'),
+      new RegExp(`^Majors\\s*Week\\s*${week}$`, 'i'),
+      new RegExp(`^Majors\\s*${week}$`, 'i'),
+      // MAJORS all caps
+      new RegExp(`^MAJORS\\s*W${week}$`, 'i'),
+      new RegExp(`^MAJORS\\s*Week\\s*${week}$`, 'i'),
+      new RegExp(`^MAJORS\\s*${week}$`, 'i'),
+      // majors all lowercase
+      new RegExp(`^majors\\s*W${week}$`, 'i'),
+      new RegExp(`^majors\\s*Week\\s*${week}$`, 'i'),
+      new RegExp(`^majors\\s*${week}$`, 'i'),
+      // Try with variation in spacing
+      new RegExp(`^Majors[\\s_-]*W[\\s_-]*${week}$`, 'i'),
+      // Try with 'Major' singular form (in case of typo)
+      new RegExp(`^Major\\s*W${week}$`, 'i'),
+      // Special case for Vercel - try without any case sensitivity
+      new RegExp(`^.*[Mm][Aa][Jj][Oo][Rr][Ss]?.*W.*${week}.*$`, 'i'),
+      // Try with "Division" in the name
+      new RegExp(`^.*[Mm][Aa][Jj][Oo][Rr][Ss]?.*[Dd]ivision.*W.*${week}.*$`, 'i'),
+      // Even more flexible pattern - just look for "major" and the week number anywhere
+      new RegExp(`^.*[Mm][Aa][Jj][Oo][Rr].*${week}.*$`, 'i'),
+    ];
+    
+    console.log(`Using ${patterns.length} different patterns to match Majors sheets`);
+  } else {
+    // Standard patterns for AA and AAA
+    patterns = [
+      new RegExp(`^${division}\\s*W${week}$`, 'i'),        // Standard: "AA W1"
+      new RegExp(`^${division}\\s*Week\\s*${week}$`, 'i'), // With "Week": "AA Week 1"
+      new RegExp(`^${division}\\s*${week}$`, 'i'),         // Without W: "AA 1"
+    ];
   }
   
   // Loop through all sheets and check against all patterns
@@ -151,17 +177,38 @@ function findSheetByPattern(doc, division, week) {
     // Try each pattern
     for (const pattern of patterns) {
       if (pattern.test(sheetTitle)) {
-        console.log(`Found matching sheet: "${sheetTitle}" for division "${division}" week ${week}`);
+        console.log(`Found matching sheet: "${sheetTitle}" for division "${division}" week ${week} using pattern: ${pattern}`);
         return sheet;
       }
+    }
+    
+    // Special fallback case for Majors division only
+    if (division.toLowerCase() === 'majors' && 
+        sheetTitle.toLowerCase().includes('major') && 
+        sheetTitle.includes(week.toString())) {
+      console.log(`Found Majors sheet using fallback matching: "${sheetTitle}" contains "major" and "${week}"`);
+      return sheet;
     }
   }
   
   // Log all sheet titles if no match found
   console.log("No matching sheet found. Available sheets:");
-  for (let i = 0; i < Math.min(doc.sheetCount, 20); i++) {
-    console.log(`- "${doc.sheetsByIndex[i].title}"`);
+  
+  // Create a list of all sheet titles for debugging
+  let allSheets = [];
+  for (let i = 0; i < Math.min(doc.sheetCount, 50); i++) {
+    const sheetTitle = doc.sheetsByIndex[i].title;
+    allSheets.push(sheetTitle);
+    
+    // Check if this sheet might be what we're looking for based on loose matching
+    if (division.toLowerCase() === 'majors' && 
+        sheetTitle.toLowerCase().includes('major')) {
+      console.log(`POTENTIAL MATCH FOUND: "${sheetTitle}" contains "major" but didn't match our patterns`);
+    }
   }
+  
+  console.log(`All sheets (${allSheets.length}): ${allSheets.join(', ')}`);
+  console.log(`Tried patterns for division "${division}": ${patterns.map(p => p.toString()).join(', ')}`);
   
   return null;
 }
@@ -247,8 +294,10 @@ async function fetchPowerRankings(division, week) {
     // Format division for sheet lookup - be more flexible with sheet naming
     let formattedDivision;
     if (division.toLowerCase() === 'majors') {
-      // Try both "Majors" (first letter capitalized) and "MAJORS" (all caps)
-      formattedDivision = 'Majors';
+      // For Majors, we'll use multiple patterns with different capitalizations
+      // in the findSheetByPattern function, so just preserve the lowercase version
+      formattedDivision = 'majors';
+      console.log('Handling Majors division with enhanced case sensitivity matching');
     } else {
       // For AA and AAA, use uppercase
       formattedDivision = division.toUpperCase();
