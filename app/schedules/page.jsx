@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import '../header-size-fix.js';
 
 export default function SchedulesPage() {
   const [activeTab, setActiveTab] = useState("aa");
@@ -11,6 +12,16 @@ export default function SchedulesPage() {
   useEffect(() => {
     // Add entrance animations after initial render
     setAnimateItems(true);
+    
+    // Force header size on mobile
+    if (typeof window !== 'undefined' && window.innerWidth <= 640) {
+      const header = document.querySelector('.super-large-mobile-header');
+      if (header) {
+        header.style.fontSize = '10rem';
+        header.style.lineHeight = '0.85';
+        header.style.letterSpacing = '-3px';
+      }
+    }
     
     // Add confetti animation for tab switching
     const addConfetti = () => {
@@ -424,7 +435,12 @@ export default function SchedulesPage() {
       </div>
       
       <div className={`container mx-auto px-3 sm:px-4 py-6 sm:py-10 transition-all duration-700 ${animateItems ? 'opacity-100' : 'opacity-0 translate-y-10'}`}>
-        <h1 className="super-large-mobile-header text-5xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-10 text-center relative">
+        <h1 
+          className="super-large-mobile-header text-5xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-10 text-center relative"
+          style={{ 
+            fontSize: 'clamp(4rem, 20vw, 10rem)',
+          }}
+        >
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200 shadow-text">
             Match Schedules
           </span>

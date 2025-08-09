@@ -4,6 +4,7 @@ import React, { useState, useEffect, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import FloatingParticles from '../components/FloatingParticles';
+import '../header-size-fix.js';
 
 // This ensures consistent team names across the application
 const CANONICAL_TEAM_NAMES = [
@@ -320,6 +321,16 @@ export default function StandingsPage() {
     setTimeout(() => {
       setAnimateItems(true);
     }, 100);
+    
+    // Force header size on mobile
+    if (typeof window !== 'undefined' && window.innerWidth <= 640) {
+      const header = document.querySelector('.super-large-mobile-header');
+      if (header) {
+        header.style.fontSize = '10rem';
+        header.style.lineHeight = '0.85';
+        header.style.letterSpacing = '-3px';
+      }
+    }
   }, []);
 
   // Helper function for team logo fallback
@@ -407,6 +418,9 @@ export default function StandingsPage() {
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.7, type: "spring" }}
+          style={{ 
+            fontSize: 'clamp(4rem, 20vw, 10rem)',  
+          }}
         >
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200 shadow-text">
             League Standings

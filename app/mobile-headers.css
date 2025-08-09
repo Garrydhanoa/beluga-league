@@ -2,29 +2,39 @@
 @media (max-width: 640px) {
   /* Override the h1 styles for headers in standings and schedules pages */
   .super-large-mobile-header {
-    font-size: 4.5rem !important; /* Extremely large on mobile */
-    line-height: 1 !important;
-    letter-spacing: -2px !important;
+    font-size: 10rem !important; /* Maximum size for impact */
+    line-height: 0.85 !important;
+    letter-spacing: -3px !important;
     word-break: break-word !important;
-    margin-bottom: 1.5rem !important;
-    padding: 0 0.5rem !important;
+    margin-bottom: 2.5rem !important;
+    padding: 0 0.75rem !important;
+    transform: scale(1.1) !important;
+    max-width: 100% !important;
+    display: block !important;
   }
   
+  /* Add more impact to the shadow text */
   .shadow-text {
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5) !important;
+    text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.8) !important;
+  }
+  
+  /* Make the background shadow text more visible */
+  .absolute.left-1\/2.-translate-x-1\/2.-top-2.text-blue-500.opacity-10.blur-sm {
+    opacity: 0.2 !important;
+    filter: blur(6px) !important;
   }
 }
 
 /* Special class for largest mobile screens */
 @media (min-width: 400px) and (max-width: 640px) {
   .super-large-mobile-header {
-    font-size: 5.5rem !important; /* Even larger for bigger mobile screens */
+    font-size: 11rem !important; /* Push even bigger for mid-sized mobiles */
   }
 }
 
 /* Special class for smallest mobile screens */
 @media (max-width: 350px) {
   .super-large-mobile-header {
-    font-size: 3.5rem !important; /* Slightly smaller for tiny mobile screens */
+    font-size: 8rem !important; /* Still very large even for tiny screens */
   }
 }
