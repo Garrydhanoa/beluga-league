@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 import { debugLog, debugLogError, analyzeSheetId, analyzePrivateKey } from './debug-log';
 
 // Cache mechanism
-const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds for hourly updates
 let cachedData = {};
 
 // Hard-coded sheet names for Majors (using these as fallback)
@@ -32,35 +32,29 @@ const DIVISION_SHEET_IDS = {
 const DIVISIONS = ['aa', 'aaa', 'majors'];
 const WEEKS = [1, 2, 3, 4, 5, 6, 7, 8];
 
-// Set the time when data should be considered updated (9 PM Eastern Time)
-const UPDATE_HOUR_EST = 21; // 9 PM EST
+// Using hourly updates instead of a fixed time
+// const UPDATE_HOUR_EST = 21; // 9 PM EST - No longer used
 
 // Function to check if the cache needs to be refreshed based on 9 PM EST schedule
+// Modify the shouldRefreshCache function to enforce strict hourly updates
 function shouldRefreshCache(cacheKey, isInitialLoad = false) {
   // If no cache exists, definitely refresh
   if (!cachedData[cacheKey]) {
     return true;
   }
   
-  // If this is an initial load from a user and we have a cache, we could be more lenient
-  // about refreshing to reduce the load on the Google Sheets API
-  if (isInitialLoad && cachedData[cacheKey]) {
-    console.log(`Initial load request for ${cacheKey} - using cached data when possible`);
-  }
-  
-  // Get current time in EST
+  // Get current time
   const now = new Date();
-  const estOptions = { timeZone: 'America/New_York' };
-  const estDate = new Date(now.toLocaleString('en-US', estOptions));
-  const estHour = estDate.getHours();
   
   // Get the timestamp of when the cache was last updated
   const lastUpdateTime = new Date(cachedData[cacheKey].timestamp);
-  const lastUpdateDate = new Date(lastUpdateTime.toLocaleString('en-US', estOptions));
+  
+  // Calculate cache age in milliseconds
+  const cacheAge = now.getTime() - lastUpdateTime.getTime();
   
   // Only refresh the cache if:
   // 1. It's a server restart/deployment (the server process is fresh)
-  // 2. It's after 9 PM EST and the cache was last updated before 9 PM today
+  // 2. The cache is older than CACHE_TTL (1 hour)
   
   // For a deployment, the Node.js process is fresh, so we'll refresh once
   const processStartTime = process.env.SERVER_START_TIME ? parseInt(process.env.SERVER_START_TIME, 10) : null;
@@ -72,22 +66,19 @@ function shouldRefreshCache(cacheKey, isInitialLoad = false) {
     return true;
   }
   
-  // If it's after 9 PM EST and the cache was last updated before 9 PM today, refresh
-  if (estHour >= UPDATE_HOUR_EST && 
-      (lastUpdateDate.getDate() !== estDate.getDate() || 
-       lastUpdateDate.getHours() < UPDATE_HOUR_EST)) {
-    console.log(`Cache refresh needed for ${cacheKey}: It's after ${UPDATE_HOUR_EST}:00 EST and cache is from before today's update time`);
+  // If the cache is older than the TTL (1 hour), refresh it
+  if (cacheAge > CACHE_TTL) {
+    const cacheAgeMinutes = Math.floor(cacheAge / 60000);
+    const cachedTimeString = new Date(cachedData[cacheKey].timestamp).toLocaleTimeString();
+    console.log(`Cache refresh needed for ${cacheKey}: Cache is ${cacheAgeMinutes} minutes old (older than 60 minutes). Last updated at ${cachedTimeString}`);
     return true;
   }
   
-  // If it's before 9 PM EST and the cache is from yesterday or earlier, refresh
-  if (estHour < UPDATE_HOUR_EST && 
-      lastUpdateDate.getDate() !== estDate.getDate()) {
-    console.log(`Cache refresh needed for ${cacheKey}: Cache is from a previous day`);
-    return true;
-  }
-  
-  // Otherwise, no need to refresh
+  // Cache is still fresh, no need to refresh
+  const remainingMinutes = Math.floor((CACHE_TTL - cacheAge) / 60000);
+  const cachedTimeString = new Date(cachedData[cacheKey].timestamp).toLocaleTimeString();
+  const nextRefreshTime = new Date(cachedData[cacheKey].timestamp + CACHE_TTL).toLocaleTimeString();
+  console.log(`Cache for ${cacheKey} is still fresh (last updated at ${cachedTimeString}). Next refresh in ${remainingMinutes} minutes at approximately ${nextRefreshTime}`);
   return false;
 }
 
@@ -872,28 +863,21 @@ async function processFoundSheet(sheet, division, week, cacheKey) {
       timestamp,
     };
     
-    // Get current date in Eastern Time for data update tracking
+    // Calculate the next update time (1 hour from now)
     const now = new Date();
-    const estOptions = { timeZone: 'America/New_York' };
-    const estDate = new Date(now.toLocaleString('en-US', estOptions));
+    const nextUpdateTime = new Date(now.getTime() + CACHE_TTL);
     
-    // Calculate the next update time (9 PM EST today or tomorrow)
-    const nextUpdateDate = new Date(estDate);
-    nextUpdateDate.setHours(UPDATE_HOUR_EST, 0, 0, 0);
-    
-    // If current time is past 9 PM EST, next update is tomorrow
-    if (estDate.getHours() >= UPDATE_HOUR_EST) {
-      nextUpdateDate.setDate(nextUpdateDate.getDate() + 1);
-    }
+    // Format the update time for human readability
+    const formattedUpdateTime = now.toLocaleTimeString();
+    console.log(`Data for ${cacheKey} updated at ${formattedUpdateTime}. Next refresh at ${nextUpdateTime.toLocaleTimeString()}`);
     
     return {
       data,
       cachedAt: timestamp,
       fromCache: false,
-      nextUpdateAt: nextUpdateDate.getTime(),
-      lastScheduledUpdate: estDate.getHours() >= UPDATE_HOUR_EST ? 
-        new Date(estDate.setHours(UPDATE_HOUR_EST, 0, 0, 0)).getTime() : 
-        new Date(estDate.setDate(estDate.getDate() - 1)).setHours(UPDATE_HOUR_EST, 0, 0, 0)
+      nextUpdateAt: nextUpdateTime.getTime(),
+      lastUpdated: formattedUpdateTime,
+      lastScheduledUpdate: now.getTime()
     };
   } catch (error) {
     console.error('Error processing sheet data:', error);
@@ -964,14 +948,13 @@ export async function GET(request) {
     const division = url.searchParams.get('division')?.toLowerCase() || 'majors';
     const week = parseInt(url.searchParams.get('week') || '1', 10);
     
-    // Check if this is a real-time data request or initial load
-    const isRealtimeRequest = url.searchParams.get('realtime') === 'true';
+    // Keep track of initialLoad for better caching behavior but IGNORE realtime parameter
+    // This ensures users cannot force refreshes from client side
     const isInitialLoad = url.searchParams.get('initialLoad') === 'true';
     
     debugLog(`Power Rankings API - Request received:`, {
       division,
       week,
-      isRealtimeRequest,
       isInitialLoad,
       environment: process.env.NODE_ENV || 'development',
       isVercel: !!process.env.VERCEL
@@ -1063,8 +1046,9 @@ export async function GET(request) {
     
     let result;
     
-    // For real-time requests, bypass cache completely
-    const shouldBypassCache = isRealtimeRequest;
+    // IMPORTANT: Always use shouldRefreshCache to determine if we need fresh data
+    // This makes the backend fully responsible for cache management on the hourly schedule
+    const shouldBypassCache = false; // Never bypass cache based on client request
     
     // Special case for Majors division on Vercel - try with pre-emptive hardcoded fallback if needed
     if (process.env.VERCEL && division === 'majors' && MAJORS_SHEET_NAMES[week]) {
@@ -1136,22 +1120,40 @@ export async function GET(request) {
       }
     }
     
-    // Add information about daily refresh time
+    // Add information about hourly refresh time
     const now = new Date();
-    const estOptions = { timeZone: 'America/New_York' };
-    const estDate = new Date(now.toLocaleString('en-US', estOptions));
     
-    // Calculate next 9 PM EST update time
-    const nextUpdateDate = new Date(estDate);
-    nextUpdateDate.setHours(UPDATE_HOUR_EST, 0, 0, 0);
-    if (estDate.getHours() >= UPDATE_HOUR_EST) {
-      nextUpdateDate.setDate(nextUpdateDate.getDate() + 1);
-    }
+    // Calculate next update time (1 hour from last update)
+    const nextUpdateTime = result.cachedAt ? 
+      new Date(result.cachedAt + CACHE_TTL) : 
+      new Date(now.getTime() + CACHE_TTL);
     
+    // Calculate time until next update in minutes
+    const msUntilNextUpdate = nextUpdateTime.getTime() - now.getTime();
+    const minutesUntilNextUpdate = Math.max(0, Math.floor(msUntilNextUpdate / 60000));
+    
+    // Enhanced refresh info for client display (similar to standings)
     result.refreshInfo = {
-      dailyUpdateTime: `${UPDATE_HOUR_EST}:00 EST`, // 9:00 PM EST
-      nextScheduledUpdate: nextUpdateDate.toISOString(),
-      lastUpdated: result.cachedAt ? new Date(result.cachedAt).toISOString() : new Date().toISOString()
+      refreshInterval: "Hourly", 
+      nextScheduledUpdate: nextUpdateTime.toISOString(),
+      lastUpdated: result.cachedAt ? new Date(result.cachedAt).toISOString() : new Date().toISOString(),
+      minutesUntilNextUpdate: minutesUntilNextUpdate,
+      dataAge: result.cachedAt ? `${Math.floor((now.getTime() - result.cachedAt) / 60000)} minutes` : "Just updated",
+      formattedLastUpdated: result.cachedAt ? 
+        new Date(result.cachedAt).toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          hour: 'numeric',
+          minute: '2-digit',
+          hour12: true,
+          timeZone: 'America/New_York' // EST/EDT timezone for consistency
+        }) : 'Just now',
+      nextUpdateFormatted: nextUpdateTime.toLocaleString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+        timeZone: 'America/New_York'
+      })
     };
     
     // Add cache control headers to prevent browser caching

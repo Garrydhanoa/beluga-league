@@ -62,21 +62,25 @@ export default function PowerRankingsPage() {
         // Define cache key for potential fallback use
         const cacheKey = `power-rankings-${activeTab}-week${activeWeek}`;
         
-        // Always fetch fresh data from the API for real-time updates
+        // Remove the realtime parameter - let server handle refresh schedule
+        // Just fetch data normally - the server will handle caching logic
         try {
-          // Remove the initialLoad parameter to get fresh data every time
-          const response = await fetch(`/api/power-rankings?division=${activeTab}&week=${activeWeek}&realtime=true`);
+          const response = await fetch(`/api/power-rankings?division=${activeTab}&week=${activeWeek}&initialLoad=true`);
           const data = await response.json();
           
           if (response.ok) {
             setPowerRankings(data);
             
+            // Set status information including refresh schedule
             setFetchStatus({
-              fromCache: false,
-              cachedAt: Date.now(),
-              fetchError: null,
-              nextUpdateAt: null,
-              lastScheduledUpdate: null
+              fromCache: data.fromCache || false,
+              cachedAt: data.cachedAt,
+              fetchError: data.fetchError || null,
+              nextUpdateAt: data.refreshInfo?.nextScheduledUpdate || null,
+              lastScheduledUpdate: data.refreshInfo?.lastUpdated || null,
+              formattedLastUpdated: data.refreshInfo?.formattedLastUpdated || null,
+              nextUpdateFormatted: data.refreshInfo?.nextUpdateFormatted || null,
+              refreshInterval: data.refreshInfo?.refreshInterval || "Hourly"
             });
             
             // Still save to localStorage as fallback for error cases
@@ -123,13 +127,13 @@ export default function PowerRankingsPage() {
     // Fetch initial data
     fetchPowerRankings();
     
-    // Set up interval to refresh data every 30 seconds for real-time updates
-    const refreshInterval = setInterval(() => {
-      fetchPowerRankings();
-    }, 30000); // 30 seconds
+    // NO INTERVAL REFRESH - removing this code:
+    // const refreshInterval = setInterval(() => {
+    //   fetchPowerRankings();
+    // }, 30000); // 30 seconds
     
     // Clean up interval on unmount
-    return () => clearInterval(refreshInterval);
+    // return () => clearInterval(refreshInterval);
   }, [activeTab, activeWeek]);
 
   // Helper function to get team initials
@@ -258,27 +262,37 @@ export default function PowerRankingsPage() {
           
           {/* Live update info - no last updated timestamp */}
           {powerRankings?.data && !powerRankings.error && (
-            <motion.div 
-              className="mt-2 flex justify-center"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <div className="inline-flex items-center bg-blue-900/30 px-4 py-2 rounded-lg border border-blue-500/20">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M5.05 3.636a1 1 0 010 1.414 7 7 0 000 9.9 1 1 0 11-1.414 1.414 9 9 0 010-12.728 1 1 0 011.414 0zm9.9 0a1 1 0 011.414 0 9 9 0 010 12.728 1 1 0 11-1.414-1.414 7 7 0 000-9.9 1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-                <div className="flex flex-col items-start">
-                  <span className="text-sm font-medium text-green-200">
-                    <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
-                    Live Data
-                  </span>
-                  <span className="text-xs text-blue-300/70">
-                    <strong>Rankings updated in real-time</strong>
-                  </span>
+            <div className="mt-6 text-center">
+              <div className="inline-flex flex-col items-center gap-2">
+                <div className="inline-flex items-center bg-blue-900/30 px-4 py-2 rounded-lg border border-blue-500/20">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                  </svg>
+                  <div className="flex flex-col items-start">
+                    <span className="text-sm font-medium text-blue-200">
+                      Last updated: {fetchStatus.formattedLastUpdated || 'Just now'}
+                    </span>
+                    <span className="text-xs text-blue-300/70">
+                      Rankings updated hourly (not in real-time)
+                    </span>
+                  </div>
                 </div>
+                
+                {/* Show next update time */}
+                {fetchStatus.nextUpdateFormatted && (
+                  <div className="text-xs text-blue-300/70">
+                    Next data refresh: {fetchStatus.nextUpdateFormatted} EST
+                  </div>
+                )}
+                
+                {/* Show cached data notice if applicable */}
+                {fetchStatus.fromCache && fetchStatus.fetchError && (
+                  <div className="text-xs px-3 py-1 bg-amber-900/30 text-amber-300 rounded-full">
+                    Using cached data - Unable to fetch latest rankings
+                  </div>
+                )}
               </div>
-            </motion.div>
+            </div>
           )}
         </motion.div>
 
