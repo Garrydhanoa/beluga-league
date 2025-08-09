@@ -187,13 +187,11 @@ async function fetchPowerRankings(division, week) {
     
     console.log(`Fetching power rankings for ${formattedDivision} Week ${week}`);
     
-    // Check cache first
+    // Check cache first - ALWAYS use cache if available
     const cacheKey = `${division}-week${week}`;
-    if (
-      cachedData[cacheKey] &&
-      cachedData[cacheKey].timestamp > Date.now() - CACHE_TTL
-    ) {
-      console.log(`Using cached power rankings for ${division} Week ${week}`);
+    if (cachedData[cacheKey]) {
+      // Always return cached data if it exists, regardless of how old it is
+      console.log(`Using cached power rankings for ${division} Week ${week}, cached at ${new Date(cachedData[cacheKey].timestamp).toLocaleString()}`);
       return {
         data: cachedData[cacheKey].data,
         cachedAt: cachedData[cacheKey].timestamp,

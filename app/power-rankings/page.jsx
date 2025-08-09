@@ -59,7 +59,7 @@ export default function PowerRankingsPage() {
         setIsLoading(true);
         setError(null);
         
-        // Check for cached data
+        // Check for cached data - always use it if available
         const cacheKey = `power-rankings-${activeTab}-week${activeWeek}`;
         let useCachedData = false;
         
@@ -68,51 +68,75 @@ export default function PowerRankingsPage() {
           const cachedTimestamp = localStorage.getItem(`${cacheKey}-timestamp`);
           
           if (cachedData && cachedTimestamp) {
-            const cacheAge = Date.now() - parseInt(cachedTimestamp, 10);
-            // Use cache if it's less than 24 hours old
-            if (cacheAge < 24 * 60 * 60 * 1000) {
-              useCachedData = true;
-              const data = JSON.parse(cachedData);
-              setPowerRankings(data);
-              setFetchStatus({
-                fromCache: true,
-                cachedAt: parseInt(cachedTimestamp, 10),
-                fetchError: null,
-                nextUpdateAt: null,
-                lastScheduledUpdate: null
-              });
-              setIsLoading(false);
-            }
+            // Use cache regardless of how old it is
+            useCachedData = true;
+            const data = JSON.parse(cachedData);
+            setPowerRankings(data);
+            setFetchStatus({
+              fromCache: true,
+              cachedAt: parseInt(cachedTimestamp, 10),
+              fetchError: null,
+              nextUpdateAt: null,
+              lastScheduledUpdate: null
+            });
+            setIsLoading(false);
+            console.log(`Using cached power rankings for ${activeTab} Week ${activeWeek}`);
           }
         } catch (e) {
           console.error("Error checking cache:", e);
         }
         
-        // Fetch fresh data if no valid cache
+        // Fetch data from API only if we don't have cached data
         if (!useCachedData) {
-          const response = await fetch(`/api/power-rankings?division=${activeTab}&week=${activeWeek}`);
-          const data = await response.json();
-          
-          if (response.ok) {
-            setPowerRankings(data);
+          try {
+            // Add nocache parameter to avoid browser caching and always hit our backend
+            const response = await fetch(`/api/power-rankings?division=${activeTab}&week=${activeWeek}&nocache=${Date.now()}`);
+            const data = await response.json();
             
-            setFetchStatus({
-              fromCache: data.fromCache || false,
-              cachedAt: data.cachedAt || Date.now(),
-              fetchError: data.fetchError || null,
-              nextUpdateAt: data.nextUpdateAt || null,
-              lastScheduledUpdate: data.lastScheduledUpdate || null
-            });
-            
-            // Save to cache
-            try {
-              localStorage.setItem(cacheKey, JSON.stringify(data));
-              localStorage.setItem(`${cacheKey}-timestamp`, Date.now().toString());
-            } catch (e) {
-              console.warn("Error saving to cache:", e);
+            if (response.ok) {
+              setPowerRankings(data);
+              
+              setFetchStatus({
+                fromCache: data.fromCache || false,
+                cachedAt: data.cachedAt || Date.now(),
+                fetchError: data.fetchError || null,
+                nextUpdateAt: data.nextUpdateAt || null,
+                lastScheduledUpdate: data.lastScheduledUpdate || null
+              });
+              
+              // Always save API response to local cache
+              try {
+                localStorage.setItem(cacheKey, JSON.stringify(data));
+                localStorage.setItem(`${cacheKey}-timestamp`, Date.now().toString());
+                console.log(`Saved power rankings to local cache for ${activeTab} Week ${activeWeek}`);
+              } catch (e) {
+                console.warn("Error saving to cache:", e);
+              }
+            } else {
+              throw new Error(data.error || "Failed to fetch power rankings");
             }
-          } else {
-            throw new Error(data.error || "Failed to fetch power rankings");
+          } catch (err) {
+            console.error("API fetch error:", err);
+            // If API fails but we have old cached data from a previous session, try to use it
+            const oldCachedData = localStorage.getItem(cacheKey);
+            if (oldCachedData) {
+              console.log("API fetch failed, falling back to previously cached data");
+              try {
+                const data = JSON.parse(oldCachedData);
+                setPowerRankings(data);
+                setFetchStatus({
+                  fromCache: true,
+                  cachedAt: parseInt(localStorage.getItem(`${cacheKey}-timestamp`), 10) || Date.now(),
+                  fetchError: "Using previously cached data due to API error",
+                  nextUpdateAt: null,
+                  lastScheduledUpdate: null
+                });
+              } catch (e) {
+                throw new Error("Failed to load power rankings and cache is invalid");
+              }
+            } else {
+              throw err; // No cached data available, throw the original error
+            }
           }
         }
       } catch (err) {
@@ -394,11 +418,10 @@ export default function PowerRankingsPage() {
                   onClick={() => {
                     setIsLoading(true);
                     setError(null);
-                    // Force a new fetch by clearing cache for this item
-                    const cacheKey = `power-rankings-${activeTab}-week${activeWeek}`;
-                    localStorage.removeItem(cacheKey);
-                    localStorage.removeItem(`${cacheKey}-timestamp`);
-                    window.location.reload();
+                    // Don't clear cache, just try again with existing data
+                    setTimeout(() => {
+                      setIsLoading(false);
+                    }, 800); // Show loading animation briefly then return to same state
                   }} 
                   className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full transition-all shadow-lg neon-button"
                 >
