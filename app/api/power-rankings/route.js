@@ -6,7 +6,8 @@ import { NextResponse } from 'next/server';
 const CACHE_TTL = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
 let cachedData = {};
 
-const POWER_RANKINGS_SHEET_ID = '1wU4Za1xjl_VZwIlaJPeFgP0JRlrOxscJZb0MADxX5CE';
+// Get sheet ID from environment variable or fallback to hardcoded value
+const POWER_RANKINGS_SHEET_ID = process.env.POWER_RANKINGS_SHEET_ID || '1wU4Za1xjl_VZwIlaJPeFgP0JRlrOxscJZb0MADxX5CE';
 const DIVISIONS = ['aa', 'aaa', 'majors'];
 const WEEKS = [1, 2, 3, 4, 5, 6, 7, 8];
 
@@ -16,15 +17,15 @@ const UPDATE_HOUR_EST = 21; // 9 PM EST
 // Get credentials from environment variables
 async function getCredentials() {
   try {
-    // Check for environment variables first
-    if (
-      process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL &&
-      process.env.GOOGLE_PRIVATE_KEY
-    ) {
+    // Check for environment variables first - check both variable names for compatibility
+    const clientEmail = process.env.GOOGLE_CLIENT_EMAIL || process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
+    const privateKey = process.env.GOOGLE_PRIVATE_KEY;
+    
+    if (clientEmail && privateKey) {
       console.log('Using credentials from environment variables');
       return {
-        email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
-        key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'), // Fix for escaped newlines in env var
+        email: clientEmail,
+        key: privateKey.replace(/\\n/g, '\n'), // Fix for escaped newlines in env var
       };
     }
 
