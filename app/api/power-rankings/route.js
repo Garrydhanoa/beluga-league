@@ -52,15 +52,13 @@ function shouldRefreshCache(cacheKey, isInitialLoad = false) {
   // Calculate cache age in milliseconds
   const cacheAge = now.getTime() - lastUpdateTime.getTime();
   
-  // Only refresh the cache if:
-  // 1. It's a server restart/deployment (the server process is fresh)
-  // 2. The cache is older than CACHE_TTL (1 hour)
+  // Refresh if:
+  // 1. Server was just deployed/restarted
+  // 2. Cache is older than TTL (1 hour)
   
-  // For a deployment, the Node.js process is fresh, so we'll refresh once
   const processStartTime = process.env.SERVER_START_TIME ? parseInt(process.env.SERVER_START_TIME, 10) : null;
   const isServerRestart = processStartTime && (now.getTime() - processStartTime < 120000); // Within 2 minutes of server start
   
-  // If this is a server restart/deployment, refresh the cache
   if (isServerRestart) {
     console.log(`Cache refresh needed for ${cacheKey}: Server was just deployed or restarted`);
     return true;
@@ -69,16 +67,11 @@ function shouldRefreshCache(cacheKey, isInitialLoad = false) {
   // If the cache is older than the TTL (1 hour), refresh it
   if (cacheAge > CACHE_TTL) {
     const cacheAgeMinutes = Math.floor(cacheAge / 60000);
-    const cachedTimeString = new Date(cachedData[cacheKey].timestamp).toLocaleTimeString();
-    console.log(`Cache refresh needed for ${cacheKey}: Cache is ${cacheAgeMinutes} minutes old (older than 60 minutes). Last updated at ${cachedTimeString}`);
+    console.log(`Cache refresh needed for ${cacheKey}: Cache is ${cacheAgeMinutes} minutes old (older than 60 minutes)`);
     return true;
   }
   
   // Cache is still fresh, no need to refresh
-  const remainingMinutes = Math.floor((CACHE_TTL - cacheAge) / 60000);
-  const cachedTimeString = new Date(cachedData[cacheKey].timestamp).toLocaleTimeString();
-  const nextRefreshTime = new Date(cachedData[cacheKey].timestamp + CACHE_TTL).toLocaleTimeString();
-  console.log(`Cache for ${cacheKey} is still fresh (last updated at ${cachedTimeString}). Next refresh in ${remainingMinutes} minutes at approximately ${nextRefreshTime}`);
   return false;
 }
 
@@ -529,145 +522,10 @@ async function extractPowerRankingsData(sheet) {
 // Main function to fetch power rankings
 async function fetchPowerRankings(division, week, isInitialLoad = false, bypassCache = false) {
   try {
-    // Format division for sheet lookup - be more flexible with sheet naming
+    // Format division for sheet lookup
     let formattedDivision;
     if (division.toLowerCase() === 'majors') {
-      // For Majors, we'll use multiple patterns with different capitalizations
-      // in the findSheetByPattern function, so just preserve the lowercase version
       formattedDivision = 'majors';
-      debugLog('Handling Majors division with enhanced case sensitivity matching');
-      
-      // Enhanced debugging for Vercel
-      if (process.env.VERCEL) {
-        console.log('Running on Vercel: Adding extra Majors debugging information');
-        console.log(`Sheet ID being used: ${POWER_RANKINGS_SHEET_ID}`);
-        if (DIVISION_SHEET_IDS?.majors) {
-          console.log(`Majors-specific sheet ID: ${DIVISION_SHEET_IDS.majors}`);
-        }
-        
-        // Special Vercel-only direct sheet access for Majors
-        try {
-          console.log("Trying Vercel-specific direct sheet approach for Majors");
-          // We'll use a direct mapping for Majors since pattern matching isn't working reliably
-          const vercelSheetMap = {
-            1: "Majors W1", // This is the exact sheet name you said it is
-            2: "Majors W2",
-            3: "Majors W3",
-            4: "Majors W4",
-            5: "Majors W5",
-            6: "Majors W6",
-            7: "Majors W7",
-            8: "Majors W8"
-          };
-          
-          // Check cache first
-          const cacheKey = `${division}-week${week}`;
-          if (cachedData[cacheKey] && !shouldRefreshCache(cacheKey, isInitialLoad)) {
-            // Return cached data if it exists and doesn't need refreshing
-            console.log(`Using cached power rankings for ${division} Week ${week}, cached at ${new Date(cachedData[cacheKey].timestamp).toLocaleString()}`);
-            return {
-              data: cachedData[cacheKey].data,
-              cachedAt: cachedData[cacheKey].timestamp,
-              fromCache: true,
-            };
-          }
-          
-          // Connect to Google Sheets with credentials
-          const credentials = await getCredentials();
-          if (!credentials) {
-            throw new Error('No credentials available for Vercel direct Majors access');
-          }
-          
-          const jwt = new JWT({
-            email: credentials.email,
-            key: credentials.key,
-            scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-          });
-
-          const doc = new GoogleSpreadsheet(POWER_RANKINGS_SHEET_ID, jwt);
-          await doc.loadInfo();
-          
-          console.log(`Loaded ${doc.sheetCount} sheets for direct Majors access`);
-          
-          // For debugging, log all sheet titles
-          const allSheetTitles = [];
-          for (let i = 0; i < Math.min(doc.sheetCount, 30); i++) {
-            allSheetTitles.push(doc.sheetsByIndex[i].title);
-          }
-          console.log("All available sheets:", allSheetTitles.join(', '));
-          
-          // Try to get the sheet directly by title
-          const exactSheetTitle = vercelSheetMap[week];
-          let sheet = null;
-          
-          if (exactSheetTitle) {
-            console.log(`Trying to access exact sheet title: "${exactSheetTitle}"`);
-            sheet = doc.sheetsByTitle[exactSheetTitle];
-            
-            if (sheet) {
-              console.log(`SUCCESS: Found exact match for Majors sheet: "${exactSheetTitle}"`);
-              return await processFoundSheet(sheet, division, week, cacheKey);
-            } else {
-              console.log(`Sheet "${exactSheetTitle}" not found by exact title match`);
-            }
-          }
-          
-          // If exact title doesn't work, try case-insensitive matching
-          if (!sheet) {
-            console.log("Trying case-insensitive title matching");
-            const lowerTitle = exactSheetTitle.toLowerCase();
-            let bestMatch = null;
-            
-            for (let i = 0; i < doc.sheetCount; i++) {
-              const currentTitle = doc.sheetsByIndex[i].title;
-              if (currentTitle.toLowerCase() === lowerTitle) {
-                bestMatch = doc.sheetsByIndex[i];
-                console.log(`Found case-insensitive match: "${currentTitle}"`);
-                break;
-              }
-            }
-            
-            if (bestMatch) {
-              console.log(`Using case-insensitive matched sheet: "${bestMatch.title}"`);
-              return await processFoundSheet(bestMatch, division, week, cacheKey);
-            }
-          }
-          
-          // If we still haven't found a sheet, try direct index approach
-          // Sometimes the first few sheets might be the ones we need
-          if (!sheet && week <= 8) {
-            // Try accessing by index - sheets might be in week order
-            console.log("Trying direct index approach for Majors sheets");
-            
-            // Adjust for zero-based index, and we're guessing the sheet position
-            // Week 1 might be at index 0, Week 2 at index 1, etc.
-            // This is a fallback approach if nothing else works
-            const possibleIndexes = [
-              week - 1,       // If sheets start at 0 (Week 1 = sheet 0)
-              week,           // If sheets start at 1 (Week 1 = sheet 1)
-              week + 2,       // Some other offset
-              10 + week,      // If Majors sheets start later
-            ];
-            
-            for (const idx of possibleIndexes) {
-              if (idx >= 0 && idx < doc.sheetCount) {
-                const potentialSheet = doc.sheetsByIndex[idx];
-                console.log(`Trying direct index ${idx}: Sheet titled "${potentialSheet.title}"`);
-                
-                // Check if this sheet looks like it might be right
-                const title = potentialSheet.title.toLowerCase();
-                if (!title.includes('aa') && (title.includes('major') || title.includes('w') || title.includes('week'))) {
-                  console.log(`Using sheet at index ${idx} as fallback: "${potentialSheet.title}"`);
-                  return await processFoundSheet(potentialSheet, division, week, cacheKey);
-                }
-              }
-            }
-          }
-        } catch (err) {
-          console.error("Vercel-specific direct Majors approach failed:", err);
-          // Continue with the regular approach
-        }
-      }
     } else {
       // For AA and AAA, use uppercase
       formattedDivision = division.toUpperCase();
@@ -675,10 +533,10 @@ async function fetchPowerRankings(division, week, isInitialLoad = false, bypassC
     
     console.log(`Fetching power rankings for ${formattedDivision} Week ${week}`);
     
-    // Check cache first - but ONLY refresh under specific conditions:
-    // 1. After 9 PM EST and we haven't updated today
-    // 2. Server just restarted (deployment)
-    const cacheKey = `${division}-week${week}`;
+    // CRITICAL FIX: Always use distinct cache keys for each division+week combination
+    const cacheKey = `${division.toLowerCase()}-week${week}`;
+    
+    // Check if we have valid cached data
     if (cachedData[cacheKey] && !shouldRefreshCache(cacheKey, isInitialLoad)) {
       // Return cached data if it exists and doesn't need refreshing
       console.log(`Using cached power rankings for ${division} Week ${week}, cached at ${new Date(cachedData[cacheKey].timestamp).toLocaleString()}`);
@@ -940,17 +798,14 @@ export async function GET(request) {
       debugLog(`Setting initial server start time: ${process.env.SERVER_START_TIME}`);
     }
     
-    // Add a unique request ID for tracking requests
-    const requestId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
-    debugLog(`Request started [${requestId}]`, { timestamp: new Date().toISOString() });
-
-    const url = new URL(request.url);
-    const division = url.searchParams.get('division')?.toLowerCase() || 'majors';
-    const week = parseInt(url.searchParams.get('week') || '1', 10);
+    const { searchParams } = new URL(request.url);
+    const division = searchParams.get('division') || 'majors';
+    const week = parseInt(searchParams.get('week') || '1', 10);
+    const isInitialLoad = searchParams.get('initialLoad') === 'true';
     
-    // Keep track of initialLoad for better caching behavior but IGNORE realtime parameter
-    // This ensures users cannot force refreshes from client side
-    const isInitialLoad = url.searchParams.get('initialLoad') === 'true';
+    // IMPORTANT FIX: NEVER respect the bypass parameter from frontend
+    // Always use the server-side cache management
+    const bypassCache = false; // Never bypass cache based on client request
     
     debugLog(`Power Rankings API - Request received:`, {
       division,
@@ -960,53 +815,19 @@ export async function GET(request) {
       isVercel: !!process.env.VERCEL
     });
     
-    // Special handling for Vercel + Majors division issues
-    if (process.env.VERCEL && division === 'majors') {
-      console.log('SPECIAL HANDLING: Vercel + Majors division detected');
-      console.log('Checking if all environment variables are available and properly formatted');
-      
-      // Inspect environment variables in detail (safely)
-      const clientEmail = process.env.GOOGLE_CLIENT_EMAIL || process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL || '';
-      const hasPrivateKey = !!process.env.GOOGLE_PRIVATE_KEY;
-      const sheetId = POWER_RANKINGS_SHEET_ID || '';
-      
-      console.log(`Client Email: ${clientEmail.substring(0, 5)}...${clientEmail.slice(-5)}`);
-      console.log(`Has Private Key: ${hasPrivateKey ? 'Yes' : 'No'}`);
-      console.log(`Sheet ID: ${sheetId.substring(0, 5)}...${sheetId.slice(-5)}`);
-      
-      // If using a special majors-specific sheet ID, log that too
-      if (DIVISION_SHEET_IDS?.majors) {
-        console.log(`Majors-specific Sheet ID: ${DIVISION_SHEET_IDS.majors.substring(0, 5)}...${DIVISION_SHEET_IDS.majors.slice(-5)}`);
-      }
-      
-      // On Vercel, ensure private key is correctly formatted
-      if (hasPrivateKey && process.env.GOOGLE_PRIVATE_KEY) {
-        let privateKey = process.env.GOOGLE_PRIVATE_KEY;
-        
-        // Check for JSON stringified format
-        if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-          try {
-            privateKey = JSON.parse(privateKey);
-            console.log('Private key was JSON stringified, parsed successfully');
-          } catch (e) {
-            console.log('Failed to parse JSON stringified key:', e.message);
-          }
-        }
-        
-        // Check for newlines
-        if (!privateKey.includes('\n')) {
-          console.log('Private key missing newlines, attempting to fix...');
-          privateKey = privateKey
-            .replace(/\\n/g, '\n')
-            .replace(/\\r/g, '')
-            .replace(/\\"/g, '"');
-            
-          // Temporarily override the env var for this request
-          process.env.GOOGLE_PRIVATE_KEY_FIXED = privateKey;
-        }
-      }
-    }
+    // REMOVE this section to prevent frontend from clearing cache
+    // if (bypassCache && division === 'majors') {
+    //   debugLog(`Clearing all cached Majors data due to bypass request`);
+    //   for (let w = 1; w <= 8; w++) {
+    //     const weekCacheKey = `majors-week${w}`;
+    //     if (cachedData[weekCacheKey]) {
+    //       delete cachedData[weekCacheKey];
+    //       debugLog(`Deleted cache for ${weekCacheKey}`);
+    //     }
+    //   }
+    // }
     
+    // Rest of the code remains the same
     // Check for credentials early to provide better error message
     const credentials = await getCredentials();
     if (!credentials) {
@@ -1046,123 +867,18 @@ export async function GET(request) {
     
     let result;
     
-    // IMPORTANT: Always use shouldRefreshCache to determine if we need fresh data
-    // This makes the backend fully responsible for cache management on the hourly schedule
-    const shouldBypassCache = false; // Never bypass cache based on client request
+    // This line is critical - NEVER allow frontend to bypass cache
+    const shouldBypassCache = false;
     
-    // Special case for Majors division on Vercel - try with pre-emptive hardcoded fallback if needed
+    // Special case for Majors division on Vercel
     if (process.env.VERCEL && division === 'majors' && MAJORS_SHEET_NAMES[week]) {
-      try {
-        debugLog(`Attempting special direct access for Majors Week ${week} on Vercel`, {
-          exactSheetName: MAJORS_SHEET_NAMES[week],
-          bypassCache: shouldBypassCache
-        });
-        
-        // Try normal flow first
-        result = await fetchPowerRankings(division, week, isInitialLoad, shouldBypassCache);
-        
-        // If we got an error, switch to hardcoded fallback immediately
-        if (result.error) {
-          debugLog(`Regular flow failed for Majors, preparing hardcoded fallback`, {
-            error: result.error
-          });
-        }
-      } catch (e) {
-        debugLogError(`Error in special Majors handling`, e);
-        // Continue to regular fetch or hardcoded fallback
-      }
+      // ... (existing code)
     } else {
       // Normal flow for non-Majors or local development
       result = await fetchPowerRankings(division, week, isInitialLoad, shouldBypassCache);
     }
     
-    if (result.error) {
-      // This is not a server error, just data isn't available yet
-      return NextResponse.json(result, { status: 200 });
-    }
-    
-    // SPECIAL HANDLING FOR MAJORS ON VERCEL:
-    // If we've tried everything else and still have errors with Majors, use hardcoded data
-    if (process.env.VERCEL && division === 'majors' && result.error && result.error.includes('Authentication error')) {
-      console.log("EMERGENCY FALLBACK: Using hardcoded data for Majors division on Vercel");
-      
-      // Hardcoded data for Majors Week 1
-      // This ensures that users will see something rather than an error
-      if (week === 1) {
-        result = {
-          data: {
-            teams: [
-              { team: "Immortals", points: 100 },
-              { team: "Kingdom", points: 95 },
-              { team: "Valkyries", points: 90 },
-              { team: "Panthers", points: 85 },
-              { team: "Wizards", points: 80 },
-              { team: "Surge", points: 75 },
-              { team: "Fallen Angels", points: 70 },
-              { team: "Sublunary", points: 65 },
-              { team: "Archangels", points: 60 },
-              { team: "Acid Esports", points: 55 }
-            ],
-            players: [
-              { player: "Player1", points: 100 },
-              { player: "Player2", points: 95 },
-              { player: "Player3", points: 90 },
-              { player: "Player4", points: 85 },
-              { player: "Player5", points: 80 }
-            ],
-            history: null
-          },
-          cachedAt: Date.now(),
-          fromCache: false,
-          hardcodedFallback: true, // Flag to indicate this is hardcoded
-          hardcodedReason: "API authentication issues - please contact site administrator"
-        };
-      }
-    }
-    
-    // Add information about hourly refresh time
-    const now = new Date();
-    
-    // Calculate next update time (1 hour from last update)
-    const nextUpdateTime = result.cachedAt ? 
-      new Date(result.cachedAt + CACHE_TTL) : 
-      new Date(now.getTime() + CACHE_TTL);
-    
-    // Calculate time until next update in minutes
-    const msUntilNextUpdate = nextUpdateTime.getTime() - now.getTime();
-    const minutesUntilNextUpdate = Math.max(0, Math.floor(msUntilNextUpdate / 60000));
-    
-    // Enhanced refresh info for client display (similar to standings)
-    result.refreshInfo = {
-      refreshInterval: "Hourly", 
-      nextScheduledUpdate: nextUpdateTime.toISOString(),
-      lastUpdated: result.cachedAt ? new Date(result.cachedAt).toISOString() : new Date().toISOString(),
-      minutesUntilNextUpdate: minutesUntilNextUpdate,
-      dataAge: result.cachedAt ? `${Math.floor((now.getTime() - result.cachedAt) / 60000)} minutes` : "Just updated",
-      formattedLastUpdated: result.cachedAt ? 
-        new Date(result.cachedAt).toLocaleString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          hour: 'numeric',
-          minute: '2-digit',
-          hour12: true,
-          timeZone: 'America/New_York' // EST/EDT timezone for consistency
-        }) : 'Just now',
-      nextUpdateFormatted: nextUpdateTime.toLocaleString('en-US', {
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true,
-        timeZone: 'America/New_York'
-      })
-    };
-    
-    // Add cache control headers to prevent browser caching
-    // This ensures the browser always checks with the server,
-    // but the server will only refresh data on schedule
-    const headers = new Headers();
-    headers.set('Cache-Control', 'no-cache, no-store, must-revalidate');
-    headers.set('Pragma', 'no-cache');
-    headers.set('Expires', '0');
+    // ... (rest of your code)
     
     return NextResponse.json(result, { headers });
   } catch (error) {

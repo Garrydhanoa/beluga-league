@@ -103,6 +103,7 @@ export default function PowerRankingsPage() {
         
         // If we don't have valid cache or it's stale, fetch from API
         try {
+          // IMPORTANT: Never include a bypassCache parameter
           const response = await fetch(
             `/api/power-rankings?division=${activeTab}&week=${activeWeek}&initialLoad=true`,
             { cache: 'no-store' }
