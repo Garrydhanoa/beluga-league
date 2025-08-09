@@ -23,7 +23,17 @@ The project follows a standard Next.js App Router structure:
 
 ## Getting Started
 
-First, run the development server:
+### Environment Setup
+
+1. Copy `.env.local.example` to `.env.local` and add your credentials:
+
+```
+GOOGLE_CLIENT_EMAIL="your-service-account-email@project.iam.gserviceaccount.com"
+GOOGLE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour key here\n-----END PRIVATE KEY-----"
+POWER_RANKINGS_SHEET_ID="your-sheet-id"
+```
+
+2. Run the development server:
 
 ```bash
 npm run dev
@@ -55,6 +65,15 @@ The original TypeScript files are kept in the `typescript_backup/` directory for
 ## Deployment
 
 The site can be deployed to Vercel or Cloudflare Pages.
+
+### Environment Variables for Deployment
+
+Make sure to set the following environment variables in your deployment platform:
+
+- `GOOGLE_CLIENT_EMAIL` - Your Google service account email
+- `GOOGLE_PRIVATE_KEY` - Your Google service account private key
+- `POWER_RANKINGS_SHEET_ID` - Your Google Sheet ID for power rankings
+- `STANDINGS_SHEET_ID` - Your Google Sheet ID for standings
 
 ### Vercel Deployment
 

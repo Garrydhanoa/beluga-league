@@ -15,23 +15,25 @@ async function connectToSheet() {
     // Get Sheet ID from environment variables or use the hardcoded one if not available
     const sheetId = process.env.POWER_RANKINGS_SHEET_ID || '1wU4Za1xjl_VZwIlaJPeFgP0JRlrOxscJZb0MADxX5CE';
     
-    // First attempt: Try using hardcoded authentication for simplicity and reliability
-    // This works for demo purposes but in production, better to use more secure methods
+    // First attempt: Try using environment variable credentials first - most secure method
     try {
-      // Create a simple auth using credentials directly
-      const serviceAccountAuth = new JWT({
-        email: 'beluga-league@beluga-league-468319.iam.gserviceaccount.com',
-        key: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQC64gurmiJ5i2Xn\nJ7i7VWSyGSzYGkC8LcH5lYAbCoCBsvjqXKXWa2hcyNHNt8FmW5u8F2PvWm8I0oMZ\nWTxYrgk9XunkFzvNvi7BTv5Zzu6kD9Bm4krMTurZPBXFDiPdvvkPi3cQxuHFVBTt\nVanMMwk+/xX8bS36ltkOkYY4X0rnlXX7eI5dUDxa0Hz/FJk9iKWG5qDg5HyIurlb\n9zsUvP+Ds03iSfW0id5Qt2h6bwfqz31Ei8RjBQaqmBb5BMfOaW50unaNGg91bahW\nODnuwdW0m5ClFS9QItSeS0rGyX5TgqGWAou6R41pvZfoozKStp08bBthj3kkyo78\n/gzaPTybAgMBAAECggEAL4o0PM2Dapbu78wXfrQ83t9vnHOlNxmOyC5jPb3Arf24\nu2mhGDgPftbpJCNUE/VG2yS6G9fN+hkPF4IvS0HOgOmlpwvP/0kbfLpbEr6Ez4Bk\nW9/B9lI3BNb3lL7BmfWsRuuL+N0W7ssyXaOWg6cR+ZALaEDf2ujHw6B6W9nF5L4d\n0kAhlEsBGyO2dwBVrBPTP4USKDV8aGvL6GWuFwLjijiT47rNHaZ5HAhAAgQO+jkj\nZj2bhh3xwaIPEEYjEIGAUuOuulc8ko3/mK/kFxVCtD75H+R4nYwq/SMlhq4XbvvC\nMB3IEQ0EckiS+pdKkY5qFPaeg8JUIZnTOXqyoXAJ4QKBgQDax16zrU3QgBpRPV21\nV3HVYfV9XTGp5kbeeFeCKYitJaoURyY3aEZlifCG2+HuU5mUnl+8QacJ2GrbHupL\ncS/1S2WeV6CH4bTVdqEa6U6zv5JLtJqpXpjp6Gyu/WjKLjk17uzdJ2BK4tVlEa3U\n/pG3rOg0/STkCS0RFZeA87MkoQKBgQDarX64QvX0Q1zI4Qj+YXqI37jP1nhsgZqZ\nhnnPR/ug1xT+TFT/puASQ0Q2cm0NlAup7mWOqCaj9Q9FqLeJgZ27dfCttFHcIL0R\nNNY6bHUAabJ/QQ4soqcnOsj8RKhvdYokOm/es2EJfeqBbUUO8f1kd+khulsm3SJX\nz08U3rSbuwKBgGnkgBEFvBlEN/jEdBv29FEs9e608fnjTMAXjXuh8Nal2VmxSm0d\nGp3BE1ujCAscCcUmlv3+5QPd7XKb1xmm8miPEuN+VGQQuj9sCPSGoqJcAkqEYyvB\nbtAgwKI+Y78gem6Bc8Jjcbctbc5arUHf6dX2afpj4LxDOL4BLnCrBDWhAoGBAJoe\nftoEr23I8CLPn1QRhZfj/U/V+yeWLEyZn038kJaqH6yeRaWsie21JOUuvjc8qP/J\n+h+R2THi7DGPGFO8W1ucYtU56hu3oyj2USn5+HgjBl9zjTbeJ+qZHr/U79UmRQcF\nfIS7bd+Ps/Al/+7plEnzzQYtXkLExYiXnke6MhYzAoGBAJcYfKTKrNXPFyUCeo/1\nbSzFkpbSo2YRN9fx3RMyn0hkwVvwhGCC6SUm74+11DODG+8H2+h1YYKfgCu8Q0cl\ndxVTn5x1v/7GlYD7Yot0ZtI9rr+XY/5vTGFuONyRSJl7jfxgjQZKKxhDy+IVTXNb\nyCEaKb6Me6RfYmidw/x4BQnu\n-----END PRIVATE KEY-----\n",
-        scopes: [
-          'https://www.googleapis.com/auth/spreadsheets',
-        ],
-      });
+      // Check if we have the required environment variables
+      if (process.env.GOOGLE_CLIENT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+        const serviceAccountAuth = new JWT({
+          email: process.env.GOOGLE_CLIENT_EMAIL,
+          key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+        });
 
-      const doc = new GoogleSpreadsheet(sheetId, serviceAccountAuth);
-      await doc.loadInfo();
-      return doc;
-    } catch (directAuthError) {
-      console.warn('Error using direct auth:', directAuthError.message);
+        const doc = new GoogleSpreadsheet(sheetId, serviceAccountAuth);
+        await doc.loadInfo();
+        return doc;
+      } else {
+        // Skip this method if env vars aren't available
+        throw new Error("Environment variables not configured");
+      }
+    } catch (envAuthError) {
+      console.warn('Error using environment variable auth:', envAuthError.message);
       // Continue to next auth method if this fails
     }
     
