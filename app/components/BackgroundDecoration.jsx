@@ -9,10 +9,10 @@ import { useEffect } from "react";
 export default function BackgroundDecoration() {
   // Add parallax effect to background elements
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e) => {
       const decorElements = document.querySelectorAll(".bg-decor");
       decorElements.forEach((elem) => {
-        const htmlElem = elem as HTMLElement;
+        const htmlElem = elem;
         const speed = parseFloat(htmlElem.dataset.speed || "0.05");
         const x = (window.innerWidth - e.pageX * speed) / 100;
         const y = (window.innerHeight - e.pageY * speed) / 100;

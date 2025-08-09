@@ -166,7 +166,7 @@ export default function Home() {
                 We host regular seasons with professionally managed tournaments, custom stats tracking, and community events that bring players together.
               </p>
               <p className="text-lg text-blue-100">
-                Whether you're a seasoned veteran or just starting out, there's a place for you in our community.
+                Whether you&apos;re a seasoned veteran or just starting out, there&apos;s a place for you in our community.
               </p>
             </div>
           </div>
@@ -322,18 +322,18 @@ export default function Home() {
                     <div className="absolute inset-0 w-1/2 h-full bg-gradient-to-r from-white/0 via-white/20 to-white/0 skew-x-20 transition-transform translate-x-[-180%] group-hover:translate-x-[180%] duration-700"></div>
                   </a>
                   
-                  <a 
+                  <Link
                     href="/rulebook" 
                     className="group relative px-10 py-5 bg-black/40 backdrop-blur-sm rounded-xl font-bold text-white text-lg border border-white/20 hover:border-blue-400 transition transform hover:scale-105 inline-block text-center overflow-hidden"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 transition-transform group-hover:rotate-12" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 005.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
+                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 005.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0014.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z" />
                       </svg>
                       Rulebook
                     </span>
                     <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-600/0 via-blue-600/20 to-blue-600/0 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500"></div>
-                  </a>
+                  </Link>
                 </div>
                 
                 {/* Decorative elements */}

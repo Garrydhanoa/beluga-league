@@ -5,16 +5,16 @@ import Link from 'next/link';
 import ImageWithFallback from '../components/ImageWithFallback';
 
 export default function PowerRankingsPage() {
-  const [chartData, setChartData] = useState<number[]>([]);
-  const [dataPoints, setDataPoints] = useState<{x: number, y: number}[]>([]);
+  const [chartData, setChartData] = useState([]);
+  const [dataPoints, setDataPoints] = useState([]);
   const [progress, setProgress] = useState(0);
-  const [loadingTexts, setLoadingTexts] = useState<string[]>([]);
+  const [loadingTexts, setLoadingTexts] = useState([]);
   
   // Create simulated power ranking data and development progress
   useEffect(() => {
     // Generate sample chart data
     const generateData = () => {
-      const data: number[] = [];
+      const data = [];
       for (let i = 0; i < 10; i++) {
         data.push(Math.floor(Math.random() * 80) + 10);
       }
@@ -23,7 +23,7 @@ export default function PowerRankingsPage() {
     
     // Generate data points for the animated chart
     const generateDataPoints = () => {
-      const points: {x: number, y: number}[] = [];
+      const points = [];
       for (let i = 0; i < 12; i++) {
         points.push({
           x: i * 50,
@@ -177,7 +177,7 @@ export default function PowerRankingsPage() {
                 <svg className="w-full h-full" viewBox="0 0 550 200" preserveAspectRatio="none">
                   {/* Performance line */}
                   <path
-                    d={`M0,${200-dataPoints[0]?.y || 100} ${dataPoints.map((p, i) => `L${p.x},${200-p.y}`).join(' ')}`}
+                    d={`M0,${200-(dataPoints[0]?.y || 100)} ${dataPoints.map((p, i) => `L${p.x},${200-p.y}`).join(' ')}`}
                     fill="none"
                     stroke="url(#blueGradient)"
                     strokeWidth="3"

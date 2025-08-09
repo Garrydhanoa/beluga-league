@@ -5,9 +5,9 @@ import Link from 'next/link';
 
 export default function PlayerDirectoryPage() {
   const [progress, setProgress] = useState(0);
-  const [loadingTexts, setLoadingTexts] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<string>('all');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [loadingTexts, setLoadingTexts] = useState([]);
+  const [activeTab, setActiveTab] = useState('all');
+  const [searchQuery, setSearchQuery] = useState('');
   
   // Sample player data with correct SAL values (max 25)
   const samplePlayers = [
@@ -302,7 +302,7 @@ export default function PlayerDirectoryPage() {
                 </div>
                 <h3 className="text-xl font-bold text-purple-200 mb-2 group-hover:text-purple-100 transition-colors duration-300">SAL Range Filtering</h3>
                 <p className="text-blue-100/90">
-                  Filter players within specific skill ranges. Set minimum and maximum SAL values (0-25) to find players that match your team's competitive level.
+                  Filter players within specific skill ranges. Set minimum and maximum SAL values (0-25) to find players that match your team&apos;s competitive level.
                 </p>
               </div>
               

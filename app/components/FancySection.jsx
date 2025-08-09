@@ -1,12 +1,6 @@
-import React, { ReactNode } from 'react';
+import React from 'react';
 
-type FancySectionProps = {
-  title: string;
-  children: ReactNode;
-  className?: string;
-}
-
-export default function FancySection({ title, children, className = '' }: FancySectionProps) {
+export default function FancySection({ title, children, className = '' }) {
   return (
     <div className={`fancy-section ${className}`}>
       <div className="heading-glow inline-block relative mb-6">

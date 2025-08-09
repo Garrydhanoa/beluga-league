@@ -1,14 +1,7 @@
 import Link from 'next/link';
-import React, { ReactNode } from 'react';
+import React from 'react';
 
-type FancyButtonProps = {
-  href: string;
-  children: ReactNode;
-  external?: boolean;
-  className?: string;
-}
-
-export default function FancyButton({ href, children, external = false, className = '' }: FancyButtonProps) {
+export default function FancyButton({ href, children, external = false, className = '' }) {
   const buttonClass = `fancy-button ${className}`;
   
   if (external) {

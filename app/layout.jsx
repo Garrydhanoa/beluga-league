@@ -1,17 +1,14 @@
 import Navigation from './components/Navigation'
 import Footer from './components/Footer'
 import './globals.css'
-import type { Metadata } from 'next'
 
-export const metadata: Metadata = {
+export const metadata = {
   title: 'Beluga League',
   description: 'The official site of the Beluga Rocket League community',
 }
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
 }) {
   return (
     <html lang="en">

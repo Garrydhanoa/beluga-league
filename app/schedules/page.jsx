@@ -3,17 +3,9 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-// Type definitions
-type Division = "majors" | "aa" | "aaa";
-type Match = [string, string]; // [team1, team2]
-type WeekSchedule = Match[];
-type DivisionSchedule = {
-  [week: string]: WeekSchedule;
-};
-
 export default function SchedulesPage() {
-  const [activeTab, setActiveTab] = useState<Division>("aa");
-  const [expandedWeek, setExpandedWeek] = useState<string | null>("Week 1");
+  const [activeTab, setActiveTab] = useState("aa");
+  const [expandedWeek, setExpandedWeek] = useState("Week 1");
   const [animateItems, setAnimateItems] = useState(false);
 
   useEffect(() => {
@@ -62,13 +54,13 @@ export default function SchedulesPage() {
     };
     
     // Setup parallax effect for background decorations
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e) => {
       const decorElements = document.querySelectorAll('.bg-decor');
       decorElements.forEach(elem => {
-        const speed = parseFloat((elem as HTMLElement).dataset.speed || "0.05");
+        const speed = parseFloat(elem.dataset.speed || "0.05");
         const x = (window.innerWidth - e.pageX * speed) / 100;
         const y = (window.innerHeight - e.pageY * speed) / 100;
-        (elem as HTMLElement).style.transform = `translateX(${x}px) translateY(${y}px)`;
+        elem.style.transform = `translateX(${x}px) translateY(${y}px)`;
       });
       
       // Add dynamic glow to matches when mouse is near
@@ -87,11 +79,11 @@ export default function SchedulesPage() {
         const intensity = Math.max(0, 1 - distance / maxDistance);
         
         if (intensity > 0) {
-          (match as HTMLElement).style.boxShadow = `0 0 ${intensity * 20}px rgba(59,130,246,${intensity * 0.4})`;
-          (match as HTMLElement).style.borderColor = `rgba(96,165,250,${intensity * 0.8})`;
+          match.style.boxShadow = `0 0 ${intensity * 20}px rgba(59,130,246,${intensity * 0.4})`;
+          match.style.borderColor = `rgba(96,165,250,${intensity * 0.8})`;
         } else {
-          (match as HTMLElement).style.boxShadow = '';
-          (match as HTMLElement).style.borderColor = '';
+          match.style.boxShadow = '';
+          match.style.borderColor = '';
         }
       });
     };
@@ -113,7 +105,7 @@ export default function SchedulesPage() {
   }, []);
 
   // Data structure for schedules
-  const majorsSchedule: DivisionSchedule = {
+  const majorsSchedule = {
     "Week 1": [
       ["Acid Esports", "Sublunary"],
       ["Valkyries", "Lotus"],
@@ -228,7 +220,7 @@ export default function SchedulesPage() {
     ]
   };
 
-  const aaaaaSchedule: DivisionSchedule = {
+  const aaaaaSchedule = {
     "Week 1": [
       ["Lotus", "Malfeasance"],
       ["MNML", "InTraCate"],  // Changed from Intracate
@@ -379,19 +371,19 @@ export default function SchedulesPage() {
   const currentSchedule = activeTab === "majors" ? majorsSchedule : aaaaaSchedule;
 
   // Handle week toggle
-  const toggleWeek = (week: string) => {
+  const toggleWeek = (week) => {
     setExpandedWeek(expandedWeek === week ? null : week);
   };
 
   // Add this helper function to handle image loading issues
-  const getTeamInitials = (teamName: string) => {
+  const getTeamInitials = (teamName) => {
     return teamName.split(' ').map(word => word[0]).join('');
   };
 
   // Add this right after your useEffect to preload team logos
   useEffect(() => {
     // Preload all team logos to prevent flashing
-    const allTeams = new Set<string>();
+    const allTeams = new Set();
     
     // Gather all team names from schedules
     Object.values(majorsSchedule).forEach(week => {
@@ -675,5 +667,3 @@ export default function SchedulesPage() {
     </div>
   );
 }
-
-// REMOVE EVERYTHING BELOW - Comments and CSS blocks

@@ -11,8 +11,8 @@ export default function Navigation() {
   
   // Close mobile menu when clicking outside or changing route
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      const target = e.target as HTMLElement;
+    const handleClickOutside = (e) => {
+      const target = e.target;
       if (mobileMenuOpen && !target.closest('.mobile-nav-container')) {
         setMobileMenuOpen(false);
       }
@@ -27,7 +27,7 @@ export default function Navigation() {
     setMobileMenuOpen(false);
   }, [pathname]);
   
-  const isActive = (path: string): boolean => pathname === path;
+  const isActive = (path) => pathname === path;
 
   return (
     <nav className="w-full bg-black/30 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
@@ -58,7 +58,7 @@ export default function Navigation() {
         {/* Mobile menu button */}
         <button 
           className="md:hidden p-3 rounded-lg bg-black/30 text-white hover:bg-black/40 transition-colors z-[999]"
-          onClick={(e: React.MouseEvent) => {
+          onClick={(e) => {
             e.stopPropagation();
             setMobileMenuOpen(!mobileMenuOpen);
           }}
@@ -118,7 +118,7 @@ export default function Navigation() {
       {mobileMenuOpen && (
         <div 
           className="md:hidden mobile-nav-container fixed top-[61px] left-0 w-full h-auto bg-black/95 backdrop-blur-md z-[990] border-b border-white/10 animate-fadeIn"
-          onClick={(e: React.MouseEvent) => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
         >
           <div className="container mx-auto px-4 py-4">
             <div className="flex flex-col space-y-4">

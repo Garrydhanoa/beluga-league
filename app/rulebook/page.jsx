@@ -4,13 +4,13 @@ import Link from 'next/link';
 import DOMPurify from 'dompurify';
 
 export default function RulebookPage() {
-  const [content, setContent] = useState<string>('');
+  const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
-  const [tableOfContents, setTableOfContents] = useState<{id: string, text: string, level: number}[]>([]);
-  const [activeSection, setActiveSection] = useState<string>('');
+  const [tableOfContents, setTableOfContents] = useState([]);
+  const [activeSection, setActiveSection] = useState('');
   const [tocVisible, setTocVisible] = useState(false); // Track mobile TOC visibility
-  const contentRef = useRef<HTMLDivElement>(null);
-  const tocRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef(null);
+  const tocRef = useRef(null);
   const publishedDocUrl = "https://docs.google.com/document/d/e/2PACX-1vTBi5BDycuXzBnOgE3oCZxxw9cHmkgcXdDqo3Norz-7HslR7JzYh3GTCMASTMT4zz_OukqF1Qo78OPb/pub";
   
   useEffect(() => {
@@ -61,7 +61,7 @@ export default function RulebookPage() {
     if (!content || !contentRef.current) return;
     
     const headingElements = contentRef.current.querySelectorAll('h1, h2, h3');
-    const toc: {id: string, text: string, level: number}[] = [];
+    const toc = [];
     
     headingElements.forEach((heading, index) => {
       const id = `section-${index}`;
@@ -383,11 +383,6 @@ function TocContent({
   activeSection, 
   setActiveSection, 
   onItemClick 
-}: { 
-  tableOfContents: {id: string, text: string, level: number}[],
-  activeSection: string,
-  setActiveSection: (id: string) => void,
-  onItemClick?: () => void
 }) {
   return (
     <nav className="space-y-1.5">

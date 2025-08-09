@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function DevelopmentPage() {
   return (
     <div className="min-h-[calc(100vh-140px)] flex flex-col items-center justify-center p-8">
@@ -24,12 +26,12 @@ export default function DevelopmentPage() {
           Please check back soon for updates!
         </p>
         
-        <a
+        <Link
           href="/"
           className="px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full font-medium text-white hover:from-blue-600 hover:to-purple-700 transition shadow-lg inline-block"
         >
           Return to Home
-        </a>
+        </Link>
       </div>
     </div>
   );

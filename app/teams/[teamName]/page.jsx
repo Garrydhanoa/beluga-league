@@ -5,30 +5,20 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import ImageWithFallback from '../../components/ImageWithFallback';
 
-// Type definitions
-type Match = [string, string]; // [team1, team2]
-type WeekSchedule = Match[];
-type DivisionSchedule = {
-  [week: string]: WeekSchedule;
-};
-type Division = "major" | "aa" | "aaa";
-
 export default function TeamPage() {
   const params = useParams();
-  const teamName = params.teamName as string;
+  const teamName = params.teamName;
   const decodedTeamName = decodeURIComponent(teamName);
   
-  const [activeTab, setActiveTab] = useState<'schedule' | 'roster' | 'stats'>('schedule');
-  const [activeScheduleTab, setActiveScheduleTab] = useState<Division>("aa");
-  const [teamDivisions, setTeamDivisions] = useState<Division[]>([]);
-  const [teamSchedules, setTeamSchedules] = useState<{
-    [key in Division]?: {[week: string]: Match[]}
-  }>({});
+  const [activeTab, setActiveTab] = useState('schedule');
+  const [activeScheduleTab, setActiveScheduleTab] = useState("aa");
+  const [teamDivisions, setTeamDivisions] = useState([]);
+  const [teamSchedules, setTeamSchedules] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [animateItems, setAnimateItems] = useState(false);
 
   // Create schedules data (same as in schedules page)
-  const majorsSchedule: DivisionSchedule = {
+  const majorsSchedule = {
     "Week 1": [
       ["Acid Esports", "Sublunary"],
       ["Valkyries", "Lotus"],
@@ -143,7 +133,7 @@ export default function TeamPage() {
     ]
   };
 
-  const aaaaaSchedule: DivisionSchedule = {
+  const aaaaaSchedule = {
     "Week 1": [
       ["Lotus", "Malfeasance"],
       ["MNML", "InTraCate"],
@@ -290,7 +280,7 @@ export default function TeamPage() {
     ]
   };
 
-  const aaSchedule: DivisionSchedule = {
+  const aaSchedule = {
     "Week 1": [
       ["Acid Esports", "Sublunary"],
       ["Valkyries", "Lotus"],
@@ -410,14 +400,14 @@ export default function TeamPage() {
     setIsLoading(true);
     
     // Create schedule objects for each division
-    const schedules: {[key in Division]?: {[week: string]: Match[]}} = {
+    const schedules = {
       major: {},
       aa: {},
       aaa: {}
     };
     
     // Track which divisions this team plays in
-    const divisions: Division[] = [];
+    const divisions = [];
     
     // Check majors division - this should be unique
     let isInMajors = false;
@@ -466,10 +456,10 @@ export default function TeamPage() {
     if (isInAA) divisions.push("aa");
     
     // After all divisions are gathered, sort them in the desired order: AA → AAA → MAJOR
-    const sortedDivisions: Division[] = [];
-    if (divisions.includes("aa")) sortedDivisions.push("aa" as Division);
-    if (divisions.includes("aaa")) sortedDivisions.push("aaa" as Division);
-    if (divisions.includes("major")) sortedDivisions.push("major" as Division);
+    const sortedDivisions = [];
+    if (divisions.includes("aa")) sortedDivisions.push("aa");
+    if (divisions.includes("aaa")) sortedDivisions.push("aaa");
+    if (divisions.includes("major")) sortedDivisions.push("major");
     
     setTeamDivisions(sortedDivisions);
     setTeamSchedules(schedules);
@@ -488,17 +478,17 @@ export default function TeamPage() {
   }, [decodedTeamName]);
 
   // Helper function to get team initials for fallback
-  const getTeamInitials = (name: string) => {
+  const getTeamInitials = (name) => {
     return name.split(' ').map(word => word[0]).join('');
   };
   
   // Get the display name for a division
-  const getDivisionDisplayName = (division: Division) => {
+  const getDivisionDisplayName = (division) => {
     switch(division) {
       case 'major': return 'MAJOR';
       case 'aa': return 'AA';
       case 'aaa': return 'AAA';
-      default: return (division as string).toUpperCase();
+      default: return division.toUpperCase();
     }
   };
 
@@ -597,7 +587,7 @@ export default function TeamPage() {
             <div className="space-y-6 mb-10">
               <h2 className="text-2xl font-bold text-center">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-500">
-                  {decodedTeamName}'s Schedule
+                  {decodedTeamName}&apos;s Schedule
                 </span>
               </h2>
               
@@ -903,7 +893,7 @@ export default function TeamPage() {
                       Player Status Updates
                     </h3>
                     <p className="text-blue-100 text-sm">
-                      Real-time updates on player availability including active, inactive, and injury statuses to keep you informed about your team's composition.
+                      Real-time updates on player availability including active, inactive, and injury statuses to keep you informed about your team&apos;s composition.
                     </p>
                   </div>
                   

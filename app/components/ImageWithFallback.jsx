@@ -1,26 +1,21 @@
 "use client"
 
 import { useState } from 'react';
-
-type ImageWithFallbackProps = {
-  src: string;
-  alt: string;
-  className?: string;
-  fallback?: React.ReactNode;
-  teamName?: string; // For generating team initials
-};
+import Image from 'next/image';
 
 export default function ImageWithFallback({ 
   src, 
   alt, 
   className = "", 
   fallback,
-  teamName
-}: ImageWithFallbackProps) {
+  teamName,
+  width,
+  height
+}) {
   const [error, setError] = useState(false);
   
   // Function to get team initials
-  const getTeamInitials = (name: string) => {
+  const getTeamInitials = (name) => {
     return name ? name.split(' ').map(word => word[0]).join('') : 'BL';
   };
 
@@ -41,12 +36,16 @@ export default function ImageWithFallback({
     return fallback ? <>{fallback}</> : defaultFallback;
   }
 
+  // Use plain img for now since we might need to handle external images 
+  // and we don't want to configure domains for Next.js Image
   return (
     <img
       src={src}
       alt={alt}
       className={className}
       onError={() => setError(true)}
+      width={width}
+      height={height}
     />
   );
 }
