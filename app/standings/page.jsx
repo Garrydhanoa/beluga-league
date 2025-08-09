@@ -66,9 +66,9 @@ export default function StandingsPage() {
           });
           setIsLoading(false);
           
-          // Only fetch fresh data if cache is over 15 minutes old
+          // Only fetch fresh data if cache is over 60 minutes old (1 hour)
           const cacheAge = Date.now() - parseInt(cachedTimestamp, 10);
-          setShouldFetch(cacheAge > 15 * 60 * 1000);
+          setShouldFetch(cacheAge > 60 * 60 * 1000);
           
           console.log(`Loaded initial cached data, ${Math.round(cacheAge/1000/60)} minutes old`);
           return true;
@@ -113,16 +113,21 @@ export default function StandingsPage() {
     setShouldFetch(true);
   };
 
-  // Setup auto-refresh timer (every 30 minutes)
+  // Setup auto-refresh timer (every 60 minutes)
   useEffect(() => {
-    // Set up a 30-minute interval to check for data freshness
+    // Define refresh interval constant for consistency
+    const REFRESH_INTERVAL = 60 * 60 * 1000; // 60 minutes (1 hour) in milliseconds
+    
+    // Set up a regular interval to check for data freshness
     const intervalId = setInterval(() => {
       // Only trigger a refresh if we haven't refreshed in the last 30 minutes
       if (fetchStatus.cachedAt) {
         const lastUpdateTime = new Date(fetchStatus.cachedAt).getTime();
         const now = Date.now();
-        if (now - lastUpdateTime > 30 * 60 * 1000) {
-          console.log("Auto-refresh triggered after 30 minutes");
+        const timeSinceLastUpdate = now - lastUpdateTime;
+        
+        if (timeSinceLastUpdate > REFRESH_INTERVAL) {
+          console.log(`Auto-refresh triggered after ${Math.round(timeSinceLastUpdate/1000/60)} minutes`);
           setShouldFetch(true);
         }
       }
@@ -159,8 +164,8 @@ export default function StandingsPage() {
           
           setIsLoading(false);
           
-          // Only fetch from server if cache is older than 30 minutes
-          if (cacheAge > 30 * 60 * 1000) {
+          // Only fetch from server if cache is older than 60 minutes (1 hour)
+          if (cacheAge > 60 * 60 * 1000) {
             return false;
           }
           
@@ -585,13 +590,21 @@ export default function StandingsPage() {
             </div>
           ) : (
             <>
-              {/* Show last updated status without refresh option */}
+              {/* Show last updated status with clearer refresh indication */}
               {fetchStatus.cachedAt && (
                 <div className="rounded-t-lg p-3 text-center border-b border-blue-500/20">
                   <div className="flex items-center justify-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                    </svg>
+                    {isLoading ? (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-400 animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <circle cx="12" cy="12" r="10" strokeOpacity="0.25"></circle>
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10c5.52 0 10-4.48 10-10S17.52 2 12 2z" strokeOpacity="0.75" fill="none"></path>
+                        <path d="M12 2v4" strokeOpacity="1"></path>
+                      </svg>
+                    ) : (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                      </svg>
+                    )}
                     <span className="text-white">
                       <span className="font-semibold text-green-400">Last updated:</span> {
                         new Date(fetchStatus.cachedAt).toLocaleString('en-US', {
@@ -603,8 +616,11 @@ export default function StandingsPage() {
                           timeZone: 'America/New_York'
                         })
                       }
-                      <span className="ml-2 text-blue-300">(Updates automatically every 30 minutes)</span>
-                      {fetchStatus.fetchError && (
+                      <span className="ml-2 text-blue-300">(Updates automatically every hour)</span>
+                      {isLoading && (
+                        <span className="text-blue-300 ml-2 animate-pulse">(Refreshing data...)</span>
+                      )}
+                      {fetchStatus.fetchError && !isLoading && (
                         <span className="text-amber-300 ml-2">(Unable to fetch fresh data)</span>
                       )}
                     </span>
@@ -669,6 +685,37 @@ export default function StandingsPage() {
                   <svg xmlns="http://www.w3.org/2000/svg" className={`h-3.5 w-3.5 ${sortField === 'goalDiff' ? 'opacity-100' : 'opacity-50'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={sortDirection === 'asc' ? "M5 15l7-7 7 7" : "M19 9l-7 7-7-7"} />
                   </svg>
+                </div>
+              </div>
+
+              {/* Mobile sorting options */}
+              <div className="md:hidden p-3 bg-black/30 rounded-lg mb-3">
+                <div className="text-sm font-medium mb-2 text-center text-blue-200">Sort By:</div>
+                <div className="flex flex-wrap justify-center gap-2">
+                  <button 
+                    className={`px-2.5 py-1.5 rounded-md text-xs font-medium ${sortField === 'position' ? 'bg-blue-600 text-white' : 'bg-black/40 text-blue-300'}`}
+                    onClick={() => handleSort('position')}
+                  >
+                    Default
+                  </button>
+                  <button 
+                    className={`px-2.5 py-1.5 rounded-md text-xs font-medium ${sortField === 'wins' ? 'bg-blue-600 text-white' : 'bg-black/40 text-blue-300'}`}
+                    onClick={() => handleSort('wins')}
+                  >
+                    Wins {sortField === 'wins' && (sortDirection === 'desc' ? '↓' : '↑')}
+                  </button>
+                  <button 
+                    className={`px-2.5 py-1.5 rounded-md text-xs font-medium ${sortField === 'losses' ? 'bg-blue-600 text-white' : 'bg-black/40 text-blue-300'}`}
+                    onClick={() => handleSort('losses')}
+                  >
+                    Losses {sortField === 'losses' && (sortDirection === 'desc' ? '↓' : '↑')}
+                  </button>
+                  <button 
+                    className={`px-2.5 py-1.5 rounded-md text-xs font-medium ${sortField === 'gameDiff' ? 'bg-blue-600 text-white' : 'bg-black/40 text-blue-300'}`}
+                    onClick={() => handleSort('gameDiff')}
+                  >
+                    Game +/- {sortField === 'gameDiff' && (sortDirection === 'desc' ? '↓' : '↑')}
+                  </button>
                 </div>
               </div>
 
@@ -863,10 +910,13 @@ export default function StandingsPage() {
                       </div>
                     </div>
                     
-                    {/* Expand/collapse button - repositioned for mobile */}
+                    {/* Expand/collapse button - repositioned and fixed for mobile */}
                     <button
-                      className="absolute right-2 bottom-2 sm:bottom-auto sm:top-2 w-7 h-7 rounded-full bg-black/40 flex items-center justify-center text-blue-300 hover:text-white transition-colors shadow-md md:opacity-0 md:group-hover:opacity-100"
-                      onClick={() => setExpandedTeam(expandedTeam === team.team ? null : team.team)}
+                      className="absolute right-2 bottom-2 sm:bottom-auto sm:top-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-blue-300 hover:text-white transition-colors shadow-md border border-blue-500/20 z-10"
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent event bubbling
+                        setExpandedTeam(expandedTeam === team.team ? null : team.team);
+                      }}
                       aria-label={expandedTeam === team.team ? "Collapse team details" : "Expand team details"}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -878,11 +928,11 @@ export default function StandingsPage() {
                       </svg>
                     </button>
                     
-                    {/* Expanded team details */}
+                    {/* Expanded team details with better visibility */}
                     <AnimatePresence>
                       {expandedTeam === team.team && teamStats[team.team] && (
                         <motion.div 
-                          className="mt-3 p-3 bg-black/30 rounded-lg"
+                          className="mt-3 p-3 bg-blue-900/30 border border-blue-500/20 rounded-lg shadow-lg relative"
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
