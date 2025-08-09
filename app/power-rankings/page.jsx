@@ -220,27 +220,39 @@ export default function PowerRankingsPage() {
   
   // Helper to handle image loading errors with fallbacks
   const handleImageError = (e, teamName, size = 'base') => {
+    // Make sure we have a valid event target
+    if (!e || !e.currentTarget) {
+      console.warn("Invalid event in handleImageError", teamName);
+      return;
+    }
+    
+    // Store a reference to the current element and its parent
+    // IMPORTANT: We need to store these before setting a new error handler
+    const imgElement = e.currentTarget;
+    const parentElement = imgElement.parentElement;
+    
     // First try an alternative approach - sometimes team names might have spaces or special characters
     const normalizedTeamName = teamName.replace(/\s+/g, '%20');
     
     // Try with the normalized name
     if (normalizedTeamName !== teamName) {
-      e.currentTarget.src = `/logos/${normalizedTeamName}.png`;
+      imgElement.src = `/logos/${normalizedTeamName}.png`;
       
-      // Add another error handler for the second attempt
-      e.currentTarget.onerror = () => {
-        e.currentTarget.style.display = 'none';
-        if (e.currentTarget.parentElement) {
+      // Add another error handler with the stored references
+      imgElement.onerror = () => {
+        // Use our stored references to avoid "Cannot read properties of null"
+        if (imgElement && parentElement) {
+          imgElement.style.display = 'none';
           const fontSize = size === 'small' ? 'text-xs' : size === 'base' ? 'text-base' : 'text-lg';
-          e.currentTarget.parentElement.innerHTML = `<span class="${fontSize} font-bold">${getTeamInitials(teamName)}</span>`;
+          parentElement.innerHTML = `<span class="${fontSize} font-bold">${getTeamInitials(teamName)}</span>`;
         }
       };
     } else {
       // If name is already normalized, just show initials
-      e.currentTarget.style.display = 'none';
-      if (e.currentTarget.parentElement) {
+      if (imgElement && parentElement) {
+        imgElement.style.display = 'none';
         const fontSize = size === 'small' ? 'text-xs' : size === 'base' ? 'text-base' : 'text-lg';
-        e.currentTarget.parentElement.innerHTML = `<span class="${fontSize} font-bold">${getTeamInitials(teamName)}</span>`;
+        parentElement.innerHTML = `<span class="${fontSize} font-bold">${getTeamInitials(teamName)}</span>`;
       }
     }
   };

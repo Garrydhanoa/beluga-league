@@ -56,6 +56,14 @@ function shouldRefreshCache(cacheKey, isInitialLoad = false) {
     return true;
   }
   
+  // Add this check to make sure we're using the right cache key
+  // Extract division and week from cache key
+  const match = cacheKey.match(/^(.+)-week(\d+)$/);
+  if (match) {
+    const [_, divisionFromKey, weekFromKey] = match;
+    console.log(`Cache key ${cacheKey} is for ${divisionFromKey} Week ${weekFromKey}`);
+  }
+  
   // Get current time
   const now = new Date();
   
@@ -293,49 +301,46 @@ async function connectToGoogleSheet(sheetId) {
   }
 }
 
-// Enhanced findSheetByPattern function to better handle Majors Weeks 7-8
+// Add this debug function at the top of the file
+function debugCacheKeys() {
+  console.log("==== CURRENT CACHE STATE ====");
+  Object.keys(cachedData).forEach(key => {
+    const entry = cachedData[key];
+    console.log(`${key}: division=${entry.division || 'unknown'}, week=${entry.week || 'unknown'}, timestamp=${new Date(entry.timestamp).toLocaleString()}`);
+  });
+  console.log("============================");
+}
+
+// Replace the findSheetByPattern function with this version
 function findSheetByPattern(doc, division, week) {
-  let patterns = [];
+  // Track what we're looking for
+  console.log(`SHEET SEARCH: Finding sheet for ${division} Week ${week} in document with ${doc.sheetCount} sheets`);
   
-  if (division.toLowerCase() === 'majors') {
-    // Add even more patterns for Majors, especially for later weeks which might use different formats
-    patterns = [
-      // Standard formats
-      new RegExp(`^Majors\\s*W${week}$`, 'i'),
-      new RegExp(`^Majors\\s*Week\\s*${week}$`, 'i'),
-      new RegExp(`^Majors\\s*${week}$`, 'i'),
-      // All caps
-      new RegExp(`^MAJORS\\s*W${week}$`, 'i'),
-      new RegExp(`^MAJORS\\s*WEEK\\s*${week}$`, 'i'),
-      // Week first formats
-      new RegExp(`^W${week}\\s*[-_\\s]*Majors`, 'i'),
-      new RegExp(`^Week\\s*${week}\\s*[-_\\s]*Majors`, 'i'),
-      // Numbers as text for later weeks (e.g. "Week Seven" instead of "Week 7")
-      new RegExp(`^Majors\\s*W(?:${getWeekNamePattern(week)})`, 'i'),
-      new RegExp(`^Majors\\s*Week\\s*(?:${getWeekNamePattern(week)})`, 'i'),
-      // Extra flexible patterns for later weeks
-      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr][Ss]?.*[Ww](?:eek)?[-_\\s]*${week}`, 'i'),
-      new RegExp(`.*[Ww](?:eek)?[-_\\s]*${week}.*[Mm][Aa][Jj][Oo][Rr][Ss]?`, 'i'),
-      // Extremely loose match - any sheet with both "major" and the week number somewhere
-      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr].*${week}`, 'i'),
-      new RegExp(`.*${week}.*[Mm][Aa][Jj][Oo][Rr]`, 'i'),
-      // For later weeks specifically (7 and 8)
-      ...(week >= 7 ? [
-        new RegExp(`.*[Ff][Ii][Nn][Aa][Ll].*[Mm][Aa][Jj][Oo][Rr]`, 'i'), // "Finals Majors" for week 7-8
-        new RegExp(`.*[Pp][Ll][Aa][Yy][Oo][Ff][Ff].*[Mm][Aa][Jj][Oo][Rr]`, 'i'), // "Playoffs Majors" for week 7-8
-        new RegExp(`.*[Mm][Aa][Jj][Oo][Rr].*[Ff][Ii][Nn][Aa][Ll]`, 'i'), // "Majors Finals" for week 7-8
-        new RegExp(`.*[Mm][Aa][Jj][Oo][Rr].*[Pp][Ll][Aa][Yy][Oo][Ff][Ff]`, 'i'), // "Majors Playoffs" for week 7-8
-      ] : [])
-    ];
-    
-    console.log(`Using ${patterns.length} different patterns to match Majors sheets`);
-  } else {
-    // Standard patterns for AA and AAA
-    patterns = [
-      new RegExp(`^${division}\\s*W${week}$`, 'i'),        // Standard: "AA W1"
-      new RegExp(`^${division}\\s*Week\\s*${week}$`, 'i'), // With "Week": "AA Week 1"
-      new RegExp(`^${division}\\s*${week}$`, 'i'),         // Without W: "AA 1"
-    ];
+  let patterns = [];
+  const allSheetTitles = doc.sheetsByIndex.map(s => s.title);
+  console.log(`Available sheets: ${allSheetTitles.join(', ')}`);
+  
+  // IMPORTANT CHANGE: Use the same pattern approach for all divisions
+  // This is the key fix - use the same reliable pattern matching for Majors that works for AA/AAA
+  
+  // Create a consistent division format for patterns
+  const divName = division.toLowerCase() === 'majors' ? 'Majors' : division.toUpperCase();
+  
+  // Standard patterns that work for all divisions
+  patterns = [
+    new RegExp(`^${divName}\\s*W${week}$`, 'i'),        // Standard: "Majors W1" or "AA W1"
+    new RegExp(`^${divName}\\s*Week\\s*${week}$`, 'i'), // With "Week": "Majors Week 1" 
+    new RegExp(`^${divName}\\s*${week}$`, 'i'),         // Without W: "Majors 1" or "AA 1"
+  ];
+  
+  // Try exact match first (most reliable method)
+  const exactWeekSheet = `${divName} W${week}`;
+  if (doc.sheetsByTitle[exactWeekSheet]) {
+    console.log(`✅ EXACT MATCH: Found sheet "${exactWeekSheet}" for ${division} Week ${week}`);
+    const sheet = doc.sheetsByTitle[exactWeekSheet];
+    sheet._matchedDivision = division;
+    sheet._matchedWeek = week;
+    return sheet;
   }
   
   // Loop through all sheets and check against all patterns
@@ -343,103 +348,22 @@ function findSheetByPattern(doc, division, week) {
     const sheet = doc.sheetsByIndex[i];
     const sheetTitle = sheet.title.trim();
     
-    // Log sheet title for debugging
-    console.log(`Checking sheet title: "${sheetTitle}"`);
-    
     // Try each pattern
     for (const pattern of patterns) {
       if (pattern.test(sheetTitle)) {
-        console.log(`Found matching sheet: "${sheetTitle}" for division "${division}" week ${week} using pattern: ${pattern}`);
-        return sheet;
-      }
-    }
-    
-    // Special fallback case for Majors division only - more aggressive matching
-    if (division.toLowerCase() === 'majors') {
-      // Case 1: If the title contains "major" (any case) and the week number
-      if (sheetTitle.toLowerCase().includes('major') && 
-          sheetTitle.includes(week.toString())) {
-        console.log(`Found Majors sheet using fallback matching: "${sheetTitle}" contains "major" and "${week}"`);
-        return sheet;
-      }
-      
-      // Case 2: If the sheet name looks like it might be week-related for Majors
-      if ((sheetTitle.toLowerCase().includes('week') || 
-          sheetTitle.toLowerCase().includes(' w') || 
-          sheetTitle.match(/\bw\s*\d+\b/i)) && 
-          sheetTitle.includes(week.toString()) &&
-          !sheetTitle.toLowerCase().includes('aa')) {  
-        if (
-          // Not obviously for other divisions
-          !sheetTitle.toLowerCase().includes('aa ') && 
-          !sheetTitle.toLowerCase().includes('aaa ') &&
-          !sheetTitle.toLowerCase().match(/\baa\b/i) &&
-          !sheetTitle.toLowerCase().match(/\baaa\b/i)
-        ) {
-          console.log(`Found potential Majors sheet using week matching: "${sheetTitle}" contains week indicator and "${week}" without AA/AAA markers`);
-          return sheet;
-        }
-      }
-      
-      // Case 3: If the title contains "m" and the week number (extreme fallback)
-      // This is a last resort to try to find anything remotely resembling a Majors sheet
-      if (sheetTitle.toLowerCase().includes('m') && 
-          sheetTitle.includes(week.toString()) &&
-          !sheetTitle.toLowerCase().includes('aa')) {  // Exclude AA to avoid picking AAA sheets
-        console.log(`Found Majors sheet using extreme fallback: "${sheetTitle}" contains "m" and "${week}" and not "aa"`);
+        console.log(`✅ PATTERN MATCH: Found sheet "${sheetTitle}" for ${division} Week ${week} using pattern: ${pattern}`);
+        sheet._matchedDivision = division;
+        sheet._matchedWeek = week;
         return sheet;
       }
     }
   }
   
-  // Log all sheet titles if no match found
-  console.log("No matching sheet found. Available sheets:");
-  
-  // Create a list of all sheet titles for debugging
-  let allSheets = [];
-  let potentialMajorsSheets = [];
-  
-  for (let i = 0; i < Math.min(doc.sheetCount, 50); i++) {
-    const sheetTitle = doc.sheetsByIndex[i].title;
-    allSheets.push(sheetTitle);
-    
-    // Check if this sheet might be what we're looking for based on loose matching
-    if (division.toLowerCase() === 'majors') {
-      const sheetLower = sheetTitle.toLowerCase();
-      // Check for anything that might be a majors sheet
-      if (sheetLower.includes('major') || 
-          (sheetLower.includes('m') && sheetLower.includes(week.toString()) && !sheetLower.includes('aa'))) {
-        console.log(`POTENTIAL MATCH FOUND: "${sheetTitle}" might be a Majors sheet`);
-        potentialMajorsSheets.push(doc.sheetsByIndex[i]);
-      }
-    }
-  }
-  
-  console.log(`All sheets (${allSheets.length}): ${allSheets.join(', ')}`);
-  console.log(`Tried patterns for division "${division}": ${patterns.map(p => p.toString()).join(', ')}`);
-  
-  // For Majors division only: If we have potential matches, try them all as a last resort
-  if (division.toLowerCase() === 'majors' && potentialMajorsSheets.length > 0) {
-    console.log(`Trying ${potentialMajorsSheets.length} potential Majors sheets as last resort`);
-    
-    // Sort sheets by likelihood (sheets with "major" in the title first)
-    potentialMajorsSheets.sort((a, b) => {
-      const aHasMajor = a.title.toLowerCase().includes('major');
-      const bHasMajor = b.title.toLowerCase().includes('major');
-      if (aHasMajor && !bHasMajor) return -1;
-      if (!aHasMajor && bHasMajor) return 1;
-      return 0;
-    });
-    
-    // Return the first potential sheet as a desperate measure
-    console.log(`Using "${potentialMajorsSheets[0].title}" as fallback for Majors Week ${week}`);
-    return potentialMajorsSheets[0];
-  }
-  
+  console.log(`❌ No matching sheet found for ${division} Week ${week}`);
   return null;
 }
 
-  // Extract power rankings data from a specific sheet
+// Extract power rankings data from a specific sheet
 async function extractPowerRankingsData(sheet) {
   try {
     await sheet.loadCells('G21:J35'); // Load teams (G21-H30) and players (I21-J25) data
@@ -546,7 +470,7 @@ async function fetchPowerRankings(division, week, isInitialLoad = false, bypassC
       // Return cached data if it exists and doesn't need refreshing
       console.log(`Using cached power rankings for ${division} Week ${week}, cached at ${new Date(cachedData[cacheKey].timestamp).toLocaleString()}`);
       
-      // Format the response with consistent time formatting
+      // Format the dates consistently to avoid "{object Object}" display
       const now = new Date();
       const nextUpdateTime = new Date(now.getTime() + CACHE_TTL);
       const formattedUpdateTime = new Date(cachedData[cacheKey].timestamp).toLocaleString('en-US', TIME_FORMAT_OPTIONS);
@@ -580,11 +504,11 @@ async function fetchPowerRankings(division, week, isInitialLoad = false, bypassC
       doc = await connectToGoogleSheet(POWER_RANKINGS_SHEET_ID);
       console.log(`Connected to main power rankings sheet: ${POWER_RANKINGS_SHEET_ID.substring(0, 6)}...`);
       
-      // Try to find the sheet with different division name formats
+      // Try to find the sheet with the simpler, more reliable pattern matching
       sheet = findSheetByPattern(doc, formattedDivision, week);
       
       if (sheet) {
-        console.log(`Found sheet in main document: "${sheet.title}"`);
+        console.log(`Found sheet in main document: "${sheet.title}" for Week ${week}`);
         return await processFoundSheet(sheet, division, week, cacheKey);
       }
       
@@ -602,7 +526,7 @@ async function fetchPowerRankings(division, week, isInitialLoad = false, bypassC
         console.log(`Trying division-specific sheet for ${division}: ${DIVISION_SHEET_IDS[division.toLowerCase()].substring(0, 6)}...`);
         const divDoc = await connectToGoogleSheet(DIVISION_SHEET_IDS[division.toLowerCase()]);
         
-        // Try to find the sheet with different division name formats
+        // Try to find the sheet with the simpler pattern matching
         const divSheet = findSheetByPattern(divDoc, formattedDivision, week);
         
         if (divSheet) {
@@ -614,89 +538,18 @@ async function fetchPowerRankings(division, week, isInitialLoad = false, bypassC
       }
     }
     
-    // If we reach here, we've exhausted all options or had errors
-    // If we had an error with the main sheet and couldn't get a document, throw it
-    if (mainSheetError && !doc) {
-      throw mainSheetError;
-    }
+    // CRITICAL CHANGE: Remove all fallback logic that might use Week 1 data for other weeks
+    // Instead, return a clean "not available" message
     
-    // If we have a document but no sheet was found
-    if (doc) {
-      // Check if any sheets contain the division name to help diagnose issues
-      let foundSheets = [];
-      let weekSheets = [];
-      
-      // For each sheet, check if it contains the division name or the week number
-      for (let i = 0; i < doc.sheetCount; i++) {
-        const sheetTitle = doc.sheetsByIndex[i].title.toLowerCase();
-        
-        if (sheetTitle.includes(division.toLowerCase())) {
-          foundSheets.push(doc.sheetsByIndex[i].title);
-        }
-        
-        // Also track all sheets with the week number for potential fallback
-        if (sheetTitle.includes(week.toString()) || 
-            sheetTitle.includes(`week ${week}`) || 
-            sheetTitle.includes(`w${week}`)) {
-          weekSheets.push({
-            title: doc.sheetsByIndex[i].title,
-            sheet: doc.sheetsByIndex[i]
-          });
-        }
-      }
-      
-      if (foundSheets.length > 0) {
-        console.log(`Found some sheets that might be related: ${foundSheets.join(', ')}`);
-        
-        // If we have division-specific sheets but no exact match, try the first one as fallback
-        if (division.toLowerCase() === 'majors' && foundSheets.length > 0) {
-          // Try to find a sheet with both division and week number
-          const bestMatch = foundSheets.find(title => 
-            title.toLowerCase().includes(week.toString()) || 
-            title.toLowerCase().includes(`week ${week}`) ||
-            title.toLowerCase().includes(`w${week}`));
-            
-          if (bestMatch) {
-            console.log(`Using best match "${bestMatch}" as fallback for ${division} Week ${week}`);
-            const sheet = doc.sheetsByTitle[bestMatch];
-            if (sheet) {
-              return await processFoundSheet(sheet, division, week, cacheKey);
-            }
-          } else if (weekSheets.length > 0) {
-            // As an extreme fallback, use any sheet with the right week number for Majors
-            // Sort by likelihood of being a Majors sheet
-            weekSheets.sort((a, b) => {
-              const aLower = a.title.toLowerCase();
-              const bLower = b.title.toLowerCase();
-              
-              // Prefer sheets that don't explicitly mention other divisions
-              const aHasAA = aLower.includes('aa');
-              const bHasAA = bLower.includes('aa'); 
-              
-              if (!aHasAA && bHasAA) return -1;
-              if (aHasAA && !bHasAA) return 1;
-              return 0;
-            });
-            
-            // Use the first sheet that doesn't explicitly mention "aa" or "aaa"
-            const nonAASheet = weekSheets.find(item => 
-              !item.title.toLowerCase().includes('aa ') && 
-              !item.title.toLowerCase().match(/\baaa\b/i) &&
-              !item.title.toLowerCase().match(/\baa\b/i));
-              
-            if (nonAASheet) {
-              console.log(`Using ${nonAASheet.title} as extreme fallback for Majors Week ${week}`);
-              return await processFoundSheet(nonAASheet.sheet, division, week, cacheKey);
-            }
-          }
-        }
-      }
-    }
-    
+    // If we reach here, we've exhausted all options
     return {
       data: null,
-      error: `Power rankings for ${division.toUpperCase()} Week ${week} are not available yet. They will be released during Week ${week}.`,
+      error: `Power rankings for ${division.toUpperCase()} Week ${week} are not available yet.`,
+      notFound: true, // Add a flag to indicate this is truly not found
+      requestedWeek: week
     };
+    
+    // Rest of error handling...
   } catch (error) {
     console.error('Error in fetchPowerRankings:', error);
     
@@ -748,8 +601,30 @@ async function fetchPowerRankings(division, week, isInitialLoad = false, bypassC
  */
 async function processFoundSheet(sheet, division, week, cacheKey) {
   try {
+    // CRITICAL: Verify that the sheet matches the requested division and week
+    console.log(`Processing sheet "${sheet.title}" for ${division} Week ${week}`);
+    
+    // If the sheet object has matched values, verify they match the request
+    if (sheet._matchedDivision && sheet._matchedWeek) {
+      if (sheet._matchedWeek !== week) {
+        console.error(`⚠️ WEEK MISMATCH: Sheet "${sheet.title}" was matched for Week ${sheet._matchedWeek} but was requested for Week ${week}`);
+        throw new Error(`Wrong week data: Found sheet for Week ${sheet._matchedWeek} but requested Week ${week}`);
+      }
+    }
+    
     let data = await extractPowerRankingsData(sheet);
-  
+    
+    // Add this validation to ensure we're not mixing up data from different weeks
+    console.log(`Extracted data has ${data.teams?.length || 0} teams and ${data.players?.length || 0} players`);
+    
+    // Mark the data with its source for debugging
+    data._source = {
+      sheetTitle: sheet.title,
+      division: division,
+      week: week,
+      timestamp: new Date().toISOString()
+    };
+    
     // Normalize team names
     if (data.teams && data.teams.length > 0) {
       data.teams = data.teams.map(entry => ({
@@ -758,22 +633,25 @@ async function processFoundSheet(sheet, division, week, cacheKey) {
       }));
     }
     
-    // Cache the data
+    // Cache the data with the correct week
     const timestamp = Date.now();
+    console.log(`Caching data for ${division} Week ${week} with key: ${cacheKey}`);
     cachedData[cacheKey] = {
       data,
       timestamp,
+      division,
+      week
     };
     
     // Calculate the next update time (1 hour from now)
     const now = new Date();
     const nextUpdateTime = new Date(now.getTime() + CACHE_TTL);
     
-    // Format times using EST timezone
+    // Format times using EST timezone to avoid {object Object}
     const formattedUpdateTime = now.toLocaleString('en-US', TIME_FORMAT_OPTIONS);
     const formattedNextUpdateTime = nextUpdateTime.toLocaleString('en-US', TIME_FORMAT_OPTIONS);
     
-    console.log(`Data for ${cacheKey} updated at ${formattedUpdateTime} EST. Next refresh at ${formattedNextUpdateTime} EST`);
+    console.log(`Data for ${division} Week ${week} (${cacheKey}) updated at ${formattedUpdateTime} EST. Next refresh at ${formattedNextUpdateTime} EST`);
     
     // Calculate minutes until next update for frontend countdown
     const minutesUntilNextUpdate = Math.ceil((nextUpdateTime.getTime() - now.getTime()) / 60000);
@@ -783,7 +661,7 @@ async function processFoundSheet(sheet, division, week, cacheKey) {
       cachedAt: timestamp,
       fromCache: false,
       nextUpdateAt: nextUpdateTime.getTime(),
-      lastUpdated: formattedUpdateTime,
+      lastUpdated: formattedUpdateTime, 
       formattedLastUpdated: formattedUpdateTime + " EST",
       nextUpdateFormatted: formattedNextUpdateTime + " EST",
       lastScheduledUpdate: now.getTime(),
@@ -797,8 +675,10 @@ async function processFoundSheet(sheet, division, week, cacheKey) {
       }
     };
   } catch (error) {
-    console.error('Error processing sheet data:', error);
-    throw error;
+    console.error(`Error processing sheet data for ${division} Week ${week}:`, error);
+    
+    // Return a more helpful error
+    throw new Error(`Failed to process ${division} Week ${week} data: ${error.message}`);
   }
 }
 
@@ -862,11 +742,16 @@ const TIME_FORMAT_OPTIONS = {
 
 export async function GET(request) {
   try {
-    // Store or update server start time for redeployment detection
-    // Using Date.now() ensures we have a fresh timestamp on each deployment
-    process.env.SERVER_START_TIME = Date.now().toString();
-    debugLog(`Setting/updating server start time: ${process.env.SERVER_START_TIME}`);
+    // Store server start time if it doesn't exist yet (for detecting deployments)
+    if (!process.env.SERVER_START_TIME) {
+      process.env.SERVER_START_TIME = Date.now().toString();
+      debugLog(`Setting initial server start time: ${process.env.SERVER_START_TIME}`);
+    }
     
+    // Add a unique request ID for tracking requests
+    const requestId = Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    debugLog(`Request started [${requestId}]`, { timestamp: new Date().toISOString() });
+
     const { searchParams } = new URL(request.url);
     const division = searchParams.get('division') || 'majors';
     const week = parseInt(searchParams.get('week') || '1', 10);
@@ -875,26 +760,19 @@ export async function GET(request) {
     // NEVER respect bypass parameter from frontend
     const bypassCache = false;
     
+    // Check if request is for Majors division
+    if (division.toLowerCase() === 'majors') {
+      console.log(`Processing request for Majors Week ${week} [${requestId}]`);
+    }
+    
     debugLog(`Power Rankings API - Request received:`, {
       division,
       week,
       isInitialLoad,
+      requestId,
       environment: process.env.NODE_ENV || 'development',
-      isVercel: !!process.env.VERCEL,
-      serverStartTime: process.env.SERVER_START_TIME
+      isVercel: !!process.env.VERCEL
     });
-    
-    // Check for credentials early to provide better error message
-    const credentials = await getCredentials();
-    if (!credentials) {
-      console.error('Missing Google API credentials - returning error response');
-      return NextResponse.json({
-        error: 'Authentication error: Missing Google API credentials',
-        message: 'The application is unable to authenticate with Google Sheets API. Please ensure GOOGLE_CLIENT_EMAIL and GOOGLE_PRIVATE_KEY environment variables are properly set in your Vercel project settings.',
-        division: division,
-        week: week,
-      }, { status: 500 });
-    }
     
     // Validate division
     if (!DIVISIONS.includes(division)) {
@@ -921,17 +799,32 @@ export async function GET(request) {
       sheetId: POWER_RANKINGS_SHEET_ID?.substring(0, 5) + '...' + POWER_RANKINGS_SHEET_ID?.substring(POWER_RANKINGS_SHEET_ID.length - 5)
     });
     
-    let result;
-    
+    // Add this to the GET function, right before the fetchPowerRankings call
+    // Clear any potentially incorrect cached data for this request
+    const cacheKey = `${division.toLowerCase()}-week${week}`;
+    if (division.toLowerCase() === 'majors' && week > 1) {
+      // For Majors weeks beyond week 1, check if the cache might be showing week 1 data
+      if (cachedData[cacheKey] && cachedData[cacheKey].week !== week) {
+        console.log(`⚠️ Found incorrect cache for ${division} Week ${week}. Cache shows Week ${cachedData[cacheKey].week} data. Clearing cache.`);
+        delete cachedData[cacheKey];
+      }
+    }
+
     // This line is critical - NEVER allow frontend to bypass cache
     const shouldBypassCache = false;
     
-    // Special case for Majors division on Vercel
-    if (process.env.VERCEL && division === 'majors' && MAJORS_SHEET_NAMES[week]) {
-      // ... (existing code)
-    } else {
-      // Normal flow for non-Majors or local development
-      result = await fetchPowerRankings(division, week, isInitialLoad, shouldBypassCache);
+    // Normal flow for all divisions
+    let result = await fetchPowerRankings(division, week, isInitialLoad, shouldBypassCache);
+    
+    // After fetchPowerRankings call, add validation to ensure week matches
+    if (result.data && result.requestedWeek !== week) {
+      console.error(`❌ DATA MISMATCH: Requested Week ${week} but got data for Week ${result.requestedWeek}`);
+      // Return error instead of wrong week data
+      result = {
+        data: null,
+        error: `Data mismatch error: Requested Week ${week} but received different week data.`,
+        requestedWeek: week
+      };
     }
     
     // Fix missing headers declaration
@@ -939,6 +832,22 @@ export async function GET(request) {
       'Cache-Control': 'no-store, must-revalidate',
       'Expires': '0'
     };
+    
+    // Log what we're returning to ensure correct data
+    console.log(`Returning ${division} Week ${week} data:`, {
+      fromCache: result.fromCache,
+      lastUpdated: result.formattedLastUpdated,
+      hasData: !!result.data
+    });
+    
+    // Add this before line 210 in the GET function 
+    // After the API request parameters are parsed
+    debugCacheKeys();
+    console.log(`REQUEST: division=${division}, week=${week}, current cache keys: ${Object.keys(cachedData).join(', ')}`);
+
+    // Add this right after the fetchPowerRankings call in the GET function
+    console.log(`RESPONSE: division=${division}, week=${week}, fromCache=${result.fromCache}, data present=${!!result.data}`);
+    debugCacheKeys();
     
     return NextResponse.json(result, { headers });
   } catch (error) {
