@@ -1,6 +1,7 @@
 import Navigation from './components/Navigation'
 import Footer from './components/Footer'
 import ScrollToTop from './components/ScrollToTop'
+import NotificationBar from './components/NotificationBar'
 import './globals.css'
 
 export const metadata = {
@@ -21,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="scroll-smooth">
       <body className="min-h-screen bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 text-white overflow-x-hidden">
+        <NotificationBar message="Standings are now available for all divisions! (Season 7, 2025)" />
         <Navigation />
         <main className="relative">
           {children}

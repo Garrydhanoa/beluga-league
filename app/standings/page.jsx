@@ -820,14 +820,14 @@ export default function StandingsPage() {
                           </Link>
                         </div>
                         
-                        <div className="flex gap-2">
+                        <div className="flex gap-3">
                           <div className="flex flex-col items-center">
-                            <span className="text-xs text-blue-300">W</span>
-                            <span className="font-semibold text-green-400 bg-green-900/20 px-2 py-0.5 rounded-md text-sm">{team.wins}</span>
+                            <span className="text-sm font-medium text-blue-300">W</span>
+                            <span className="font-semibold text-green-400 bg-green-900/30 px-3 py-1 rounded-md text-base min-w-[32px] text-center">{team.wins}</span>
                           </div>
                           <div className="flex flex-col items-center">
-                            <span className="text-xs text-blue-300">L</span>
-                            <span className="font-semibold text-red-400 bg-red-900/20 px-2 py-0.5 rounded-md text-sm">{team.losses}</span>
+                            <span className="text-sm font-medium text-blue-300">L</span>
+                            <span className="font-semibold text-red-400 bg-red-900/30 px-3 py-1 rounded-md text-base min-w-[32px] text-center">{team.losses}</span>
                           </div>
                         </div>
                       </div>
