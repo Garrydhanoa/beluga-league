@@ -14,7 +14,7 @@ const WEEKS = [1, 2, 3, 4, 5, 6, 7, 8];
 const UPDATE_HOUR_EST = 21; // 9 PM EST
 
 // Get credentials from environment variables
-function getCredentials() {
+async function getCredentials() {
   try {
     // Check for environment variables first
     if (
@@ -28,11 +28,31 @@ function getCredentials() {
       };
     }
 
-    // Fall back to credentials.json if available
+    // In production (Vercel), we should only use environment variables
+    if (process.env.VERCEL) {
+      console.error('No credentials in environment variables on Vercel');
+      return null;
+    }
+    
+    // In development, we can try to use credentials.json as fallback
+    // but only during local development, not on Vercel
+    console.log('Attempting to load credentials from credentials.json');
+    
     try {
-      console.log('Attempting to load credentials from credentials.json');
-      const { client_email, private_key } = require('../../../credentials.json');
-      return { email: client_email, key: private_key };
+      // For local development only, using dynamic import
+      if (typeof process !== 'undefined' && process.cwd) {
+        // We're in Node.js environment
+        const fs = await import('fs/promises');
+        const path = await import('path');
+        
+        const credentialsPath = path.join(process.cwd(), 'credentials.json');
+        const data = await fs.readFile(credentialsPath, 'utf8');
+        const credentials = JSON.parse(data);
+        return { email: credentials.client_email, key: credentials.private_key };
+      } else {
+        console.error('Not in Node.js environment, cannot load credentials from file');
+        return null;
+      }
     } catch (e) {
       console.error('Failed to load credentials.json:', e);
       return null;
@@ -46,7 +66,7 @@ function getCredentials() {
 // Connect to Google Sheets
 async function connectToGoogleSheet(sheetId) {
   try {
-    const credentials = getCredentials();
+    const credentials = await getCredentials();
     
     if (!credentials) {
       throw new Error('No credentials available');
@@ -254,6 +274,7 @@ async function fetchPowerRankings(division, week) {
 
 // Helper function to normalize team names
 function normalizeTeamName(inputTeam) {
+  // This list must exactly match the filenames in public/logos directory
   const CANONICAL_TEAM_NAMES = [
     "Acid Esports", "Alchemy Esports", "Archangels", "Aviators", 
     "Fallen Angels", "Immortals", "InTraCate", "Kingdom", 
@@ -261,7 +282,7 @@ function normalizeTeamName(inputTeam) {
     "Sublunary", "Surge", "Valkyries", "Wizards"
   ];
   
-  // First, try an exact match
+  // First, try an exact case-insensitive match (but return the correct case from our list)
   const exactMatch = CANONICAL_TEAM_NAMES.find(
     name => name.toLowerCase() === inputTeam.toLowerCase()
   );
@@ -274,7 +295,7 @@ function normalizeTeamName(inputTeam) {
   );
   if (partialMatch) return partialMatch;
   
-  // Special cases and abbreviations
+  // Special cases and abbreviations with exact matches to filenames
   if (inputTeam.toLowerCase().includes("acid")) return "Acid Esports";
   if (inputTeam.toLowerCase().includes("alchemy")) return "Alchemy Esports";
   if (inputTeam.toLowerCase().includes("arch")) return "Archangels";
@@ -285,12 +306,15 @@ function normalizeTeamName(inputTeam) {
   if (inputTeam.toLowerCase().includes("king")) return "Kingdom";
   if (inputTeam.toLowerCase().includes("lot")) return "Lotus";
   if (inputTeam.toLowerCase().includes("malf")) return "Malfeasance";
-  if (inputTeam.toLowerCase().includes("mnml")) return "MNML";
+  if (inputTeam.toLowerCase().includes("mnml") || inputTeam.toLowerCase() === "minimal") return "MNML";
   if (inputTeam.toLowerCase().includes("panth")) return "Panthers";
   if (inputTeam.toLowerCase().includes("sub")) return "Sublunary";
   if (inputTeam.toLowerCase().includes("surg")) return "Surge";
   if (inputTeam.toLowerCase().includes("valk")) return "Valkyries";
   if (inputTeam.toLowerCase().includes("wiz")) return "Wizards";
+  
+  // Log issues with team name matching for debugging
+  console.warn(`Team name "${inputTeam}" could not be matched to a canonical team name`);
   
   return inputTeam; // Return original if no match found
 }

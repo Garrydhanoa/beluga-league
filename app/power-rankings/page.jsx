@@ -134,10 +134,28 @@ export default function PowerRankingsPage() {
   
   // Helper to handle image loading errors with fallbacks
   const handleImageError = (e, teamName, size = 'base') => {
-    e.currentTarget.style.display = 'none';
-    if (e.currentTarget.parentElement) {
-      const fontSize = size === 'small' ? 'text-xs' : size === 'base' ? 'text-base' : 'text-lg';
-      e.currentTarget.parentElement.innerHTML = `<span class="${fontSize} font-bold">${getTeamInitials(teamName)}</span>`;
+    // First try an alternative approach - sometimes team names might have spaces or special characters
+    const normalizedTeamName = teamName.replace(/\s+/g, '%20');
+    
+    // Try with the normalized name
+    if (normalizedTeamName !== teamName) {
+      e.currentTarget.src = `/logos/${normalizedTeamName}.png`;
+      
+      // Add another error handler for the second attempt
+      e.currentTarget.onerror = () => {
+        e.currentTarget.style.display = 'none';
+        if (e.currentTarget.parentElement) {
+          const fontSize = size === 'small' ? 'text-xs' : size === 'base' ? 'text-base' : 'text-lg';
+          e.currentTarget.parentElement.innerHTML = `<span class="${fontSize} font-bold">${getTeamInitials(teamName)}</span>`;
+        }
+      };
+    } else {
+      // If name is already normalized, just show initials
+      e.currentTarget.style.display = 'none';
+      if (e.currentTarget.parentElement) {
+        const fontSize = size === 'small' ? 'text-xs' : size === 'base' ? 'text-base' : 'text-lg';
+        e.currentTarget.parentElement.innerHTML = `<span class="${fontSize} font-bold">${getTeamInitials(teamName)}</span>`;
+      }
     }
   };
 
@@ -476,12 +494,13 @@ export default function PowerRankingsPage() {
                             <div className="flex flex-grow items-center gap-3 card-content">
                               <div className={`w-14 h-14 rounded-full flex items-center justify-center overflow-hidden border ${index < 3 ? 'border-blue-400/30' : 'border-white/10'} bg-gradient-to-br from-blue-900/50 to-purple-900/50 shadow-inner`}>
                                 <Image
-                                  src={`/logos/${team.team}.png`}
+                                  src={`/logos/${encodeURIComponent(team.team)}.png`}
                                   alt={team.team}
                                   width={45}
                                   height={45}
                                   className="object-contain"
                                   onError={(e) => handleImageError(e, team.team, 'base')}
+                                  priority={index < 3} // Load top teams' logos with priority
                                 />
                               </div>
                               
