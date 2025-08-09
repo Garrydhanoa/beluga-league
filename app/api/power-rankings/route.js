@@ -35,11 +35,24 @@ const WEEKS = [1, 2, 3, 4, 5, 6, 7, 8];
 // Using hourly updates instead of a fixed time
 // const UPDATE_HOUR_EST = 21; // 9 PM EST - No longer used
 
+// Add these hardcoded fallback data for when all else fails
+// This is only used if there's no cached data and the API fetch fails
+const FALLBACK_DATA = {
+  majors: {},
+  aa: {},
+  aaa: {}
+};
+
+// Add this near the top of your file with the other constants
+// This will be used for tracking last server restart
+let serverStartTime = Date.now();
+
 // Function to check if the cache needs to be refreshed based on 9 PM EST schedule
 // Modify the shouldRefreshCache function to enforce strict hourly updates
 function shouldRefreshCache(cacheKey, isInitialLoad = false) {
   // If no cache exists, definitely refresh
   if (!cachedData[cacheKey]) {
+    console.log(`No cache exists for ${cacheKey}, fetching fresh data`);
     return true;
   }
   
@@ -51,27 +64,23 @@ function shouldRefreshCache(cacheKey, isInitialLoad = false) {
   
   // Calculate cache age in milliseconds
   const cacheAge = now.getTime() - lastUpdateTime.getTime();
+  const cacheAgeMinutes = Math.floor(cacheAge / 60000);
   
-  // Refresh if:
-  // 1. Server was just deployed/restarted
-  // 2. Cache is older than TTL (1 hour)
-  
-  const processStartTime = process.env.SERVER_START_TIME ? parseInt(process.env.SERVER_START_TIME, 10) : null;
-  const isServerRestart = processStartTime && (now.getTime() - processStartTime < 120000); // Within 2 minutes of server start
+  // Check if server was just deployed/restarted
+  const isServerRestart = (now.getTime() - serverStartTime < 300000); // Within 5 minutes of server start
   
   if (isServerRestart) {
-    console.log(`Cache refresh needed for ${cacheKey}: Server was just deployed or restarted`);
+    console.log(`Cache refresh needed for ${cacheKey}: Server was recently deployed/restarted`);
     return true;
   }
   
   // If the cache is older than the TTL (1 hour), refresh it
   if (cacheAge > CACHE_TTL) {
-    const cacheAgeMinutes = Math.floor(cacheAge / 60000);
     console.log(`Cache refresh needed for ${cacheKey}: Cache is ${cacheAgeMinutes} minutes old (older than 60 minutes)`);
     return true;
   }
   
-  // Cache is still fresh, no need to refresh
+  console.log(`Using existing cache for ${cacheKey}: Cache is ${cacheAgeMinutes} minutes old (less than 60 minutes)`);
   return false;
 }
 
@@ -284,43 +293,39 @@ async function connectToGoogleSheet(sheetId) {
   }
 }
 
-// Function to find a sheet that matches the pattern (e.g., "AA W1", "AAA W2", "Majors W1")
+// Enhanced findSheetByPattern function to better handle Majors Weeks 7-8
 function findSheetByPattern(doc, division, week) {
   let patterns = [];
   
   if (division.toLowerCase() === 'majors') {
-    // For Majors, try many different capitalization and format patterns
-    // Create a comprehensive list of patterns for Majors
+    // Add even more patterns for Majors, especially for later weeks which might use different formats
     patterns = [
-      // Majors with first letter capitalized
+      // Standard formats
       new RegExp(`^Majors\\s*W${week}$`, 'i'),
       new RegExp(`^Majors\\s*Week\\s*${week}$`, 'i'),
       new RegExp(`^Majors\\s*${week}$`, 'i'),
-      // MAJORS all caps
+      // All caps
       new RegExp(`^MAJORS\\s*W${week}$`, 'i'),
-      new RegExp(`^MAJORS\\s*Week\\s*${week}$`, 'i'),
-      new RegExp(`^MAJORS\\s*${week}$`, 'i'),
-      // majors all lowercase
-      new RegExp(`^majors\\s*W${week}$`, 'i'),
-      new RegExp(`^majors\\s*Week\\s*${week}$`, 'i'),
-      new RegExp(`^majors\\s*${week}$`, 'i'),
-      // Try with variation in spacing
-      new RegExp(`^Majors[\\s_-]*W[\\s_-]*${week}$`, 'i'),
-      // Try with 'Major' singular form (in case of typo)
-      new RegExp(`^Major\\s*W${week}$`, 'i'),
-      // Super flexible patterns for Vercel compatibility
-      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr][Ss]?.*W.*${week}.*`, 'i'),  // No ^ anchor for more flexibility
-      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr][Ss]?.*${week}.*`, 'i'),     // No ^ anchor, no "W"
-      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr].*${week}.*`, 'i'),          // Just look for "major" + week number
-      // Exact sheet name matches that might exist
-      new RegExp(`^Week ${week} - Majors$`, 'i'),
-      new RegExp(`^W${week} - Majors$`, 'i'),
-      new RegExp(`^Week${week} - Majors$`, 'i'),
-      new RegExp(`^Week ${week} Majors$`, 'i'),
-      // Try with "Division" in the name
-      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr][Ss]?.*[Dd]ivision.*${week}.*`, 'i'),
-      // Try with any separation character between "majors" and week number
-      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr][Ss]?[\\s_\\-:;.,].*${week}.*`, 'i'),
+      new RegExp(`^MAJORS\\s*WEEK\\s*${week}$`, 'i'),
+      // Week first formats
+      new RegExp(`^W${week}\\s*[-_\\s]*Majors`, 'i'),
+      new RegExp(`^Week\\s*${week}\\s*[-_\\s]*Majors`, 'i'),
+      // Numbers as text for later weeks (e.g. "Week Seven" instead of "Week 7")
+      new RegExp(`^Majors\\s*W(?:${getWeekNamePattern(week)})`, 'i'),
+      new RegExp(`^Majors\\s*Week\\s*(?:${getWeekNamePattern(week)})`, 'i'),
+      // Extra flexible patterns for later weeks
+      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr][Ss]?.*[Ww](?:eek)?[-_\\s]*${week}`, 'i'),
+      new RegExp(`.*[Ww](?:eek)?[-_\\s]*${week}.*[Mm][Aa][Jj][Oo][Rr][Ss]?`, 'i'),
+      // Extremely loose match - any sheet with both "major" and the week number somewhere
+      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr].*${week}`, 'i'),
+      new RegExp(`.*${week}.*[Mm][Aa][Jj][Oo][Rr]`, 'i'),
+      // For later weeks specifically (7 and 8)
+      ...(week >= 7 ? [
+        new RegExp(`.*[Ff][Ii][Nn][Aa][Ll].*[Mm][Aa][Jj][Oo][Rr]`, 'i'), // "Finals Majors" for week 7-8
+        new RegExp(`.*[Pp][Ll][Aa][Yy][Oo][Ff][Ff].*[Mm][Aa][Jj][Oo][Rr]`, 'i'), // "Playoffs Majors" for week 7-8
+        new RegExp(`.*[Mm][Aa][Jj][Oo][Rr].*[Ff][Ii][Nn][Aa][Ll]`, 'i'), // "Majors Finals" for week 7-8
+        new RegExp(`.*[Mm][Aa][Jj][Oo][Rr].*[Pp][Ll][Aa][Yy][Oo][Ff][Ff]`, 'i'), // "Majors Playoffs" for week 7-8
+      ] : [])
     ];
     
     console.log(`Using ${patterns.length} different patterns to match Majors sheets`);
@@ -536,14 +541,33 @@ async function fetchPowerRankings(division, week, isInitialLoad = false, bypassC
     // CRITICAL FIX: Always use distinct cache keys for each division+week combination
     const cacheKey = `${division.toLowerCase()}-week${week}`;
     
-    // Check if we have valid cached data
+    // Check if we have valid cached data and should use it
     if (cachedData[cacheKey] && !shouldRefreshCache(cacheKey, isInitialLoad)) {
       // Return cached data if it exists and doesn't need refreshing
       console.log(`Using cached power rankings for ${division} Week ${week}, cached at ${new Date(cachedData[cacheKey].timestamp).toLocaleString()}`);
+      
+      // Format the response with consistent time formatting
+      const now = new Date();
+      const nextUpdateTime = new Date(now.getTime() + CACHE_TTL);
+      const formattedUpdateTime = new Date(cachedData[cacheKey].timestamp).toLocaleString('en-US', TIME_FORMAT_OPTIONS);
+      const formattedNextUpdateTime = nextUpdateTime.toLocaleString('en-US', TIME_FORMAT_OPTIONS);
+      const minutesUntilNextUpdate = Math.ceil((nextUpdateTime.getTime() - now.getTime()) / 60000);
+      
       return {
         data: cachedData[cacheKey].data,
         cachedAt: cachedData[cacheKey].timestamp,
         fromCache: true,
+        lastUpdated: formattedUpdateTime,
+        formattedLastUpdated: formattedUpdateTime + " EST",
+        nextUpdateFormatted: formattedNextUpdateTime + " EST",
+        refreshInfo: {
+          nextScheduledUpdate: nextUpdateTime.getTime(),
+          lastUpdated: cachedData[cacheKey].timestamp,
+          refreshInterval: "Hourly",
+          formattedLastUpdated: formattedUpdateTime + " EST",
+          nextUpdateFormatted: formattedNextUpdateTime + " EST",
+          minutesUntilNextUpdate: minutesUntilNextUpdate
+        }
       };
     }
     
@@ -676,20 +700,40 @@ async function fetchPowerRankings(division, week, isInitialLoad = false, bypassC
   } catch (error) {
     console.error('Error in fetchPowerRankings:', error);
     
-    // Check if we have cached data to fall back on
-    const cacheKey = `${division}-week${week}`;
+    // Always check for cached data before returning an error
+    const cacheKey = `${division.toLowerCase()}-week${week}`;
     if (cachedData[cacheKey]) {
+      const now = new Date();
+      const nextUpdateTime = new Date(now.getTime() + CACHE_TTL);
+      const formattedUpdateTime = new Date(cachedData[cacheKey].timestamp).toLocaleString('en-US', TIME_FORMAT_OPTIONS);
+      const formattedNextUpdateTime = nextUpdateTime.toLocaleString('en-US', TIME_FORMAT_OPTIONS);
+      const minutesUntilNextUpdate = Math.ceil((nextUpdateTime.getTime() - now.getTime()) / 60000);
+      
+      console.log(`Fetch failed but returning cached data for ${division} Week ${week} from ${formattedUpdateTime}`);
+      
       return {
         data: cachedData[cacheKey].data,
         cachedAt: cachedData[cacheKey].timestamp,
         fromCache: true,
-        fetchError: error.message || 'Failed to fetch fresh power rankings data',
+        lastUpdated: formattedUpdateTime,
+        formattedLastUpdated: formattedUpdateTime + " EST",
+        nextUpdateFormatted: formattedNextUpdateTime + " EST",
+        fetchError: "Using cached data - couldn't fetch fresh data",
+        refreshInfo: {
+          nextScheduledUpdate: nextUpdateTime.getTime(),
+          lastUpdated: cachedData[cacheKey].timestamp,
+          refreshInterval: "Hourly",
+          formattedLastUpdated: formattedUpdateTime + " EST",
+          nextUpdateFormatted: formattedNextUpdateTime + " EST", 
+          minutesUntilNextUpdate: minutesUntilNextUpdate
+        }
       };
     }
     
+    // If no cache exists for this division/week, return a more user-friendly error
     return {
       data: null,
-      error: error.message || 'Failed to fetch power rankings',
+      error: `Power rankings data for ${division.toUpperCase()} Week ${week} is being prepared. Please check back soon.`,
     };
   }
 }
@@ -725,9 +769,14 @@ async function processFoundSheet(sheet, division, week, cacheKey) {
     const now = new Date();
     const nextUpdateTime = new Date(now.getTime() + CACHE_TTL);
     
-    // Format the update time for human readability
-    const formattedUpdateTime = now.toLocaleTimeString();
-    console.log(`Data for ${cacheKey} updated at ${formattedUpdateTime}. Next refresh at ${nextUpdateTime.toLocaleTimeString()}`);
+    // Format times using EST timezone
+    const formattedUpdateTime = now.toLocaleString('en-US', TIME_FORMAT_OPTIONS);
+    const formattedNextUpdateTime = nextUpdateTime.toLocaleString('en-US', TIME_FORMAT_OPTIONS);
+    
+    console.log(`Data for ${cacheKey} updated at ${formattedUpdateTime} EST. Next refresh at ${formattedNextUpdateTime} EST`);
+    
+    // Calculate minutes until next update for frontend countdown
+    const minutesUntilNextUpdate = Math.ceil((nextUpdateTime.getTime() - now.getTime()) / 60000);
     
     return {
       data,
@@ -735,7 +784,17 @@ async function processFoundSheet(sheet, division, week, cacheKey) {
       fromCache: false,
       nextUpdateAt: nextUpdateTime.getTime(),
       lastUpdated: formattedUpdateTime,
-      lastScheduledUpdate: now.getTime()
+      formattedLastUpdated: formattedUpdateTime + " EST",
+      nextUpdateFormatted: formattedNextUpdateTime + " EST",
+      lastScheduledUpdate: now.getTime(),
+      refreshInfo: {
+        nextScheduledUpdate: nextUpdateTime.getTime(),
+        lastUpdated: now.getTime(),
+        refreshInterval: "Hourly",
+        formattedLastUpdated: formattedUpdateTime + " EST",
+        nextUpdateFormatted: formattedNextUpdateTime + " EST",
+        minutesUntilNextUpdate: minutesUntilNextUpdate
+      }
     };
   } catch (error) {
     console.error('Error processing sheet data:', error);
@@ -790,44 +849,41 @@ function normalizeTeamName(inputTeam) {
   return inputTeam; // Return original if no match found
 }
 
+// Add these constants near the top
+const TIME_ZONE = 'America/New_York'; // EST/EDT timezone
+const TIME_FORMAT_OPTIONS = { 
+  hour: 'numeric', 
+  minute: '2-digit', 
+  hour12: true, 
+  timeZone: TIME_ZONE,
+  month: 'short',
+  day: 'numeric'
+};
+
 export async function GET(request) {
   try {
-    // Store server start time if it doesn't exist yet (for detecting deployments)
-    if (!process.env.SERVER_START_TIME) {
-      process.env.SERVER_START_TIME = Date.now().toString();
-      debugLog(`Setting initial server start time: ${process.env.SERVER_START_TIME}`);
-    }
+    // Store or update server start time for redeployment detection
+    // Using Date.now() ensures we have a fresh timestamp on each deployment
+    process.env.SERVER_START_TIME = Date.now().toString();
+    debugLog(`Setting/updating server start time: ${process.env.SERVER_START_TIME}`);
     
     const { searchParams } = new URL(request.url);
     const division = searchParams.get('division') || 'majors';
     const week = parseInt(searchParams.get('week') || '1', 10);
     const isInitialLoad = searchParams.get('initialLoad') === 'true';
     
-    // IMPORTANT FIX: NEVER respect the bypass parameter from frontend
-    // Always use the server-side cache management
-    const bypassCache = false; // Never bypass cache based on client request
+    // NEVER respect bypass parameter from frontend
+    const bypassCache = false;
     
     debugLog(`Power Rankings API - Request received:`, {
       division,
       week,
       isInitialLoad,
       environment: process.env.NODE_ENV || 'development',
-      isVercel: !!process.env.VERCEL
+      isVercel: !!process.env.VERCEL,
+      serverStartTime: process.env.SERVER_START_TIME
     });
     
-    // REMOVE this section to prevent frontend from clearing cache
-    // if (bypassCache && division === 'majors') {
-    //   debugLog(`Clearing all cached Majors data due to bypass request`);
-    //   for (let w = 1; w <= 8; w++) {
-    //     const weekCacheKey = `majors-week${w}`;
-    //     if (cachedData[weekCacheKey]) {
-    //       delete cachedData[weekCacheKey];
-    //       debugLog(`Deleted cache for ${weekCacheKey}`);
-    //     }
-    //   }
-    // }
-    
-    // Rest of the code remains the same
     // Check for credentials early to provide better error message
     const credentials = await getCredentials();
     if (!credentials) {
@@ -878,7 +934,11 @@ export async function GET(request) {
       result = await fetchPowerRankings(division, week, isInitialLoad, shouldBypassCache);
     }
     
-    // ... (rest of your code)
+    // Fix missing headers declaration
+    const headers = {
+      'Cache-Control': 'no-store, must-revalidate',
+      'Expires': '0'
+    };
     
     return NextResponse.json(result, { headers });
   } catch (error) {
@@ -922,4 +982,19 @@ export async function GET(request) {
       { status: 500 }
     );
   }
+}
+
+// Helper function to get week name pattern for text-based week names
+function getWeekNamePattern(week) {
+  const weekNames = {
+    1: 'one|first',
+    2: 'two|second',
+    3: 'three|third',
+    4: 'four|fourth',
+    5: 'five|fifth',
+    6: 'six|sixth',
+    7: 'seven|seventh',
+    8: 'eight|eighth'
+  };
+  return weekNames[week] || week;
 }
