@@ -403,7 +403,7 @@ export default function StandingsPage() {
         transition={{ duration: 0.6 }}
       >
         <motion.h1 
-          className="text-3xl sm:text-4xl md:text-6xl font-bold mb-6 sm:mb-10 text-center relative"
+          className="text-5xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-10 text-center relative"
           initial={{ scale: 0.9, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ duration: 0.7, type: "spring" }}
