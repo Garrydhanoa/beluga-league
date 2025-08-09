@@ -62,71 +62,24 @@ export default function PowerRankingsPage() {
         // Define cache key for potential fallback use
         const cacheKey = `power-rankings-${activeTab}-week${activeWeek}`;
         
-        // First check local storage cache to avoid unnecessary fetches
-        const cachedData = localStorage.getItem(cacheKey);
-        const cachedTimestamp = localStorage.getItem(`${cacheKey}-timestamp`);
-        
-        let useCachedData = false;
-        let parsedCachedData = null;
-        
-        if (cachedData && cachedTimestamp) {
-          try {
-            parsedCachedData = JSON.parse(cachedData);
-            // Only use cache if it's less than 1 hour old
-            const cacheAge = Date.now() - parseInt(cachedTimestamp, 10);
-            if (cacheAge < 60 * 60 * 1000) { // 1 hour in ms
-              useCachedData = true;
-              console.log(`Using cached data for ${activeTab} week ${activeWeek} (${Math.floor(cacheAge / 60000)} minutes old)`);
-            }
-          } catch (e) {
-            console.warn("Error parsing cached data:", e);
-          }
-        }
-        
-        // If we have valid cached data that's less than an hour old, use it
-        if (useCachedData && parsedCachedData) {
-          setPowerRankings(parsedCachedData);
-          setFetchStatus({
-            fromCache: true,
-            cachedAt: parsedCachedData.cachedAt,
-            fetchError: null,
-            nextUpdateAt: parsedCachedData.refreshInfo?.nextScheduledUpdate,
-            lastScheduledUpdate: parsedCachedData.refreshInfo?.lastUpdated,
-            formattedLastUpdated: parsedCachedData.refreshInfo?.formattedLastUpdated,
-            nextUpdateFormatted: parsedCachedData.refreshInfo?.nextUpdateFormatted,
-            refreshInterval: parsedCachedData.refreshInfo?.refreshInterval || "Hourly",
-            minutesUntilNextUpdate: parsedCachedData.refreshInfo?.minutesUntilNextUpdate
-          });
-          setIsLoading(false);
-          return;
-        }
-        
-        // If we don't have valid cache or it's stale, fetch from API
+        // Always fetch fresh data from the API for real-time updates
         try {
-          // IMPORTANT: Never include a bypassCache parameter
-          const response = await fetch(
-            `/api/power-rankings?division=${activeTab}&week=${activeWeek}&initialLoad=true`,
-            { cache: 'no-store' }
-          );
+          // Remove the initialLoad parameter to get fresh data every time
+          const response = await fetch(`/api/power-rankings?division=${activeTab}&week=${activeWeek}&realtime=true`);
           const data = await response.json();
           
           if (response.ok) {
             setPowerRankings(data);
             
-            // Set status information including refresh schedule from server
             setFetchStatus({
-              fromCache: data.fromCache || false,
-              cachedAt: data.cachedAt,
-              fetchError: data.fetchError || null,
-              nextUpdateAt: data.refreshInfo?.nextScheduledUpdate || null,
-              lastScheduledUpdate: data.refreshInfo?.lastUpdated || null,
-              formattedLastUpdated: data.refreshInfo?.formattedLastUpdated || null,
-              nextUpdateFormatted: data.refreshInfo?.nextUpdateFormatted || null,
-              refreshInterval: data.refreshInfo?.refreshInterval || "Hourly",
-              minutesUntilNextUpdate: data.refreshInfo?.minutesUntilNextUpdate || 60
+              fromCache: false,
+              cachedAt: Date.now(),
+              fetchError: null,
+              nextUpdateAt: null,
+              lastScheduledUpdate: null
             });
             
-            // Save to localStorage for future use
+            // Still save to localStorage as fallback for error cases
             try {
               localStorage.setItem(cacheKey, JSON.stringify(data));
               localStorage.setItem(`${cacheKey}-timestamp`, Date.now().toString());
@@ -137,23 +90,26 @@ export default function PowerRankingsPage() {
             throw new Error(data.error || "Failed to fetch power rankings");
           }
         } catch (err) {
-          // Error handling for API fetch remains the same
           console.error("API fetch error:", err);
-          // Try cached data as fallback
-          if (parsedCachedData) {
+          // If API fails, try to use cached data as fallback
+          const cachedData = localStorage.getItem(cacheKey);
+          if (cachedData) {
             console.log("API fetch failed, falling back to cached data");
-            setPowerRankings(parsedCachedData);
-            setFetchStatus({
-              fromCache: true,
-              cachedAt: parsedCachedData.cachedAt,
-              fetchError: "Using cached data due to API error",
-              nextUpdateAt: parsedCachedData.refreshInfo?.nextScheduledUpdate,
-              lastScheduledUpdate: parsedCachedData.refreshInfo?.lastUpdated,
-              formattedLastUpdated: parsedCachedData.refreshInfo?.formattedLastUpdated,
-              nextUpdateFormatted: parsedCachedData.refreshInfo?.nextUpdateFormatted
-            });
+            try {
+              const data = JSON.parse(cachedData);
+              setPowerRankings(data);
+              setFetchStatus({
+                fromCache: true,
+                cachedAt: parseInt(localStorage.getItem(`${cacheKey}-timestamp`), 10) || Date.now(),
+                fetchError: "Using cached data due to API error",
+                nextUpdateAt: null,
+                lastScheduledUpdate: null
+              });
+            } catch (e) {
+              throw new Error("Failed to load power rankings and cache is invalid");
+            }
           } else {
-            throw err; // No cached data available
+            throw err; // No cached data available, throw the original error
           }
         }
       } catch (err) {
@@ -167,50 +123,14 @@ export default function PowerRankingsPage() {
     // Fetch initial data
     fetchPowerRankings();
     
-    // NO INTERVAL REFRESH - removing this code:
-    // const refreshInterval = setInterval(() => {
-    //   fetchPowerRankings();
-    // }, 30000); // 30 seconds
+    // Set up interval to refresh data every 30 seconds for real-time updates
+    const refreshInterval = setInterval(() => {
+      fetchPowerRankings();
+    }, 30000); // 30 seconds
     
     // Clean up interval on unmount
-    // return () => clearInterval(refreshInterval);
+    return () => clearInterval(refreshInterval);
   }, [activeTab, activeWeek]);
-
-  // Add this useEffect after your existing ones
-  useEffect(() => {
-    // Don't run this on the server
-    if (typeof window === 'undefined') return;
-    
-    // Only set up the interval if we have nextUpdateAt data
-    if (!fetchStatus.nextUpdateAt) return;
-    
-    const nextUpdateTime = new Date(fetchStatus.nextUpdateAt).getTime();
-    
-    // Create an interval to update the "minutes until next update" counter
-    const intervalId = setInterval(() => {
-      const now = Date.now();
-      const msUntilNextUpdate = Math.max(0, nextUpdateTime - now);
-      const minutesUntilNextUpdate = Math.ceil(msUntilNextUpdate / 60000);
-      
-      setFetchStatus(prev => ({
-        ...prev,
-        minutesUntilNextUpdate
-      }));
-      
-      // If it's time for the next update and the user is still on the page
-      // (within 1 minute of the scheduled update)
-      if (minutesUntilNextUpdate <= 0) {
-        // Don't immediately fetch - wait 5 seconds to avoid hammering the API
-        // if multiple clients hit exactly at the hour mark
-        setTimeout(() => {
-          // Fetch new data when the hour changes
-          fetchPowerRankings();
-        }, 5000);
-      }
-    }, 30000); // Update every 30 seconds
-    
-    return () => clearInterval(intervalId);
-  }, [fetchStatus.nextUpdateAt]);
 
   // Helper function to get team initials
   const getTeamInitials = (teamName) => {
@@ -220,39 +140,27 @@ export default function PowerRankingsPage() {
   
   // Helper to handle image loading errors with fallbacks
   const handleImageError = (e, teamName, size = 'base') => {
-    // Make sure we have a valid event target
-    if (!e || !e.currentTarget) {
-      console.warn("Invalid event in handleImageError", teamName);
-      return;
-    }
-    
-    // Store a reference to the current element and its parent
-    // IMPORTANT: We need to store these before setting a new error handler
-    const imgElement = e.currentTarget;
-    const parentElement = imgElement.parentElement;
-    
     // First try an alternative approach - sometimes team names might have spaces or special characters
     const normalizedTeamName = teamName.replace(/\s+/g, '%20');
     
     // Try with the normalized name
     if (normalizedTeamName !== teamName) {
-      imgElement.src = `/logos/${normalizedTeamName}.png`;
+      e.currentTarget.src = `/logos/${normalizedTeamName}.png`;
       
-      // Add another error handler with the stored references
-      imgElement.onerror = () => {
-        // Use our stored references to avoid "Cannot read properties of null"
-        if (imgElement && parentElement) {
-          imgElement.style.display = 'none';
+      // Add another error handler for the second attempt
+      e.currentTarget.onerror = () => {
+        e.currentTarget.style.display = 'none';
+        if (e.currentTarget.parentElement) {
           const fontSize = size === 'small' ? 'text-xs' : size === 'base' ? 'text-base' : 'text-lg';
-          parentElement.innerHTML = `<span class="${fontSize} font-bold">${getTeamInitials(teamName)}</span>`;
+          e.currentTarget.parentElement.innerHTML = `<span class="${fontSize} font-bold">${getTeamInitials(teamName)}</span>`;
         }
       };
     } else {
       // If name is already normalized, just show initials
-      if (imgElement && parentElement) {
-        imgElement.style.display = 'none';
+      e.currentTarget.style.display = 'none';
+      if (e.currentTarget.parentElement) {
         const fontSize = size === 'small' ? 'text-xs' : size === 'base' ? 'text-base' : 'text-lg';
-        parentElement.innerHTML = `<span class="${fontSize} font-bold">${getTeamInitials(teamName)}</span>`;
+        e.currentTarget.parentElement.innerHTML = `<span class="${fontSize} font-bold">${getTeamInitials(teamName)}</span>`;
       }
     }
   };
@@ -350,41 +258,27 @@ export default function PowerRankingsPage() {
           
           {/* Live update info - no last updated timestamp */}
           {powerRankings?.data && !powerRankings.error && (
-            <div className="mt-6 text-center">
-              <div className="inline-flex flex-col items-center gap-2">
-                <div className="inline-flex items-center bg-blue-900/30 px-4 py-2 rounded-lg border border-blue-500/20">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                  </svg>
-                  <div className="flex flex-col items-start">
-                    <span className="text-sm font-medium text-blue-200">
-                      Last data update: {fetchStatus.formattedLastUpdated || 'Just now'}
-                    </span>
-                    <span className="text-xs text-blue-300/70">
-                      <strong>Updates once per hour</strong> - refreshing page shows same data
-                    </span>
-                  </div>
+            <motion.div 
+              className="mt-2 flex justify-center"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="inline-flex items-center bg-blue-900/30 px-4 py-2 rounded-lg border border-blue-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.05 3.636a1 1 0 010 1.414 7 7 0 000 9.9 1 1 0 11-1.414 1.414 9 9 0 010-12.728 1 1 0 011.414 0zm9.9 0a1 1 0 011.414 0 9 9 0 010 12.728 1 1 0 11-1.414-1.414 7 7 0 000-9.9 1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+                <div className="flex flex-col items-start">
+                  <span className="text-sm font-medium text-green-200">
+                    <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+                    Live Data
+                  </span>
+                  <span className="text-xs text-blue-300/70">
+                    <strong>Rankings updated in real-time</strong>
+                  </span>
                 </div>
-                
-                {/* Show next update time */}
-                {fetchStatus.nextUpdateFormatted && (
-                  <div className="text-xs bg-blue-900/20 px-3 py-1 rounded-lg text-blue-300/80">
-                    Next scheduled update: <span className="font-medium text-blue-200">{fetchStatus.nextUpdateFormatted} EST</span>
-                    {fetchStatus.minutesUntilNextUpdate && (
-                      <span className="ml-1">({fetchStatus.minutesUntilNextUpdate} {fetchStatus.minutesUntilNextUpdate === 1 ? 'minute' : 'minutes'} from now)</span>
-                    )}
-                  </div>
-                )}
-                
-                {fetchStatus.fromCache && (
-                  <div className="text-xs px-3 py-1 bg-blue-900/30 text-blue-300/90 rounded-full">
-                    {fetchStatus.fetchError ? 
-                      "Using cached data - Unable to fetch latest rankings" :
-                      "Using cached data from your last visit"}
-                  </div>
-                )}
               </div>
-            </div>
+            </motion.div>
           )}
         </motion.div>
 
