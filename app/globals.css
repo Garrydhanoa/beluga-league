@@ -5,6 +5,7 @@
 @tailwind utilities;
 
 @import "./mobile-responsive.css";
+@import "./mobile-headers.css";
 
 :root {
   --foreground: #000;

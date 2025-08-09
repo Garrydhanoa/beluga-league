@@ -1,0 +1,30 @@
+/* Mobile header size enhancements */
+@media (max-width: 640px) {
+  /* Override the h1 styles for headers in standings and schedules pages */
+  .super-large-mobile-header {
+    font-size: 4.5rem !important; /* Extremely large on mobile */
+    line-height: 1 !important;
+    letter-spacing: -2px !important;
+    word-break: break-word !important;
+    margin-bottom: 1.5rem !important;
+    padding: 0 0.5rem !important;
+  }
+  
+  .shadow-text {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5) !important;
+  }
+}
+
+/* Special class for largest mobile screens */
+@media (min-width: 400px) and (max-width: 640px) {
+  .super-large-mobile-header {
+    font-size: 5.5rem !important; /* Even larger for bigger mobile screens */
+  }
+}
+
+/* Special class for smallest mobile screens */
+@media (max-width: 350px) {
+  .super-large-mobile-header {
+    font-size: 3.5rem !important; /* Slightly smaller for tiny mobile screens */
+  }
+}

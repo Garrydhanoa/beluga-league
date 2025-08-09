@@ -424,9 +424,8 @@ export default function SchedulesPage() {
       </div>
       
       <div className={`container mx-auto px-3 sm:px-4 py-6 sm:py-10 transition-all duration-700 ${animateItems ? 'opacity-100' : 'opacity-0 translate-y-10'}`}>
-        <h1 className="font-bold mb-6 sm:mb-10 text-center relative"
-          style={{ fontSize: 'min(20vw, 10rem)' }}>
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200">
+        <h1 className="super-large-mobile-header text-5xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-10 text-center relative">
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200 shadow-text">
             Match Schedules
           </span>
           <span className="absolute left-1/2 -translate-x-1/2 -top-2 text-blue-500 opacity-10 blur-sm whitespace-nowrap">
