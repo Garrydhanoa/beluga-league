@@ -59,95 +59,57 @@ export default function PowerRankingsPage() {
         setIsLoading(true);
         setError(null);
         
-        // Check for cached data - ALWAYS USE IT IF AVAILABLE
-        // This ensures users cannot force a refresh
+        // Define cache key for potential fallback use
         const cacheKey = `power-rankings-${activeTab}-week${activeWeek}`;
-        let useCachedData = false;
         
+        // Always fetch fresh data from the API for real-time updates
         try {
-          const cachedData = localStorage.getItem(cacheKey);
-          const cachedTimestamp = localStorage.getItem(`${cacheKey}-timestamp`);
+          // Remove the initialLoad parameter to get fresh data every time
+          const response = await fetch(`/api/power-rankings?division=${activeTab}&week=${activeWeek}&realtime=true`);
+          const data = await response.json();
           
-          if (cachedData && cachedTimestamp) {
-            // ALWAYS use the cache if it exists - prevent user-initiated refreshes
-            useCachedData = true;
-            const data = JSON.parse(cachedData);
+          if (response.ok) {
             setPowerRankings(data);
             
-            // Get the next update time from cache if available
-            let nextUpdateTime = null;
-            if (data.refreshInfo && data.refreshInfo.nextScheduledUpdate) {
-              nextUpdateTime = new Date(data.refreshInfo.nextScheduledUpdate).getTime();
-            }
-            
             setFetchStatus({
-              fromCache: true,
-              cachedAt: parseInt(cachedTimestamp, 10),
+              fromCache: false,
+              cachedAt: Date.now(),
               fetchError: null,
-              nextUpdateAt: nextUpdateTime,
-              lastScheduledUpdate: data.lastScheduledUpdate || null
+              nextUpdateAt: null,
+              lastScheduledUpdate: null
             });
-            setIsLoading(false);
-            console.log(`Using cached power rankings for ${activeTab} Week ${activeWeek}`);
-          }
-        } catch (e) {
-          console.error("Error checking cache:", e);
-        }
-        
-        // ONLY fetch from API when:
-        // 1. No cache exists (first visit or cleared cache)
-        // 2. Site was just deployed (server cache would be fresh)
-        if (!useCachedData) {
-          try {
-            // Add a special parameter to tell API this is initial load, not a refresh
-            // This prevents users from forcing refreshes by clearing localStorage
-            const response = await fetch(`/api/power-rankings?division=${activeTab}&week=${activeWeek}&initialLoad=true`);
-            const data = await response.json();
             
-            if (response.ok) {
+            // Still save to localStorage as fallback for error cases
+            try {
+              localStorage.setItem(cacheKey, JSON.stringify(data));
+              localStorage.setItem(`${cacheKey}-timestamp`, Date.now().toString());
+            } catch (e) {
+              console.warn("Error saving to cache:", e);
+            }
+          } else {
+            throw new Error(data.error || "Failed to fetch power rankings");
+          }
+        } catch (err) {
+          console.error("API fetch error:", err);
+          // If API fails, try to use cached data as fallback
+          const cachedData = localStorage.getItem(cacheKey);
+          if (cachedData) {
+            console.log("API fetch failed, falling back to cached data");
+            try {
+              const data = JSON.parse(cachedData);
               setPowerRankings(data);
-              
               setFetchStatus({
-                fromCache: data.fromCache || false,
-                cachedAt: data.cachedAt || Date.now(),
-                fetchError: data.fetchError || null,
-                nextUpdateAt: data.nextUpdateAt || null,
-                lastScheduledUpdate: data.lastScheduledUpdate || null
+                fromCache: true,
+                cachedAt: parseInt(localStorage.getItem(`${cacheKey}-timestamp`), 10) || Date.now(),
+                fetchError: "Using cached data due to API error",
+                nextUpdateAt: null,
+                lastScheduledUpdate: null
               });
-              
-              // Save to localStorage cache
-              try {
-                localStorage.setItem(cacheKey, JSON.stringify(data));
-                localStorage.setItem(`${cacheKey}-timestamp`, Date.now().toString());
-                console.log(`Saved power rankings to local cache for ${activeTab} Week ${activeWeek}`);
-              } catch (e) {
-                console.warn("Error saving to cache:", e);
-              }
-            } else {
-              throw new Error(data.error || "Failed to fetch power rankings");
+            } catch (e) {
+              throw new Error("Failed to load power rankings and cache is invalid");
             }
-          } catch (err) {
-            console.error("API fetch error:", err);
-            // If API fails but we have old cached data from a previous session, try to use it
-            const oldCachedData = localStorage.getItem(cacheKey);
-            if (oldCachedData) {
-              console.log("API fetch failed, falling back to previously cached data");
-              try {
-                const data = JSON.parse(oldCachedData);
-                setPowerRankings(data);
-                setFetchStatus({
-                  fromCache: true,
-                  cachedAt: parseInt(localStorage.getItem(`${cacheKey}-timestamp`), 10) || Date.now(),
-                  fetchError: "Using previously cached data due to API error",
-                  nextUpdateAt: null,
-                  lastScheduledUpdate: null
-                });
-              } catch (e) {
-                throw new Error("Failed to load power rankings and cache is invalid");
-              }
-            } else {
-              throw err; // No cached data available, throw the original error
-            }
+          } else {
+            throw err; // No cached data available, throw the original error
           }
         }
       } catch (err) {
@@ -158,7 +120,16 @@ export default function PowerRankingsPage() {
       }
     }
     
+    // Fetch initial data
     fetchPowerRankings();
+    
+    // Set up interval to refresh data every 30 seconds for real-time updates
+    const refreshInterval = setInterval(() => {
+      fetchPowerRankings();
+    }, 30000); // 30 seconds
+    
+    // Clean up interval on unmount
+    return () => clearInterval(refreshInterval);
   }, [activeTab, activeWeek]);
 
   // Helper function to get team initials
@@ -285,7 +256,7 @@ export default function PowerRankingsPage() {
             </span>
           </motion.div>
           
-          {/* Data Timestamp - Moved to top as requested */}
+          {/* Live update info - no last updated timestamp */}
           {powerRankings?.data && !powerRankings.error && (
             <motion.div 
               className="mt-2 flex justify-center"
@@ -294,32 +265,16 @@ export default function PowerRankingsPage() {
               transition={{ delay: 0.4 }}
             >
               <div className="inline-flex items-center bg-blue-900/30 px-4 py-2 rounded-lg border border-blue-500/20">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M5.05 3.636a1 1 0 010 1.414 7 7 0 000 9.9 1 1 0 11-1.414 1.414 9 9 0 010-12.728 1 1 0 011.414 0zm9.9 0a1 1 0 011.414 0 9 9 0 010 12.728 1 1 0 11-1.414-1.414 7 7 0 000-9.9 1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
                 <div className="flex flex-col items-start">
-                  <span className="text-sm font-medium text-blue-200">
-                    Last updated: {new Date().toLocaleDateString('en-US', { 
-                      month: 'short', 
-                      day: 'numeric',
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true,
-                      timeZone: 'America/New_York' // EST/EDT timezone
-                    })}
+                  <span className="text-sm font-medium text-green-200">
+                    <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2 animate-pulse"></span>
+                    Live Data
                   </span>
                   <span className="text-xs text-blue-300/70">
-                    <strong>Data updates automatically at 9:00 PM EST daily</strong>
-                    {powerRankings?.refreshInfo?.nextScheduledUpdate && (
-                      <span className="ml-1">(Next update: {new Date(powerRankings.refreshInfo.nextScheduledUpdate).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true,
-                        month: 'short',
-                        day: 'numeric',
-                        timeZone: 'America/New_York'
-                      })})</span>
-                    )}
+                    <strong>Rankings updated in real-time</strong>
                   </span>
                 </div>
               </div>

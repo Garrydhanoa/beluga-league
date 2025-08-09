@@ -526,7 +526,7 @@ async function extractPowerRankingsData(sheet) {
 }
 
 // Main function to fetch power rankings
-async function fetchPowerRankings(division, week, isInitialLoad = false) {
+async function fetchPowerRankings(division, week, isInitialLoad = false, bypassCache = false) {
   try {
     // Format division for sheet lookup - be more flexible with sheet naming
     let formattedDivision;
@@ -534,7 +534,7 @@ async function fetchPowerRankings(division, week, isInitialLoad = false) {
       // For Majors, we'll use multiple patterns with different capitalizations
       // in the findSheetByPattern function, so just preserve the lowercase version
       formattedDivision = 'majors';
-      console.log('Handling Majors division with enhanced case sensitivity matching');
+      debugLog('Handling Majors division with enhanced case sensitivity matching');
       
       // Enhanced debugging for Vercel
       if (process.env.VERCEL) {
@@ -954,13 +954,18 @@ export async function GET(request) {
     const division = url.searchParams.get('division')?.toLowerCase() || 'majors';
     const week = parseInt(url.searchParams.get('week') || '1', 10);
     
-    // Check if this is an initial load request from the client
-    // This is used to detect if the user is loading the page for the first time
-    // or if they're trying to force a refresh by clearing their localStorage
+    // Check if this is a real-time data request or initial load
+    const isRealtimeRequest = url.searchParams.get('realtime') === 'true';
     const isInitialLoad = url.searchParams.get('initialLoad') === 'true';
     
-    console.log(`Power Rankings API - Request received: division=${division}, week=${week}, initialLoad=${isInitialLoad}`);
-    console.log(`Environment: ${process.env.NODE_ENV || 'development'}, Vercel: ${process.env.VERCEL ? 'Yes' : 'No'}`);
+    debugLog(`Power Rankings API - Request received:`, {
+      division,
+      week,
+      isRealtimeRequest,
+      isInitialLoad,
+      environment: process.env.NODE_ENV || 'development',
+      isVercel: !!process.env.VERCEL
+    });
     
     // Special handling for Vercel + Majors division issues
     if (process.env.VERCEL && division === 'majors') {
@@ -1048,15 +1053,19 @@ export async function GET(request) {
     
     let result;
     
+    // For real-time requests, bypass cache completely
+    const shouldBypassCache = isRealtimeRequest;
+    
     // Special case for Majors division on Vercel - try with pre-emptive hardcoded fallback if needed
     if (process.env.VERCEL && division === 'majors' && MAJORS_SHEET_NAMES[week]) {
       try {
         debugLog(`Attempting special direct access for Majors Week ${week} on Vercel`, {
-          exactSheetName: MAJORS_SHEET_NAMES[week]
+          exactSheetName: MAJORS_SHEET_NAMES[week],
+          bypassCache: shouldBypassCache
         });
         
         // Try normal flow first
-        result = await fetchPowerRankings(division, week, isInitialLoad);
+        result = await fetchPowerRankings(division, week, isInitialLoad, shouldBypassCache);
         
         // If we got an error, switch to hardcoded fallback immediately
         if (result.error) {
@@ -1070,7 +1079,7 @@ export async function GET(request) {
       }
     } else {
       // Normal flow for non-Majors or local development
-      result = await fetchPowerRankings(division, week, isInitialLoad);
+      result = await fetchPowerRankings(division, week, isInitialLoad, shouldBypassCache);
     }
     
     if (result.error) {
