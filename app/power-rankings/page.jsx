@@ -59,7 +59,8 @@ export default function PowerRankingsPage() {
         setIsLoading(true);
         setError(null);
         
-        // Check for cached data - always use it if available
+        // Check for cached data - ALWAYS USE IT IF AVAILABLE
+        // This ensures users cannot force a refresh
         const cacheKey = `power-rankings-${activeTab}-week${activeWeek}`;
         let useCachedData = false;
         
@@ -68,16 +69,23 @@ export default function PowerRankingsPage() {
           const cachedTimestamp = localStorage.getItem(`${cacheKey}-timestamp`);
           
           if (cachedData && cachedTimestamp) {
-            // Use cache regardless of how old it is
+            // ALWAYS use the cache if it exists - prevent user-initiated refreshes
             useCachedData = true;
             const data = JSON.parse(cachedData);
             setPowerRankings(data);
+            
+            // Get the next update time from cache if available
+            let nextUpdateTime = null;
+            if (data.refreshInfo && data.refreshInfo.nextScheduledUpdate) {
+              nextUpdateTime = new Date(data.refreshInfo.nextScheduledUpdate).getTime();
+            }
+            
             setFetchStatus({
               fromCache: true,
               cachedAt: parseInt(cachedTimestamp, 10),
               fetchError: null,
-              nextUpdateAt: null,
-              lastScheduledUpdate: null
+              nextUpdateAt: nextUpdateTime,
+              lastScheduledUpdate: data.lastScheduledUpdate || null
             });
             setIsLoading(false);
             console.log(`Using cached power rankings for ${activeTab} Week ${activeWeek}`);
@@ -86,11 +94,14 @@ export default function PowerRankingsPage() {
           console.error("Error checking cache:", e);
         }
         
-        // Fetch data from API only if we don't have cached data
+        // ONLY fetch from API when:
+        // 1. No cache exists (first visit or cleared cache)
+        // 2. Site was just deployed (server cache would be fresh)
         if (!useCachedData) {
           try {
-            // Add nocache parameter to avoid browser caching and always hit our backend
-            const response = await fetch(`/api/power-rankings?division=${activeTab}&week=${activeWeek}&nocache=${Date.now()}`);
+            // Add a special parameter to tell API this is initial load, not a refresh
+            // This prevents users from forcing refreshes by clearing localStorage
+            const response = await fetch(`/api/power-rankings?division=${activeTab}&week=${activeWeek}&initialLoad=true`);
             const data = await response.json();
             
             if (response.ok) {
@@ -104,7 +115,7 @@ export default function PowerRankingsPage() {
                 lastScheduledUpdate: data.lastScheduledUpdate || null
               });
               
-              // Always save API response to local cache
+              // Save to localStorage cache
               try {
                 localStorage.setItem(cacheKey, JSON.stringify(data));
                 localStorage.setItem(`${cacheKey}-timestamp`, Date.now().toString());
@@ -298,7 +309,7 @@ export default function PowerRankingsPage() {
                     })}
                   </span>
                   <span className="text-xs text-blue-300/70">
-                    Rankings updated daily at 9:00 PM EST
+                    <strong>Data updates automatically at 9:00 PM EST daily</strong>
                     {powerRankings?.refreshInfo?.nextScheduledUpdate && (
                       <span className="ml-1">(Next update: {new Date(powerRankings.refreshInfo.nextScheduledUpdate).toLocaleTimeString('en-US', {
                         hour: 'numeric',
@@ -429,24 +440,71 @@ export default function PowerRankingsPage() {
                     setIsLoading(true);
                     setError(null);
                     // Don't clear cache, just try again with existing data
+                    // Don't actually attempt to refresh data from the API
                     setTimeout(() => {
+                      // Check for cached data
+                      const cacheKey = `power-rankings-${activeTab}-week${activeWeek}`;
+                      try {
+                        const cachedData = localStorage.getItem(cacheKey);
+                        if (cachedData) {
+                          setPowerRankings(JSON.parse(cachedData));
+                        }
+                      } catch (e) {
+                        console.error("Error retrieving from cache:", e);
+                      }
                       setIsLoading(false);
                     }, 800); // Show loading animation briefly then return to same state
                   }} 
                   className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full transition-all shadow-lg neon-button"
                 >
-                  Try Again
+                  Load From Cache
                 </button>
               </div>
             ) : powerRankings?.error ? (
               <div className="text-center py-16 px-4">
-                <div className="inline-block bg-blue-900/30 p-6 rounded-lg mb-6 border border-blue-500/30 glow-border">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-blue-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                  <h3 className="text-xl font-bold text-blue-300 mb-2 glow-text">Coming Soon!</h3>
-                </div>
-                <p className="text-white/80 max-w-2xl mx-auto">{powerRankings.error}</p>
+                {/* Check if it's a credentials error */}
+                {powerRankings.error.toLowerCase().includes('credentials') || 
+                 powerRankings.error.toLowerCase().includes('authentication') ? (
+                  <div className="inline-block bg-orange-900/30 p-6 rounded-lg mb-6 border border-orange-500/30 glow-border">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-orange-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <h3 className="text-xl font-bold text-orange-300 mb-2 glow-text">Authentication Issue</h3>
+                    <p className="text-orange-100/80 max-w-md mx-auto mb-4">
+                      The server is unable to authenticate with the Google Sheets API. This is a temporary issue that the site administrator needs to fix.
+                    </p>
+                    
+                    {/* Only show this in development mode */}
+                    {process.env.NODE_ENV === 'development' && (
+                      <div className="text-xs text-left bg-black/30 p-3 rounded mt-2 border border-orange-500/20">
+                        <p className="text-orange-200 font-medium mb-1">Developer Note:</p>
+                        <p className="text-orange-100/70 mb-1">
+                          Check that the Google API credentials are properly set in your environment variables:
+                        </p>
+                        <ul className="list-disc list-inside text-orange-100/70 space-y-1">
+                          <li>GOOGLE_CLIENT_EMAIL</li>
+                          <li>GOOGLE_PRIVATE_KEY</li>
+                          <li>POWER_RANKINGS_SHEET_ID</li>
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="inline-block bg-blue-900/30 p-6 rounded-lg mb-6 border border-blue-500/30 glow-border">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-blue-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <h3 className="text-xl font-bold text-blue-300 mb-2 glow-text">Coming Soon!</h3>
+                  </div>
+                )}
+                
+                <p className="text-white/80 max-w-2xl mx-auto">
+                  {/* Clean up error message for authentication issues */}
+                  {powerRankings.error.toLowerCase().includes('credentials') || 
+                   powerRankings.error.toLowerCase().includes('authentication') 
+                    ? "Power rankings data is temporarily unavailable. Please check back soon." 
+                    : powerRankings.error}
+                </p>
                 
                 <div className="mt-10">
                   <p className="text-blue-300 mb-4">Explore other divisions or weeks:</p>
