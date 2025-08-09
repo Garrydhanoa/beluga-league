@@ -863,10 +863,11 @@ export default function StandingsPage() {
                       </div>
                     </div>
                     
-                    {/* Expand/collapse button */}
+                    {/* Expand/collapse button - repositioned for mobile */}
                     <button
-                      className="absolute right-2 top-2 w-7 h-7 rounded-full bg-black/30 flex items-center justify-center text-blue-300 hover:text-white transition-colors md:opacity-0 md:group-hover:opacity-100"
+                      className="absolute right-2 bottom-2 sm:bottom-auto sm:top-2 w-7 h-7 rounded-full bg-black/40 flex items-center justify-center text-blue-300 hover:text-white transition-colors shadow-md md:opacity-0 md:group-hover:opacity-100"
                       onClick={() => setExpandedTeam(expandedTeam === team.team ? null : team.team)}
+                      aria-label={expandedTeam === team.team ? "Collapse team details" : "Expand team details"}
                     >
                       <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                         {expandedTeam === team.team ? (
