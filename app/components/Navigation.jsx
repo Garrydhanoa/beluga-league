@@ -98,7 +98,7 @@ export default function Navigation() {
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-400 group-hover:w-full transition-all duration-300"></span>
           </Link>
           <Link
-            href="/rankings"
+            href="/power-rankings"
             className="font-medium hover:text-blue-300 transition-colors duration-300 relative group"
           >
             Power Rankings
@@ -150,13 +150,13 @@ export default function Navigation() {
                 {isActive('/standings') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 bg-blue-400 rounded-r"></span>}
               </Link>
               <Link
-                href="/rankings"
+                href="/power-rankings"
                 className={`font-medium py-3 pl-4 relative rounded-md ${
-                  isActive('/rankings') ? 'bg-blue-900/30 text-blue-300' : 'hover:bg-black/40 hover:text-blue-300'
+                  isActive('/power-rankings') ? 'bg-blue-900/30 text-blue-300' : 'hover:bg-black/40 hover:text-blue-300'
                 }`}
               >
                 Power Rankings
-                {isActive('/rankings') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 bg-blue-400 rounded-r"></span>}
+                {isActive('/power-rankings') && <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-2/3 bg-blue-400 rounded-r"></span>}
               </Link>
               <Link
                 href="/players"

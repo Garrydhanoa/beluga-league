@@ -1,0 +1,321 @@
+/* Power Rankings Specific Styles */
+
+/* Card Effects - Simplified for better performance */
+.tilt-card {
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.tilt-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  background-color: rgba(255, 255, 255, 0.03);
+}
+
+.tilt-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  background: linear-gradient(to right, rgba(59, 130, 246, 0.1), rgba(147, 51, 234, 0.1));
+}
+
+.tilt-card:hover::after {
+  opacity: 1;
+}
+
+/* Animated Crown for Top Ranked */
+.crown {
+  position: absolute;
+  top: -25px;
+  right: 15px;
+  color: #FFD700;
+  font-size: 24px;
+  transform-origin: bottom center;
+  animation: crownWiggle 3s ease-in-out infinite;
+}
+
+@keyframes crownWiggle {
+  0%, 100% { transform: rotate(-5deg) scale(1); }
+  50% { transform: rotate(5deg) scale(1.05); }
+}
+
+/* Card hover effect - more performant than the spotlight */
+.card-hovered {
+  border-color: rgba(96, 165, 250, 0.3);
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.2);
+}
+
+/* Add a performance-friendly static glow instead of dynamic spotlight */
+.glow-accent {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, 
+    rgba(59, 130, 246, 0.1) 0%, 
+    rgba(147, 51, 234, 0.03) 50%, 
+    transparent 70%);
+  pointer-events: none;
+}
+
+/* Confetti styles */
+.confetti-piece {
+  position: absolute;
+  width: 8px;
+  height: 16px;
+  background: #ffd700;
+  top: 0;
+  opacity: 0;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-100%) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(1000%) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* Glow effects */
+.glow-text {
+  text-shadow: 0 0 10px rgba(59, 130, 246, 0.7), 
+               0 0 20px rgba(59, 130, 246, 0.5), 
+               0 0 30px rgba(59, 130, 246, 0.3);
+}
+
+.glow-border {
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.5),
+              inset 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+/* Neon/cyberpunk effects for tabs and buttons */
+.neon-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s;
+}
+
+.neon-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.6), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+
+.neon-button:hover::before {
+  transform: translateX(100%);
+}
+
+.neon-border {
+  position: relative;
+}
+
+.neon-border::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #3b82f6);
+  z-index: -1;
+  border-radius: inherit;
+  animation: border-animate 2s linear infinite;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.neon-border:hover::after {
+  opacity: 1;
+}
+
+@keyframes border-animate {
+  0% { background-position: 0%; }
+  100% { background-position: 200%; }
+}
+
+/* History chart */
+.history-chart {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.history-bar {
+  height: 40px;
+  background: linear-gradient(to right, #4f46e5, #8b5cf6);
+  border-radius: 4px;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.history-bar:hover {
+  filter: brightness(1.3);
+}
+
+.history-bar::after {
+  content: attr(data-week);
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+.history-bar::before {
+  content: attr(data-rank);
+  position: absolute;
+  top: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+/* CSS-based animation for history bars - more performant */
+.history-bar-animate {
+  height: 0 !important;
+  animation: grow-bar 0.5s forwards;
+}
+
+@keyframes grow-bar {
+  from { height: 0; }
+  to { height: inherit; }
+}
+
+/* Team logo in history bar */
+.history-bar-logo {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  animation: fadeIn 0.5s forwards 0.8s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Fire effect for hot teams */
+.fire {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  font-size: 18px;
+  animation: flicker 2s infinite;
+}
+
+@keyframes flicker {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+/* Rising effect for teams on the rise */
+.rising {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  font-size: 18px;
+  color: #10B981;
+  animation: rising 2s infinite;
+}
+
+@keyframes rising {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+/* Falling effect for teams declining */
+.falling {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  font-size: 18px;
+  color: #EF4444;
+  animation: falling 2s infinite;
+}
+
+@keyframes falling {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(5px); }
+}
+
+/* Badge styles */
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: 8px;
+}
+
+.badge-improved {
+  background: linear-gradient(to right, #047857, #10B981);
+  color: white;
+}
+
+.badge-declined {
+  background: linear-gradient(to right, #991B1B, #EF4444);
+  color: white;
+}
+
+.badge-stable {
+  background: linear-gradient(to right, #D97706, #F59E0B);
+  color: white;
+}
+
+/* Achievement badge for top players */
+.achievement {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #f97316, #db2777);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+  box-shadow: 0 0 10px rgba(219, 39, 119, 0.6);
+}
+
+/* Cyberpunk style grid background */
+.cyberpunk-grid {
+  position: absolute;
+  inset: 0;
+  background-size: 40px 40px;
+  background-image: 
+    linear-gradient(to right, rgba(59, 130, 246, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(59, 130, 246, 0.03) 1px, transparent 1px);
+  pointer-events: none;
+  z-index: 1;
+}
