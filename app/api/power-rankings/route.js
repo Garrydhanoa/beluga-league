@@ -450,16 +450,24 @@ function findSheetByPattern(doc, division, week) {
   return null;
 }
 
-// Extract power rankings data from a specific sheet
+  // Extract power rankings data from a specific sheet
 async function extractPowerRankingsData(sheet) {
   try {
     await sheet.loadCells('G21:J35'); // Load teams (G21-H30) and players (I21-J25) data
     
-    // Also load historical ranking data if available (columns K-S)
-    try {
-      await sheet.loadCells('K21:S30'); // Historical team rankings across weeks
-    } catch (e) {
-      console.log('No historical rankings available', e);
+    // Get sheet dimensions to check if historical data is available
+    const sheetColumns = sheet._columnCount;
+    const hasHistoricalData = sheetColumns > 10; // Check if we have columns beyond J
+    
+    // Only try to load historical data if the sheet has enough columns
+    if (hasHistoricalData) {
+      try {
+        // Only load columns that exist in the sheet
+        const lastColumnLetter = String.fromCharCode(65 + Math.min(18, sheetColumns - 1)); // Convert to letter (A=65 in ASCII)
+        await sheet.loadCells(`K21:${lastColumnLetter}30`); // Historical team rankings across weeks
+      } catch (e) {
+        console.log('No historical rankings available', e);
+      }
     }
     
     const teams = [];
@@ -478,26 +486,28 @@ async function extractPowerRankingsData(sheet) {
           points: pointsCell.value || 0,
         };
         
-        // Try to extract historical rankings (columns K-S for weeks 1-9)
-        const teamHistory = [];
-        try {
-          for (let weekCol = 10; weekCol <= 18; weekCol++) { // Columns K-S (10-18 in 0-indexed)
-            const rankCell = sheet.getCell(row - 1, weekCol);
-            if (rankCell.value !== null && rankCell.value !== undefined) {
-              teamHistory.push(parseInt(rankCell.value, 10) || null);
-            } else {
-              teamHistory.push(null); // No data for this week
+        // Only try to extract historical rankings if we have enough columns
+        if (hasHistoricalData) {
+          const teamHistory = [];
+          try {
+            // Only iterate through columns that actually exist in the sheet
+            const maxHistoricalCol = Math.min(18, sheetColumns - 1);
+            for (let weekCol = 10; weekCol <= maxHistoricalCol; weekCol++) { // Columns K+ (10+ in 0-indexed)
+              const rankCell = sheet.getCell(row - 1, weekCol);
+              if (rankCell.value !== null && rankCell.value !== undefined) {
+                teamHistory.push(parseInt(rankCell.value, 10) || null);
+              } else {
+                teamHistory.push(null); // No data for this week
+              }
             }
+            
+            if (teamHistory.some(rank => rank !== null)) {
+              history[teamName] = teamHistory;
+            }
+          } catch (e) {
+            console.log(`Could not extract history for ${teamName}`, e);
           }
-          
-          if (teamHistory.some(rank => rank !== null)) {
-            history[teamName] = teamHistory;
-          }
-        } catch (e) {
-          console.log(`Could not extract history for ${teamName}`, e);
-        }
-        
-        teams.push(team);
+        }        teams.push(team);
       }
     }
     
