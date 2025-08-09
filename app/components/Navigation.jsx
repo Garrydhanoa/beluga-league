@@ -35,22 +35,20 @@ export default function Navigation() {
     <nav className="w-full bg-black/30 backdrop-blur-md border-b border-white/10 sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo and brand name - UPDATED */}
-        <div className="flex items-center space-x-3">
-          <Link href="/">
-            <div className="relative w-[48px] h-[48px] rounded-full border-2 border-blue-400 overflow-hidden group flex items-center justify-center">
-              {/* Using transparent background for logo to avoid circle fitting issues */}
-              <div className="absolute inset-0 bg-blue-500/20 group-hover:bg-blue-500/40 transition-all duration-300"></div>
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center group">
+            <div className="relative w-[64px] h-[64px] flex items-center justify-center">
+              {/* Using a subtle glow effect instead of a circle */}
+              <div className="absolute inset-0 bg-blue-500/10 group-hover:bg-blue-500/20 blur-md transition-all duration-300"></div>
               <ImageWithFallback 
                 src="/logos/league_logo.png" 
                 alt="Beluga League" 
-                className="w-[40px] h-[40px] object-contain relative z-10 transition-transform duration-300 group-hover:scale-110"
-                fallback={<span className="text-white font-bold text-xl">BL</span>}
+                className="w-[60px] h-[60px] object-contain relative z-10 transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]"
+                fallback={<span className="text-white font-bold text-2xl bg-gradient-to-r from-blue-300 to-purple-400 text-transparent bg-clip-text">BL</span>}
               />
             </div>
-          </Link>
-          <Link href="/" className="block">
-            <div className="text-xl sm:text-2xl md:text-3xl font-bold">
-              <span className="bg-gradient-to-r from-blue-300 to-purple-400 text-transparent bg-clip-text inline-block">
+            <div className="text-xl sm:text-2xl md:text-3xl font-bold ml-3 self-center pb-1">
+              <span className="bg-gradient-to-r from-blue-300 to-purple-400 text-transparent bg-clip-text inline-block transition-all duration-300 group-hover:from-blue-200 group-hover:to-purple-300 leading-tight">
                 Beluga League
               </span>
             </div>

@@ -9,17 +9,19 @@ export default function Footer() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6">
           {/* Logo and brand */}
-          <div className="flex items-center space-x-3 mb-6 md:mb-0">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center mr-2 bg-blue-900/20 border border-white/10">
-              <ImageWithFallback 
-                src="/logos/league_logo.png" 
-                alt="Beluga League" 
-                className="w-8 h-8 object-contain"
-                fallback={<span className="text-white font-bold text-sm">BL</span>}
-              />
+          <Link href="/" className="group">
+            <div className="flex items-center mb-6 md:mb-0">
+              <div className="w-14 h-14 flex items-center justify-center">
+                <ImageWithFallback 
+                  src="/logos/league_logo.png" 
+                  alt="Beluga League" 
+                  className="w-13 h-13 object-contain drop-shadow-[0_0_8px_rgba(59,130,246,0.5)] group-hover:drop-shadow-[0_0_10px_rgba(59,130,246,0.7)] transition-all duration-300"
+                  fallback={<span className="text-white font-bold text-lg bg-gradient-to-r from-blue-300 to-purple-400 text-transparent bg-clip-text">BL</span>}
+                />
+              </div>
+              <span className="text-sm sm:text-base text-blue-200 font-medium group-hover:text-blue-100 transition-colors duration-300 ml-3 self-center pb-1 leading-tight">Beluga League</span>
             </div>
-            <span className="text-sm sm:text-base text-blue-200 font-medium">Beluga League</span>
-          </div>
+          </Link>
           
           {/* Navigation Links */}
           <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 mb-6 md:mb-0">
