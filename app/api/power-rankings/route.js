@@ -4,6 +4,9 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
+// Tell Next.js this is a dynamic route that shouldn't be prerendered
+export const dynamic = 'force-dynamic';
+
 export const revalidate = 3600; // Revalidate every hour
 
 // Function to connect to Google Sheet

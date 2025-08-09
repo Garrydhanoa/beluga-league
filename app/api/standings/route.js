@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { getStandings } from '../../../lib/sheets';
 
+// Tell Next.js this is a dynamic route that shouldn't be prerendered
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   // Get the division parameter from the URL
   const url = new URL(request.url);

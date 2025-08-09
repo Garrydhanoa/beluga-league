@@ -586,7 +586,7 @@ export default function PowerRankingsPage() {
                   {fetchStatus.fromCache 
                     ? "Using cached data - Unable to fetch latest rankings" 
                     : fetchStatus.fetchError === "No data available for this week"
-                      ? "This week's rankings have not been published yet"
+                      ? "This week&apos;s rankings have not been published yet"
                       : typeof fetchStatus.fetchError === 'object'
                         ? (fetchStatus.fetchError.message || "Error fetching data")
                         : String(fetchStatus.fetchError)}
