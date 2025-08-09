@@ -7,14 +7,16 @@ import './globals.css'
 export const metadata = {
   title: 'Beluga League',
   description: 'The official site of the Beluga Rocket League community',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-  },
-  themeColor: '#1e40af',
 }
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+}
+
+export const themeColor = '#1e40af'
 
 export default function RootLayout({
   children,

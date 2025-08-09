@@ -34,7 +34,7 @@ export default function Footer() {
             <Link href="/standings" className="hover:text-blue-300 font-medium">
               Standings
             </Link>
-            <Link href="/rankings" className="hover:text-blue-300 font-medium">
+            <Link href="/power-rankings" className="hover:text-blue-300 font-medium">
               Power Rankings
             </Link>
             <Link href="/players" className="hover:text-blue-300 font-medium">
