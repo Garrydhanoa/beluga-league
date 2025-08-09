@@ -39,7 +39,7 @@ export default function StandingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [animateItems, setAnimateItems] = useState(false);
-  const [expandedTeam, setExpandedTeam] = useState(null);
+  // Expanded team functionality removed - was causing mobile issues
   const [sortField, setSortField] = useState("position");
   const [sortDirection, setSortDirection] = useState("asc");
   const [highlighted, setHighlighted] = useState(null);
@@ -274,7 +274,7 @@ export default function StandingsPage() {
     
     fetchStandings();
     // Reset expanded and sort when changing divisions
-    setExpandedTeam(null);
+    // Expanded team functionality removed
     setSortField("position");
     setSortDirection("asc");
   }, [activeTab, shouldFetch]);
@@ -735,7 +735,7 @@ export default function StandingsPage() {
                       backdrop-blur-sm px-4 py-3 sm:py-4 
                       transition-colors duration-300
                       border-b border-white/5 hover:border-blue-400/30
-                      ${expandedTeam === team.team ? 'border-blue-400/50' : ''}
+                      
                       ${highlighted === team.team ? 'ring-1 ring-blue-400' : ''}
                       bg-black/20 hover:bg-black/30
                     `}
@@ -910,88 +910,9 @@ export default function StandingsPage() {
                       </div>
                     </div>
                     
-                    {/* Expand/collapse button - repositioned and fixed for mobile */}
-                    <button
-                      className="absolute right-2 bottom-2 sm:bottom-auto sm:top-2 w-8 h-8 rounded-full bg-black/50 flex items-center justify-center text-blue-300 hover:text-white transition-colors shadow-md border border-blue-500/20 z-10"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent event bubbling
-                        setExpandedTeam(expandedTeam === team.team ? null : team.team);
-                      }}
-                      aria-label={expandedTeam === team.team ? "Collapse team details" : "Expand team details"}
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        {expandedTeam === team.team ? (
-                          <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-                        ) : (
-                          <path fillRule="evenodd" d="M14.707 12.707a1 1 0 01-1.414 0L10 9.414l-3.293 3.293a1 1 0 01-1.414-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 010 1.414z" clipRule="evenodd" />
-                        )}
-                      </svg>
-                    </button>
+                    {/* Expand/collapse button removed - not needed and causing mobile issues */}
                     
-                    {/* Expanded team details with better visibility */}
-                    <AnimatePresence>
-                      {expandedTeam === team.team && teamStats[team.team] && (
-                        <motion.div 
-                          className="mt-3 p-3 bg-blue-900/30 border border-blue-500/20 rounded-lg shadow-lg relative"
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                        >
-                          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-                            <div className="bg-black/20 p-2 rounded">
-                              <div className="text-xs text-blue-400">Goals Scored</div>
-                              <div className="text-lg font-bold text-white">{teamStats[team.team]?.shotAccuracy || "N/A"}</div>
-                            </div>
-                            <div className="bg-black/20 p-2 rounded">
-                              <div className="text-xs text-blue-400">Goals Conceded</div>
-                              <div className="text-lg font-bold text-white">{teamStats[team.team]?.possession || "N/A"}</div>
-                            </div>
-                            <div className="bg-black/20 p-2 rounded">
-                              <div className="text-xs text-blue-400">Shot Accuracy</div>
-                              <div className="text-lg font-bold text-white">{teamStats[team.team].shotAccuracy}</div>
-                            </div>
-                            <div className="bg-black/20 p-2 rounded">
-                              <div className="text-xs text-blue-400">Possession</div>
-                              <div className="text-lg font-bold text-white">{teamStats[team.team].possession}</div>
-                            </div>
-                          </div>
-                          
-                          {/* Recent form - visual representation */}
-                          <div className="mt-3">
-                            <div className="text-xs text-blue-400 mb-1">Recent Form</div>
-                            <div className="flex gap-1">
-                              {['W', 'L', 'W', 'W', 'L'].map((result, i) => (
-                                <div 
-                                  key={i} 
-                                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                                    result === 'W' ? 'bg-green-500/30 text-green-200' : 'bg-red-500/30 text-red-200'
-                                  }`}
-                                >
-                                  {result}
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                          
-                          {/* Quick links */}
-                          <div className="mt-3 flex gap-2 text-xs">
-                            <Link 
-                              href={`/teams/${encodeURIComponent(team.team)}?tab=roster`}
-                              className="py-1 px-2 bg-blue-500/20 hover:bg-blue-500/40 rounded text-blue-200 transition-colors"
-                            >
-                              View Roster
-                            </Link>
-                            <Link 
-                              href={`/teams/${encodeURIComponent(team.team)}?tab=schedule`}
-                              className="py-1 px-2 bg-purple-500/20 hover:bg-purple-500/40 rounded text-purple-200 transition-colors"
-                            >
-                              View Schedule
-                            </Link>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                    {/* Expanded team details removed - not needed and causing mobile issues */}
                   </motion.div>
                 ))}
               </div>
