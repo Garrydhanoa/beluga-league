@@ -4,8 +4,10 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import ImageWithFallback from './ImageWithFallback';
+import useMediaQuery from '../hooks/useMediaQuery';
 
 export default function Navigation() {
+  const { isMobile } = useMediaQuery();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
   

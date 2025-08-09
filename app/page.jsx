@@ -485,20 +485,6 @@ export default function Home() {
         <div className="absolute -left-10 top-1/3 w-20 h-20 rounded-full bg-blue-500/10 blur-xl"></div>
         <div className="absolute -right-10 bottom-1/3 w-20 h-20 rounded-full bg-purple-500/10 blur-xl"></div>
       </div>
-
-      {/* Floating Applications Button (fixed position) */}
-      <a 
-        href="#applications"
-        className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-gradient-to-r from-blue-600 to-purple-700 flex items-center justify-center shadow-lg hover:shadow-blue-500/30 transform hover:scale-110 transition-all duration-300 group"
-        aria-label="Apply for positions"
-      >
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-        </svg>
-        <span className="absolute right-16 bg-black/80 text-white px-3 py-1 rounded-lg text-sm font-medium transform scale-0 group-hover:scale-100 opacity-0 group-hover:opacity-100 transition-all duration-200 origin-left whitespace-nowrap">
-          Applications
-        </span>
-      </a>
     </div>
   );
 }

@@ -4,6 +4,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import "./mobile-responsive.css";
+
 :root {
   --foreground: #000;
   --background: #fff;
@@ -160,6 +162,43 @@ body {
   /* Reduce animation intensity on mobile for better performance */
   .animate-pulse-slow {
     animation-duration: 4s;
+  }
+  
+  /* Improve table responsiveness on mobile */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Optimize team grids for mobile */
+  .grid-cols-4 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+  
+  /* Improve spacing on mobile */
+  .px-6 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+  
+  .py-12 {
+    padding-top: 2rem !important;
+    padding-bottom: 2rem !important;
+  }
+  
+  /* Make images responsive */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Improve form elements on mobile */
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+  
+  /* Make videos responsive */
+  video, iframe {
+    max-width: 100% !important;
   }
 }
 

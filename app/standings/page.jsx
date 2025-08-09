@@ -788,40 +788,78 @@ export default function StandingsPage() {
                     </div>
 
                     {/* Mobile View with enhanced interactive elements */}
-                    <div className="md:hidden flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-9 h-9 flex items-center justify-center rounded-full shadow
-                          ${team.positionStyle || (team.position <= playoffCutoff 
-                            ? 'bg-gradient-to-br from-green-500/80 to-green-700/80' 
-                            : 'bg-gradient-to-br from-red-500/70 to-red-700/70')}
-                          text-white font-bold
-                        }`}
-                        >
-                          {team.position}
+                    <div className="md:hidden">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-9 h-9 flex items-center justify-center rounded-full shadow
+                            ${team.positionStyle || (team.position <= playoffCutoff 
+                              ? 'bg-gradient-to-br from-green-500/80 to-green-700/80' 
+                              : 'bg-gradient-to-br from-red-500/70 to-red-700/70')}
+                            text-white font-bold
+                          }`}
+                          >
+                            {team.position}
+                          </div>
+                          <div className={`w-11 h-11 rounded-full flex items-center justify-center overflow-hidden border border-white/10
+                            bg-gradient-to-br ${TEAM_COLORS[team.team]?.primary || 'from-blue-900/50'} ${TEAM_COLORS[team.team]?.secondary || 'to-purple-900/50'}
+                          `}>
+                            <img
+                              src={`/logos/${team.team}.png`}
+                              alt={team.team}
+                              className="w-9 h-9 object-contain"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none';
+                                if (e.currentTarget.parentElement) {
+                                  e.currentTarget.parentElement.innerHTML = `<span class="text-sm font-bold">${getTeamInitials(team.team)}</span>`;
+                                }
+                              }}
+                            />
+                          </div>
+                          <Link href={`/teams/${encodeURIComponent(team.team)}`} className="font-medium text-sm">
+                            {team.team}
+                          </Link>
                         </div>
-                        <div className={`w-11 h-11 rounded-full flex items-center justify-center overflow-hidden border border-white/10
-                          bg-gradient-to-br ${TEAM_COLORS[team.team]?.primary || 'from-blue-900/50'} ${TEAM_COLORS[team.team]?.secondary || 'to-purple-900/50'}
-                        `}>
-                          <img
-                            src={`/logos/${team.team}.png`}
-                            alt={team.team}
-                            className="w-9 h-9 object-contain"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none';
-                              if (e.currentTarget.parentElement) {
-                                e.currentTarget.parentElement.innerHTML = `<span class="text-sm font-bold">${getTeamInitials(team.team)}</span>`;
-                              }
-                            }}
-                          />
+                        
+                        <div className="flex gap-2">
+                          <div className="flex flex-col items-center">
+                            <span className="text-xs text-blue-300">W</span>
+                            <span className="font-semibold text-green-400 bg-green-900/20 px-2 py-0.5 rounded-md text-sm">{team.wins}</span>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <span className="text-xs text-blue-300">L</span>
+                            <span className="font-semibold text-red-400 bg-red-900/20 px-2 py-0.5 rounded-md text-sm">{team.losses}</span>
+                          </div>
                         </div>
-                        <Link href={`/teams/${encodeURIComponent(team.team)}`} className="font-medium">
-                          {team.team}
-                        </Link>
                       </div>
-                      <div className="flex items-center gap-3 px-3 py-1.5 rounded-full bg-gradient-to-r from-black/40 to-black/20 shadow-inner">
-                        <span className="text-green-400 text-lg">{team.wins}</span>
-                        <span className="text-white/30">-</span>
-                        <span className="text-red-400 text-lg">{team.losses}</span>
+                      
+                      {/* Additional stats row for mobile */}
+                      <div className="grid grid-cols-3 gap-2 mt-2 text-center text-xs">
+                        <div>
+                          <span className="text-blue-300 block">Win %</span>
+                          <span className="font-mono text-white">
+                            {typeof team.winPercentage === 'string' && team.winPercentage.includes('.') 
+                              ? `${(parseFloat(team.winPercentage) * 100).toFixed(1)}%` 
+                              : team.winPercentage.includes('%') 
+                                ? team.winPercentage 
+                                : `${team.winPercentage}%`}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-blue-300 block">Game +/-</span>
+                          <span className={`font-mono ${
+                            team.gameDiff > 0 ? 'text-green-400' : team.gameDiff < 0 ? 'text-red-400' : 'text-blue-400'
+                          }`}>
+                            {team.gameDiff > 0 ? '+' : ''}{team.gameDiff}
+                          </span>
+                        </div>
+                        <div>
+                          <span className="text-blue-300 block">Goal +/-</span>
+                          <span className={`font-mono ${
+                            team.goalDiff > 0 ? 'text-green-400' : team.goalDiff < 0 ? 'text-red-400' : 'text-blue-400'
+                          }`}>
+                            {team.goalDiff > 0 ? '+' : ''}{team.goalDiff}
+                          </span>
+                        </div>
                       </div>
                     </div>
                     

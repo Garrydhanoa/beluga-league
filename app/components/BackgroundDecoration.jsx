@@ -7,21 +7,34 @@ import { useEffect } from "react";
  * Creates decorative background elements with parallax effect
  */
 export default function BackgroundDecoration() {
-  // Add parallax effect to background elements
+  // Add parallax effect to background elements with device detection
   useEffect(() => {
-    const handleMouseMove = (e) => {
+    // Check if device is mobile/tablet
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+    
+    // Only add mouse move effect on desktop devices
+    if (!isMobile) {
+      const handleMouseMove = (e) => {
+        const decorElements = document.querySelectorAll(".bg-decor");
+        decorElements.forEach((elem) => {
+          const htmlElem = elem;
+          const speed = parseFloat(htmlElem.dataset.speed || "0.05");
+          const x = (window.innerWidth - e.pageX * speed) / 100;
+          const y = (window.innerHeight - e.pageY * speed) / 100;
+          htmlElem.style.transform = `translateX(${x}px) translateY(${y}px)`;
+        });
+      };
+
+      document.addEventListener("mousemove", handleMouseMove);
+      return () => document.removeEventListener("mousemove", handleMouseMove);
+    } else {
+      // For mobile, use simpler animations to improve performance
       const decorElements = document.querySelectorAll(".bg-decor");
       decorElements.forEach((elem) => {
-        const htmlElem = elem;
-        const speed = parseFloat(htmlElem.dataset.speed || "0.05");
-        const x = (window.innerWidth - e.pageX * speed) / 100;
-        const y = (window.innerHeight - e.pageY * speed) / 100;
-        htmlElem.style.transform = `translateX(${x}px) translateY(${y}px)`;
+        // Add a subtle animation class for mobile
+        elem.classList.add("animate-pulse-slow");
       });
-    };
-
-    document.addEventListener("mousemove", handleMouseMove);
-    return () => document.removeEventListener("mousemove", handleMouseMove);
+    }
   }, []);
 
   return (
