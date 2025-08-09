@@ -32,7 +32,7 @@ export default function NotificationBar({ message }) {
     <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 relative">
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center">
-          <span className="font-bold mr-2">What's New:</span>
+          <span className="font-bold mr-2">What&apos;s New:</span>
           <span>{message}</span>
         </div>
         <button 
