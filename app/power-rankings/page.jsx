@@ -62,10 +62,49 @@ export default function PowerRankingsPage() {
         // Define cache key for potential fallback use
         const cacheKey = `power-rankings-${activeTab}-week${activeWeek}`;
         
+        // First check local storage cache to avoid unnecessary fetches
+        const cachedData = localStorage.getItem(cacheKey);
+        const cachedTimestamp = localStorage.getItem(`${cacheKey}-timestamp`);
+        
+        let useCachedData = false;
+        let parsedCachedData = null;
+        
+        if (cachedData && cachedTimestamp) {
+          try {
+            parsedCachedData = JSON.parse(cachedData);
+            // Only use cache if it's less than 1 hour old
+            const cacheAge = Date.now() - parseInt(cachedTimestamp, 10);
+            if (cacheAge < 60 * 60 * 1000) { // 1 hour in ms
+              useCachedData = true;
+              console.log(`Using cached data for ${activeTab} week ${activeWeek} (${Math.floor(cacheAge / 60000)} minutes old)`);
+            }
+          } catch (e) {
+            console.warn("Error parsing cached data:", e);
+          }
+        }
+        
+        // If we have valid cached data that's less than an hour old, use it
+        if (useCachedData && parsedCachedData) {
+          setPowerRankings(parsedCachedData);
+          setFetchStatus({
+            fromCache: true,
+            cachedAt: parsedCachedData.cachedAt,
+            fetchError: null,
+            nextUpdateAt: parsedCachedData.refreshInfo?.nextScheduledUpdate,
+            lastScheduledUpdate: parsedCachedData.refreshInfo?.lastUpdated,
+            formattedLastUpdated: parsedCachedData.refreshInfo?.formattedLastUpdated,
+            nextUpdateFormatted: parsedCachedData.refreshInfo?.nextUpdateFormatted,
+            refreshInterval: parsedCachedData.refreshInfo?.refreshInterval || "Hourly",
+            minutesUntilNextUpdate: parsedCachedData.refreshInfo?.minutesUntilNextUpdate
+          });
+          setIsLoading(false);
+          return;
+        }
+        
+        // If we don't have valid cache or it's stale, fetch from API
         try {
-          // Add timestamp parameter to prevent browser caching, but API will still respect hourly cache
           const response = await fetch(
-            `/api/power-rankings?division=${activeTab}&week=${activeWeek}&initialLoad=true&_t=${Date.now()}`,
+            `/api/power-rankings?division=${activeTab}&week=${activeWeek}&initialLoad=true`,
             { cache: 'no-store' }
           );
           const data = await response.json();
@@ -86,7 +125,7 @@ export default function PowerRankingsPage() {
               minutesUntilNextUpdate: data.refreshInfo?.minutesUntilNextUpdate || 60
             });
             
-            // Still save to localStorage as fallback for error cases
+            // Save to localStorage for future use
             try {
               localStorage.setItem(cacheKey, JSON.stringify(data));
               localStorage.setItem(`${cacheKey}-timestamp`, Date.now().toString());
@@ -97,26 +136,23 @@ export default function PowerRankingsPage() {
             throw new Error(data.error || "Failed to fetch power rankings");
           }
         } catch (err) {
+          // Error handling for API fetch remains the same
           console.error("API fetch error:", err);
-          // If API fails, try to use cached data as fallback
-          const cachedData = localStorage.getItem(cacheKey);
-          if (cachedData) {
+          // Try cached data as fallback
+          if (parsedCachedData) {
             console.log("API fetch failed, falling back to cached data");
-            try {
-              const data = JSON.parse(cachedData);
-              setPowerRankings(data);
-              setFetchStatus({
-                fromCache: true,
-                cachedAt: parseInt(localStorage.getItem(`${cacheKey}-timestamp`), 10) || Date.now(),
-                fetchError: "Using cached data due to API error",
-                nextUpdateAt: null,
-                lastScheduledUpdate: null
-              });
-            } catch (e) {
-              throw new Error("Failed to load power rankings and cache is invalid");
-            }
+            setPowerRankings(parsedCachedData);
+            setFetchStatus({
+              fromCache: true,
+              cachedAt: parsedCachedData.cachedAt,
+              fetchError: "Using cached data due to API error",
+              nextUpdateAt: parsedCachedData.refreshInfo?.nextScheduledUpdate,
+              lastScheduledUpdate: parsedCachedData.refreshInfo?.lastUpdated,
+              formattedLastUpdated: parsedCachedData.refreshInfo?.formattedLastUpdated,
+              nextUpdateFormatted: parsedCachedData.refreshInfo?.nextUpdateFormatted
+            });
           } else {
-            throw err; // No cached data available, throw the original error
+            throw err; // No cached data available
           }
         }
       } catch (err) {
@@ -309,10 +345,10 @@ export default function PowerRankingsPage() {
                   </svg>
                   <div className="flex flex-col items-start">
                     <span className="text-sm font-medium text-blue-200">
-                      Last updated: {fetchStatus.formattedLastUpdated || 'Just now'}
+                      Last data update: {fetchStatus.formattedLastUpdated || 'Just now'}
                     </span>
                     <span className="text-xs text-blue-300/70">
-                      <strong>Data refreshes hourly</strong> - page refreshes don&apos;t update data
+                      <strong>Updates once per hour</strong> - refreshing page shows same data
                     </span>
                   </div>
                 </div>
@@ -320,17 +356,18 @@ export default function PowerRankingsPage() {
                 {/* Show next update time */}
                 {fetchStatus.nextUpdateFormatted && (
                   <div className="text-xs bg-blue-900/20 px-3 py-1 rounded-lg text-blue-300/80">
-                    Next data refresh: <span className="font-medium text-blue-200">{fetchStatus.nextUpdateFormatted} EST</span>
+                    Next scheduled update: <span className="font-medium text-blue-200">{fetchStatus.nextUpdateFormatted} EST</span>
                     {fetchStatus.minutesUntilNextUpdate && (
                       <span className="ml-1">({fetchStatus.minutesUntilNextUpdate} {fetchStatus.minutesUntilNextUpdate === 1 ? 'minute' : 'minutes'} from now)</span>
                     )}
                   </div>
                 )}
                 
-                {/* Show cached data notice if applicable */}
-                {fetchStatus.fromCache && fetchStatus.fetchError && (
-                  <div className="text-xs px-3 py-1 bg-amber-900/30 text-amber-300 rounded-full">
-                    Using cached data - Unable to fetch latest rankings
+                {fetchStatus.fromCache && (
+                  <div className="text-xs px-3 py-1 bg-blue-900/30 text-blue-300/90 rounded-full">
+                    {fetchStatus.fetchError ? 
+                      "Using cached data - Unable to fetch latest rankings" :
+                      "Using cached data from your last visit"}
                   </div>
                 )}
               </div>
