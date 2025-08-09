@@ -415,19 +415,18 @@ export default function StandingsPage() {
       >
         <motion.h1 
           className="super-large-mobile-header text-5xl sm:text-5xl md:text-6xl font-bold mb-6 sm:mb-10 text-center relative"
-          initial={{ scale: 0.9, opacity: 0 }}
+          initial={{ scale: 0.95, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.7, type: "spring" }}
-          style={{ 
-            fontSize: 'clamp(4rem, 20vw, 10rem)',  
-          }}
+          transition={{ duration: 0.7, type: "spring", stiffness: 100 }}
         >
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200 shadow-text">
-            League Standings
-          </span>
-          <span className="absolute left-1/2 -translate-x-1/2 -top-2 text-blue-500 opacity-10 blur-sm whitespace-nowrap">
-            League Standings
-          </span>
+          <div className="professional-header-wrapper px-4 py-2">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 via-purple-400 to-blue-200 shadow-text">
+              League Standings
+            </span>
+            <span className="absolute left-1/2 -translate-x-1/2 -top-2 text-blue-500 opacity-10 blur-sm whitespace-nowrap">
+              League Standings
+            </span>
+          </div>
         </motion.h1>
 
         {/* Search Box */}
