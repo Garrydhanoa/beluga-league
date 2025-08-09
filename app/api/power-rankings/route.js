@@ -29,6 +29,12 @@ function shouldRefreshCache(cacheKey, isInitialLoad = false) {
     return true;
   }
   
+  // If this is an initial load from a user and we have a cache, we could be more lenient
+  // about refreshing to reduce the load on the Google Sheets API
+  if (isInitialLoad && cachedData[cacheKey]) {
+    console.log(`Initial load request for ${cacheKey} - using cached data when possible`);
+  }
+  
   // Get current time in EST
   const now = new Date();
   const estOptions = { timeZone: 'America/New_York' };
@@ -77,7 +83,7 @@ async function getCredentials() {
   try {
     // Check for environment variables first - check both variable names for compatibility
     const clientEmail = process.env.GOOGLE_CLIENT_EMAIL || process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-    const privateKey = process.env.GOOGLE_PRIVATE_KEY;
+    let privateKey = process.env.GOOGLE_PRIVATE_KEY;
     
     // Debug environment variables (safely, not showing full key)
     console.log('Environment check:');
@@ -90,6 +96,33 @@ async function getCredentials() {
     
     if (clientEmail && privateKey) {
       console.log(`Using credentials from environment variables for: ${clientEmail.substring(0, 5)}...`);
+      
+      // In Vercel, sometimes the key may need extra processing
+      if (process.env.VERCEL) {
+        // If the key doesn't have the expected format, try to parse it
+        if (!privateKey.includes('-----BEGIN PRIVATE KEY-----')) {
+          // Try to handle potential JSON-stringified version of the key
+          try {
+            if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+              privateKey = JSON.parse(privateKey);
+              console.log('Private key appears to be JSON-stringified, parsed successfully');
+            }
+          } catch (e) {
+            console.log('Failed to parse JSON-stringified private key:', e.message);
+          }
+        }
+        
+        // Double-check escaped newlines are handled correctly (Vercel specific issue)
+        privateKey = privateKey
+          .replace(/\\n/g, '\n')
+          .replace(/\\r/g, '')
+          .replace(/\\"/g, '"');
+          
+        console.log('Private key processed for Vercel environment');
+      } else {
+        privateKey = privateKey.replace(/\\n/g, '\n'); // Standard fix for escaped newlines
+      }
+      
       console.log(`Private key starts with: ${privateKey.substring(0, 12)}...`);
       
       // Check if the private key contains expected format
@@ -98,7 +131,7 @@ async function getCredentials() {
       
       return {
         email: clientEmail,
-        key: privateKey.replace(/\\n/g, '\n'), // Fix for escaped newlines in env var
+        key: privateKey,
       };
     }
 
@@ -185,12 +218,19 @@ function findSheetByPattern(doc, division, week) {
       new RegExp(`^Majors[\\s_-]*W[\\s_-]*${week}$`, 'i'),
       // Try with 'Major' singular form (in case of typo)
       new RegExp(`^Major\\s*W${week}$`, 'i'),
-      // Special case for Vercel - try without any case sensitivity
-      new RegExp(`^.*[Mm][Aa][Jj][Oo][Rr][Ss]?.*W.*${week}.*$`, 'i'),
+      // Super flexible patterns for Vercel compatibility
+      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr][Ss]?.*W.*${week}.*`, 'i'),  // No ^ anchor for more flexibility
+      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr][Ss]?.*${week}.*`, 'i'),     // No ^ anchor, no "W"
+      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr].*${week}.*`, 'i'),          // Just look for "major" + week number
+      // Exact sheet name matches that might exist
+      new RegExp(`^Week ${week} - Majors$`, 'i'),
+      new RegExp(`^W${week} - Majors$`, 'i'),
+      new RegExp(`^Week${week} - Majors$`, 'i'),
+      new RegExp(`^Week ${week} Majors$`, 'i'),
       // Try with "Division" in the name
-      new RegExp(`^.*[Mm][Aa][Jj][Oo][Rr][Ss]?.*[Dd]ivision.*W.*${week}.*$`, 'i'),
-      // Even more flexible pattern - just look for "major" and the week number anywhere
-      new RegExp(`^.*[Mm][Aa][Jj][Oo][Rr].*${week}.*$`, 'i'),
+      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr][Ss]?.*[Dd]ivision.*${week}.*`, 'i'),
+      // Try with any separation character between "majors" and week number
+      new RegExp(`.*[Mm][Aa][Jj][Oo][Rr][Ss]?[\\s_\\-:;.,].*${week}.*`, 'i'),
     ];
     
     console.log(`Using ${patterns.length} different patterns to match Majors sheets`);
@@ -228,7 +268,25 @@ function findSheetByPattern(doc, division, week) {
         return sheet;
       }
       
-      // Case 2: If the title contains "m" and the week number (extreme fallback)
+      // Case 2: If the sheet name looks like it might be week-related for Majors
+      if ((sheetTitle.toLowerCase().includes('week') || 
+          sheetTitle.toLowerCase().includes(' w') || 
+          sheetTitle.match(/\bw\s*\d+\b/i)) && 
+          sheetTitle.includes(week.toString()) &&
+          !sheetTitle.toLowerCase().includes('aa')) {  
+        if (
+          // Not obviously for other divisions
+          !sheetTitle.toLowerCase().includes('aa ') && 
+          !sheetTitle.toLowerCase().includes('aaa ') &&
+          !sheetTitle.toLowerCase().match(/\baa\b/i) &&
+          !sheetTitle.toLowerCase().match(/\baaa\b/i)
+        ) {
+          console.log(`Found potential Majors sheet using week matching: "${sheetTitle}" contains week indicator and "${week}" without AA/AAA markers`);
+          return sheet;
+        }
+      }
+      
+      // Case 3: If the title contains "m" and the week number (extreme fallback)
       // This is a last resort to try to find anything remotely resembling a Majors sheet
       if (sheetTitle.toLowerCase().includes('m') && 
           sheetTitle.includes(week.toString()) &&
@@ -371,6 +429,15 @@ async function fetchPowerRankings(division, week, isInitialLoad = false) {
       // in the findSheetByPattern function, so just preserve the lowercase version
       formattedDivision = 'majors';
       console.log('Handling Majors division with enhanced case sensitivity matching');
+      
+      // Enhanced debugging for Vercel
+      if (process.env.VERCEL) {
+        console.log('Running on Vercel: Adding extra Majors debugging information');
+        console.log(`Sheet ID being used: ${POWER_RANKINGS_SHEET_ID}`);
+        if (DIVISION_SHEET_IDS?.majors) {
+          console.log(`Majors-specific sheet ID: ${DIVISION_SHEET_IDS.majors}`);
+        }
+      }
     } else {
       // For AA and AAA, use uppercase
       formattedDivision = division.toUpperCase();
@@ -445,14 +512,72 @@ async function fetchPowerRankings(division, week, isInitialLoad = false) {
     if (doc) {
       // Check if any sheets contain the division name to help diagnose issues
       let foundSheets = [];
+      let weekSheets = [];
+      
+      // For each sheet, check if it contains the division name or the week number
       for (let i = 0; i < doc.sheetCount; i++) {
-        if (doc.sheetsByIndex[i].title.toLowerCase().includes(division.toLowerCase())) {
+        const sheetTitle = doc.sheetsByIndex[i].title.toLowerCase();
+        
+        if (sheetTitle.includes(division.toLowerCase())) {
           foundSheets.push(doc.sheetsByIndex[i].title);
+        }
+        
+        // Also track all sheets with the week number for potential fallback
+        if (sheetTitle.includes(week.toString()) || 
+            sheetTitle.includes(`week ${week}`) || 
+            sheetTitle.includes(`w${week}`)) {
+          weekSheets.push({
+            title: doc.sheetsByIndex[i].title,
+            sheet: doc.sheetsByIndex[i]
+          });
         }
       }
       
       if (foundSheets.length > 0) {
         console.log(`Found some sheets that might be related: ${foundSheets.join(', ')}`);
+        
+        // If we have division-specific sheets but no exact match, try the first one as fallback
+        if (division.toLowerCase() === 'majors' && foundSheets.length > 0) {
+          // Try to find a sheet with both division and week number
+          const bestMatch = foundSheets.find(title => 
+            title.toLowerCase().includes(week.toString()) || 
+            title.toLowerCase().includes(`week ${week}`) ||
+            title.toLowerCase().includes(`w${week}`));
+            
+          if (bestMatch) {
+            console.log(`Using best match "${bestMatch}" as fallback for ${division} Week ${week}`);
+            const sheet = doc.sheetsByTitle[bestMatch];
+            if (sheet) {
+              return await processFoundSheet(sheet, division, week, cacheKey);
+            }
+          } else if (weekSheets.length > 0) {
+            // As an extreme fallback, use any sheet with the right week number for Majors
+            // Sort by likelihood of being a Majors sheet
+            weekSheets.sort((a, b) => {
+              const aLower = a.title.toLowerCase();
+              const bLower = b.title.toLowerCase();
+              
+              // Prefer sheets that don't explicitly mention other divisions
+              const aHasAA = aLower.includes('aa');
+              const bHasAA = bLower.includes('aa'); 
+              
+              if (!aHasAA && bHasAA) return -1;
+              if (aHasAA && !bHasAA) return 1;
+              return 0;
+            });
+            
+            // Use the first sheet that doesn't explicitly mention "aa" or "aaa"
+            const nonAASheet = weekSheets.find(item => 
+              !item.title.toLowerCase().includes('aa ') && 
+              !item.title.toLowerCase().match(/\baaa\b/i) &&
+              !item.title.toLowerCase().match(/\baa\b/i));
+              
+            if (nonAASheet) {
+              console.log(`Using ${nonAASheet.title} as extreme fallback for Majors Week ${week}`);
+              return await processFoundSheet(nonAASheet.sheet, division, week, cacheKey);
+            }
+          }
+        }
       }
     }
     
@@ -675,17 +800,28 @@ export async function GET(request) {
     
     // Check if this is a credentials error
     if (error.message?.includes('credentials') || error.message?.includes('authentication')) {
+      // Provide a detailed error response to help debugging on Vercel
+      const vercelDebuggingInfo = process.env.VERCEL ? {
+        vercelRegion: process.env.VERCEL_REGION || 'unknown',
+        nodeVersion: process.version,
+        vercelEnv: process.env.VERCEL_ENV || 'unknown',
+        // Add a timestamp for tracking when this error occurred
+        errorTimestamp: new Date().toISOString()
+      } : {};
+      
       return NextResponse.json({
         error: 'Authentication error: Google Sheets API',
         message: 'The application is unable to authenticate with Google Sheets API. Please ensure your environment variables are properly set.',
         details: error.message,
-        troubleshooting: 'Verify that GOOGLE_CLIENT_EMAIL and GOOGLE_PRIVATE_KEY are correctly set in your Vercel project settings.',
+        troubleshooting: 'Verify that GOOGLE_CLIENT_EMAIL and GOOGLE_PRIVATE_KEY are correctly set in your Vercel project settings. Make sure the PRIVATE_KEY includes the proper newline characters.',
+        division: division, // Include the division that caused the error
         environmentInfo: {
           hasGoogleClientEmail: !!process.env.GOOGLE_CLIENT_EMAIL,
           hasGoogleServiceAccountEmail: !!process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
           hasGooglePrivateKey: !!process.env.GOOGLE_PRIVATE_KEY,
           isPowerRankingsSheetIdSet: !!POWER_RANKINGS_SHEET_ID,
-          sheetIdPrefix: POWER_RANKINGS_SHEET_ID ? POWER_RANKINGS_SHEET_ID.substring(0, 6) + '...' : 'not set'
+          sheetIdPrefix: POWER_RANKINGS_SHEET_ID ? POWER_RANKINGS_SHEET_ID.substring(0, 6) + '...' : 'not set',
+          ...vercelDebuggingInfo
         }
       }, { status: 500 });
     }
