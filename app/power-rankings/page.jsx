@@ -312,7 +312,7 @@ export default function PowerRankingsPage() {
                       Last updated: {fetchStatus.formattedLastUpdated || 'Just now'}
                     </span>
                     <span className="text-xs text-blue-300/70">
-                      <strong>Data refreshes hourly</strong> - page refreshes don't update data
+                      <strong>Data refreshes hourly</strong> - page refreshes don&apos;t update data
                     </span>
                   </div>
                 </div>
